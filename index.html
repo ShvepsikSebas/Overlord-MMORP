@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> OVERLORD MMORP BATTLE FOR YGGDRASIL GMOD | Главная</title>
+  <title>OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Главная</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,11 +21,12 @@
     .footer-buttons { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 4; }
     .footer-buttons a { background-color: #fca311; color: #000; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1em; transition: background 0.3s; }
     .footer-buttons a:hover { background-color: #fff; }
+    /* Info panel */
     .info-panel { position: relative; margin: 50px 20px; max-width: 800px; background: #1c1c2e; display: flex; align-items: center; padding: 20px; border-radius: 8px; transform: translateX(-100%); opacity: 0; transition: transform 1s ease, opacity 1s ease; }
     .info-panel.visible { transform: translateX(0); opacity: 1; }
     .info-panel img { width: 100px; height: 100px; border-radius: 8px; margin-right: 20px; object-fit: cover; }
     .info-panel .text { font-size: 1.1em; line-height: 1.5; color: #ddd; }
-    footer { text-align: center; padding: 20px; font-size: 0.9em; color: #888; background-color: #0b0b12; margin-top: auto; }
+    footer { text-align: center; padding: 20px; font-size: 0.9em; color: #888; background-color: #0b0b12; }
     @media (max-width: 768px) {
       .overlay-title { font-size: 1.5em; top: 10px; }
       .slider { height: 100vh; }
@@ -52,27 +53,41 @@
     </div>
   </div>
 
-  <a href="https://discord.gg/bmjBcBUg" target="_blank" class="info-panel" id="info-panel">
+  <div class="info-panel" id="info-panel">
     <img src="discord_logo.jpg" alt="Discord">
-    <div class="text">
-      Присоединяйся к нашему официальному Discord-серверу YGGDRASIL: общайся с командой, участвуй в ивентах и получай последние новости о проекте!
-    </div>
-  </a>
+    <div class="text">Присоединяйся к нашему официальному Discord-серверу YGGDRASIL: общайся с командой, участвуй в ивентах и получай последние новости о проекте!</div>
+  </div>
 
   <footer>© 2025 OVERLORD MMORP | Battle For Yggdrasil | GMOD RP — Все права защищены</footer>
 
   <script>
+    // Slider functionality
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
-    function showSlide(index) { slides.forEach(s => s.classList.remove('active')); slides[index].classList.add('active'); }
-    function prevSlide() { currentSlide = (currentSlide - 1 + slides.length) % slides.length; showSlide(currentSlide); }
-    function nextSlide() { currentSlide = (currentSlide + 1) % slides.length; showSlide(currentSlide); }
+    function showSlide(index) {
+      slides.forEach(s => s.classList.remove('active'));
+      slides[index].classList.add('active');
+    }
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+      showSlide(currentSlide);
+    }
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      showSlide(currentSlide);
+    }
+    // Scroll-based reveal for info panel
     const panel = document.getElementById('info-panel');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => { panel.classList.toggle('visible', entry.isIntersecting); });
-    }, { threshold: 0.3 });
-    observer.observe(panel);
+    window.addEventListener('scroll', () => {
+      const rect = panel.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom >= 0) {
+        panel.classList.add('visible');
+      } else {
+        panel.classList.remove('visible');
+      }
+    });
   </script>
 </body>
 </html>
+
 
