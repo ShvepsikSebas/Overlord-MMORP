@@ -104,8 +104,8 @@
       font-size: 1.3em; line-height: 1.6; color: #ddd;
     }
     .donate-panel-container .hand {
-      position: absolute; right: -140px; top: 50%;
-      transform: translateX(50%) translateY(-50%);
+      position: absolute; left: -140px; top: 50%;
+      transform: translateX(-50%) translateY(-50%);
       opacity: 0; width: 100px;
       transition: transform 0.5s ease, opacity 0.5s ease;
       z-index: 2;
@@ -114,9 +114,20 @@
       transform: translateX(0) translateY(-50%); opacity: 1;
     }
 
+    /* Разделитель */
+    .separator {
+      width: 90vw; max-width: 1200px;
+      height: 1px; background: #444;
+      margin: 60px auto 20px;
+    }
+    .separator-title {
+      text-align: center; font-size: 1.6em;
+      margin-bottom: 40px; color: #fff;
+    }
+
     /* Характер-панель */
     .character-panel-container {
-      position: relative; width: fit-content; margin: 80px auto;
+      position: relative; width: fit-content; margin: 0 auto 80px;
     }
     .character-panel {
       background: rgba(28,28,46,0.6); backdrop-filter: blur(12px);
@@ -140,12 +151,10 @@
       opacity: 0; transition: transform 1s ease, opacity 1s ease;
     }
     .side-img.left {
-      left: -260px; top: 50%;
-      transform: translateY(-50%) translateX(-50px);
+      left: -260px; top: 50%; transform: translateY(-50%) translateX(-50px);
     }
     .side-img.right {
-      right: -260px; top: 50%;
-      transform: translateY(-50%) translateX(50px);
+      right: -260px; top: 50%; transform: translateY(-50%) translateX(50px);
     }
     .character-panel.visible ~ .side-img.left,
     .character-panel.visible ~ .side-img.right {
@@ -162,11 +171,10 @@
       .overlay-title { font-size: 1.5em; top: 10px; }
       .slide h2 { font-size: 2em; }
       .nav-button { font-size: 3em; padding: 20px 25px; }
-      .info-panel { flex-direction: column; width: 95%; padding: 20px; }
-      .info-panel img { width: 100px; height: 100px; margin-bottom: 15px; }
-      .info-panel .text { text-align: center; font-size: 1em; }
-      .info-panel-container .hand,
-      .donate-panel-container .hand { display: none; }
+      .info-panel, .donate-panel { flex-direction: column; width: 95%; padding: 20px; }
+      .info-panel img, .donate-panel img { width: 100px; height: 100px; margin-bottom: 15px; }
+      .info-panel .text, .donate-panel .text { text-align: center; font-size: 1em; }
+      .info-panel-container .hand, .donate-panel-container .hand { display: none; }
       .character-panel { padding: 40px; width: 95%; }
       .character-panel .cp-text { font-size: 1.2em; }
       .side-img { display: none; }
@@ -179,14 +187,8 @@
         slides.forEach(s => s.classList.remove('active'));
         slides[i].classList.add('active');
       }
-      window.prevSlide = () => {
-        current = (current - 1 + slides.length) % slides.length;
-        show(current);
-      };
-      window.nextSlide = () => {
-        current = (current + 1) % slides.length;
-        show(current);
-      };
+      window.prevSlide = () => { current = (current - 1 + slides.length) % slides.length; show(current); };
+      window.nextSlide = () => { current = (current + 1) % slides.length; show(current); };
       show(0);
 
       const panels = document.querySelectorAll('.info-panel, .donate-panel, .character-panel');
@@ -244,12 +246,16 @@
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
 
+  <!-- Разделитель и заголовок -->
+  <div class="separator"></div>
+  <h2 class="separator-title">Краткое описание Лорных персонажей</h2>
+
   <!-- Характер-панель Аинза -->
   <div class="character-panel-container">
     <div class="character-panel">
       <div class="cp-text">
-        Аинз Оул Гоун (псевдо «Момон») — могущественный Лич-король нежити,
-        правитель Великого гробницы "Назарик", скрывающийся под маской благородного авантюриста-героя.
+        Аинз Ооал Гоун (псевдо «Момон») — могущественный Лич-король нежити,
+        правитель Великой гробницы "Назарик", скрывающийся под маской благородного авантюриста-героя.
       </div>
     </div>
     <img src="ainz.png" alt="Ainz" class="side-img left">
@@ -259,3 +265,4 @@
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 </body>
 </html>
+
