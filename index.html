@@ -2,113 +2,111 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Overlord MMORPG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overlord YGGDRASIL</title>
   <style>
     body {
       margin: 0;
-      background-color: #111;
-      overflow: hidden;
       font-family: sans-serif;
+      background-color: #0e0e18;
+      overflow: hidden;
     }
-
-    .slide {
-      display: none;
+    .slider {
+      position: relative;
       height: 100vh;
+      width: 100vw;
+    }
+    .slide {
+      position: absolute;
       width: 100%;
+      height: 100%;
       background-size: cover;
       background-position: center;
+      opacity: 0;
+      transition: opacity 0.8s ease;
     }
-
-    .active {
-      display: block;
+    .slide.active {
+      opacity: 1;
+      z-index: 1;
     }
-
-    .nav-buttons {
+    .nav-button {
       position: absolute;
       top: 50%;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      z-index: 10;
-    }
-
-    .nav-buttons button {
-      background-color: rgba(0,0,0,0.3);
+      transform: translateY(-50%);
+      background-color: rgba(0, 0, 0, 0.4);
       border: none;
       color: white;
       font-size: 2rem;
       padding: 0.5rem 1rem;
       cursor: pointer;
-    }
-
-    .bottom-links {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
-      text-align: center;
       z-index: 10;
     }
-
-    .bottom-links a {
-      color: white;
-      background-color: #333;
-      padding: 10px 20px;
-      margin: 0 10px;
-      text-decoration: none;
-      border-radius: 5px;
+    .prev {
+      left: 10px;
     }
-
-    .slide a {
-      display: block;
-      width: 100%;
-      height: 100%;
+    .next {
+      right: 10px;
+    }
+    .bottom-buttons {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 1rem;
+      z-index: 20;
+    }
+    .bottom-buttons a {
+      text-decoration: none;
+      padding: 0.6rem 1.2rem;
+      background-color: #1f1f2e;
+      color: white;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: background 0.3s;
+    }
+    .bottom-buttons a:hover {
+      background-color: #33334d;
     }
   </style>
 </head>
 <body>
+  <div class="slider">
+    <div class="slide active" style="background-image: url('rules.png');" onclick="location.href='rules.html'"></div>
+    <div class="slide" style="background-image: url('fractions.png');" onclick="location.href='fractions.html'"></div>
+    <div class="slide" style="background-image: url('chatrules.png');" onclick="location.href='chatrules.html'"></div>
 
-  <div class="slide active" style="background-image: url('rules.png');">
-    <a href="rules.html"></a>
-  </div>
+    <button class="nav-button prev" onclick="prevSlide()">❮</button>
+    <button class="nav-button next" onclick="nextSlide()">❯</button>
 
-  <div class="slide" style="background-image: url('fractions.png');">
-    <a href="fractions.html"></a>
-  </div>
-
-  <div class="slide" style="background-image: url('chatrules.png');">
-    <a href="chatrules.html"></a>
-  </div>
-
-  <div class="nav-buttons">
-    <button onclick="prevSlide()">‹</button>
-    <button onclick="nextSlide()">›</button>
-  </div>
-
-  <div class="bottom-links">
-    <a href="https://discord.gg/bmjBcBUg" target="_blank">Discord</a>
-    <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">Донат</a>
+    <div class="bottom-buttons">
+      <a href="https://discord.gg/bmjBcBUg" target="_blank">Discord</a>
+      <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">Донат</a>
+    </div>
   </div>
 
   <script>
-    let currentSlide = 0;
-    const slides = document.querySelectorAll(".slide");
+    let slides = document.querySelectorAll('.slide');
+    let current = 0;
 
     function showSlide(index) {
-      slides.forEach(slide => slide.classList.remove("active"));
-      slides[index].classList.add("active");
+      slides.forEach((slide, i) => {
+        slide.classList.remove('active');
+        if (i === index) slide.classList.add('active');
+      });
     }
 
     function nextSlide() {
-      currentSlide = (currentSlide + 1) % slides.length;
-      showSlide(currentSlide);
+      current = (current + 1) % slides.length;
+      showSlide(current);
     }
 
     function prevSlide() {
-      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-      showSlide(currentSlide);
+      current = (current - 1 + slides.length) % slides.length;
+      showSlide(current);
     }
   </script>
-
 </body>
 </html>
+
