@@ -2,98 +2,81 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Overlord MMORP</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .slider {
-      scroll-snap-type: x mandatory;
-      overflow-x: auto;
-      display: flex;
-      scroll-behavior: smooth;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: #0f0f1a; color: white; font-family: Arial, sans-serif; overflow-x: hidden; }
+    .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
+    .slides { display: flex; transition: transform 0.5s ease-in-out; height: 100%; }
     .slide {
-      scroll-snap-align: center;
-      flex: 0 0 100%;
-      height: 100vh;
+      min-width: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
     .arrow {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
       font-size: 3rem;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 0.5rem;
-      border-radius: 0.5rem;
+      background: rgba(0,0,0,0.3);
+      border: none;
+      color: white;
+      padding: 0 10px;
       cursor: pointer;
       z-index: 10;
     }
-    .arrow-left {
-      left: 1rem;
+    .arrow.left { left: 10px; }
+    .arrow.right { right: 10px; }
+    .footer {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
     }
-    .arrow-right {
-      right: 1rem;
+    .footer a {
+      background: #222;
+      padding: 10px 20px;
+      margin: 5px;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.3s;
     }
+    .footer a:hover { background: #444; }
   </style>
 </head>
-<body class="bg-black text-white font-sans">
-  <div class="relative w-full h-screen overflow-hidden">
-    <!-- Arrows -->
-    <button class="arrow arrow-left" onclick="scrollSlider(-1)">❮</button>
-    <button class="arrow arrow-right" onclick="scrollSlider(1)">❯</button>
-
-    <div id="slider" class="slider">
-
-      <!-- Slide 1 -->
-      <div class="slide flex items-center justify-center bg-cover bg-center" style="background-image: url('https://i.imgur.com/f9JDa6Z.jpeg');">
-        <a href="rules.html" class="bg-black bg-opacity-60 p-8 rounded-lg hover:bg-opacity-80 transition">
-          <h1 class="text-4xl font-bold text-center">📜 Общие правила</h1>
-          <p class="text-center text-gray-300 mt-4">RP, наказания, поведение и лор</p>
-        </a>
-      </div>
-
-      <!-- Slide 2 -->
-      <div class="slide flex items-center justify-center bg-cover bg-center" style="background-image: url('https://i.imgur.com/GNFlK6A.jpeg');">
-        <a href="fractions.html" class="bg-black bg-opacity-60 p-8 rounded-lg hover:bg-opacity-80 transition">
-          <h1 class="text-4xl font-bold text-center">🏰 Правила фракций</h1>
-          <p class="text-center text-gray-300 mt-4">Уставы, базы, войны, структура</p>
-        </a>
-      </div>
-
-      <!-- Slide 3 -->
-      <div class="slide flex items-center justify-center bg-cover bg-center" style="background-image: url('https://i.imgur.com/bQ7WQIk.jpeg');">
-        <a href="chatrules.html" class="bg-black bg-opacity-60 p-8 rounded-lg hover:bg-opacity-80 transition">
-          <h1 class="text-4xl font-bold text-center">💬 Правила общения</h1>
-          <p class="text-center text-gray-300 mt-4">Чат, микрофоны, токсичность и наказания</p>
-        </a>
-      </div>
-
+<body>
+  <div class="slider">
+    <div class="slides" id="slides">
+      <div class="slide" style="background-image: url('rules.png')"></div>
+      <div class="slide" style="background-image: url('fractions.png')"></div>
+      <div class="slide" style="background-image: url('chatrules.png')"></div>
+    </div>
+    <button class="arrow left" onclick="prevSlide()">❮</button>
+    <button class="arrow right" onclick="nextSlide()">❯</button>
+    <div class="footer">
+      <a href="https://discord.gg/bmjBcBUg" target="_blank">Discord</a>
+      <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">Донат</a>
     </div>
   </div>
 
-  <!-- Bottom icons -->
-  <div class="absolute bottom-6 w-full flex justify-center gap-12">
-    <a href="https://discord.gg/bmjBcBUg" target="_blank" class="flex flex-col items-center hover:opacity-80">
-      <img src="https://img.icons8.com/ios-filled/100/ffffff/discord-logo.png" alt="Discord" class="w-12 h-12">
-      <span class="text-sm mt-1 text-gray-300">Discord</span>
-    </a>
-    <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank" class="flex flex-col items-center hover:opacity-80">
-      <img src="https://img.icons8.com/ios-filled/100/ffffff/coins.png" alt="Donate" class="w-12 h-12">
-      <span class="text-sm mt-1 text-gray-300">Донат</span>
-    </a>
-  </div>
-
   <script>
-    const slider = document.getElementById('slider');
-    const slides = document.querySelectorAll('.slide');
-    let index = 0;
+    const slides = document.getElementById('slides');
+    let currentIndex = 0;
 
-    function scrollSlider(direction) {
-      index += direction;
-      if (index < 0) index = 0;
-      if (index >= slides.length) index = slides.length - 1;
-      const slideWidth = slides[0].offsetWidth;
-      slider.scrollTo({ left: slideWidth * index, behavior: 'smooth' });
+    function showSlide(index) {
+      const totalSlides = slides.children.length;
+      if (index < 0) index = totalSlides - 1;
+      if (index >= totalSlides) index = 0;
+      slides.style.transform = `translateX(-${index * 100}%)`;
+      currentIndex = index;
     }
+
+    function nextSlide() { showSlide(currentIndex + 1); }
+    function prevSlide() { showSlide(currentIndex - 1); }
   </script>
 </body>
 </html>
+
