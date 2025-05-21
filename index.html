@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> Battle For Yggdrasil | Главная</title>
+  <title>Battle For Yggdrasil | Главная</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +37,6 @@
       transition: background 0.3s;
     }
     .footer-buttons a:hover, .footer-buttons button:hover { background-color: #fff; }
-    /* Info panel and hand */
     .info-panel-container { position: relative; width: fit-content; margin: 50px auto; }
     .info-panel {
       background: rgba(28,28,46,0.5);
@@ -73,7 +72,25 @@
       transform: translateX(0) translateY(-50%);
       opacity: 1;
     }
-    footer { text-align: center; padding: 20px; font-size: 0.9em; color: #888; background-color: #0b0b12; }
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9em;
+      color: #888;
+      background-color: #0b0b12;
+      position: relative;
+    }
+    footer button#music-toggle {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #888;
+    }
     @media (max-width: 1024px) {
       .info-panel { width: 90%; padding: 40px; }
       .info-panel img { width: 140px; height: 140px; margin-right: 20px; }
@@ -93,30 +110,52 @@
     }
   </style>
 
-  <!-- Скрипт для вставки YouTube-аудио -->
+  <!-- Скрипт в head: создаёт YouTube-плеер, если включена музыка -->
   <script>
-    window.addEventListener('DOMContentLoaded', function() {
-      const videoId = 'gfz4Z7vNxJ8';
-      const src = 'https://www.youtube.com/embed/' + videoId +
-                  '?autoplay=1&loop=1&playlist=' + videoId +
-                  '&controls=0&mute=0';
+    (function() {
+      const VIDEO_ID = 'gfz4Z7vNxJ8';
 
-      const iframe = document.createElement('iframe');
-      iframe.src = src;
-      iframe.frameBorder = '0';
-      iframe.allow = 'autoplay; encrypted-media';
-      Object.assign(iframe.style, {
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        width: '0',
-        height: '0',
-        opacity: '0',
-        pointerEvents: 'none'
+      function createPlayer() {
+        if (document.getElementById('bgMusic')) return;
+        const src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&loop=1&playlist=${VIDEO_ID}&controls=0&mute=0`;
+        const iframe = document.createElement('iframe');
+        iframe.id = 'bgMusic';
+        iframe.src = src;
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay; encrypted-media';
+        Object.assign(iframe.style, {
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          width: '0',
+          height: '0',
+          opacity: '0',
+          pointerEvents: 'none'
+        });
+        document.body.appendChild(iframe);
+      }
+
+      window.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('musicOn') === null) {
+          localStorage.setItem('musicOn', 'true');
+        }
+        if (localStorage.getItem('musicOn') === 'true') {
+          createPlayer();
+        }
       });
 
-      document.body.appendChild(iframe);
-    });
+      window.toggleMusic = function() {
+        const isOn = localStorage.getItem('musicOn') === 'true';
+        if (isOn) {
+          localStorage.setItem('musicOn', 'false');
+          const bg = document.getElementById('bgMusic');
+          if (bg) bg.remove();
+        } else {
+          localStorage.setItem('musicOn', 'true');
+          createPlayer();
+        }
+      };
+    })();
   </script>
 </head>
 <body>
@@ -135,7 +174,6 @@
     <button class="nav-button next" onclick="nextSlide()">❯</button>
     <div class="footer-buttons">
       <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">💰 Донат</a>
-      <button id="music-toggle">🔇</button>
     </div>
   </div>
 
@@ -149,7 +187,25 @@
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
 
-  <footer>© 2025  Battle For Yggdrasil — Все права защищены</footer>
+  <footer>
+    © 2025 Battle For Yggdrasil — Все права защищены
+    <button id="music-toggle"></button>
+  </footer>
+
+  <!-- Скрипт внизу body: переключает музыку и обновляет иконку -->
+  <script>
+    (function() {
+      const btn = document.getElementById('music-toggle');
+      function updateIcon() {
+        btn.textContent = localStorage.getItem('musicOn') === 'true' ? '🔊' : '🔇';
+      }
+      btn.addEventListener('click', function() {
+        window.toggleMusic();
+        updateIcon();
+      });
+      updateIcon();
+    })();
+  </script>
 
   <script>
     // Slider
@@ -167,17 +223,15 @@
       currentSlide = (currentSlide + 1) % slides.length;
       showSlide(currentSlide);
     }
+    window.addEventListener('DOMContentLoaded', () => showSlide(0));
 
-    // Scroll reveal
+    // Scroll reveal для info-panel
     const panel = document.getElementById('info-panel');
     window.addEventListener('scroll', () => {
       const rect = panel.getBoundingClientRect();
       if (rect.top < window.innerHeight) panel.classList.add('visible');
       else panel.classList.remove('visible');
     });
-
-    // Инициализация слайдера
-    showSlide(0);
   </script>
 </body>
 </html>
