@@ -15,12 +15,12 @@
       position: relative;
     }
 
-    /* — Слайдер и Discord-панель (без кнопки доната) — */
+    /* Слайдер */
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
     .overlay-title {
       position: absolute; top: 20px; width: 100%; text-align: center;
-      font-size: 2em; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.7); z-index: 5;
-      pointer-events: none;
+      font-size: 2em; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.7);
+      z-index: 5; pointer-events: none;
     }
     .slide {
       position: absolute; width: 100%; height: 100%;
@@ -46,6 +46,7 @@
     .prev { left: 10px; } .next { right: 10px; }
     .nav-button:hover { background: rgba(255,255,255,0.2); }
 
+    /* Discord-панель */
     .info-panel-container { position: relative; width: fit-content; margin: 50px auto; }
     .info-panel {
       background: rgba(28,28,46,0.5); backdrop-filter: blur(10px);
@@ -78,23 +79,42 @@
       transform: translateX(0) translateY(-50%); opacity: 1;
     }
 
-    footer {
-      text-align: center; padding: 20px;
-      font-size: 0.9em; color: #888;
-      background-color: #0b0b12; position: relative; z-index: 10;
+    /* Новая панель «Донат» */
+    .donate-panel-container {
+      position: relative; width: fit-content; margin: 80px auto;
+    }
+    .donate-panel {
+      background: rgba(28,28,46,0.5); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center;
+      padding: 60px; border-radius: 12px;
+      transform: translateX(100%); opacity: 0;
+      transition: transform 1s ease, opacity 1s ease;
+      cursor: pointer; z-index: 1;
+      width: 80vw; max-width: 900px;
+    }
+    .donate-panel.visible {
+      transform: translateX(0); opacity: 1;
+    }
+    .donate-panel img {
+      width: 160px; height: 160px; border-radius: 8px;
+      margin-right: 30px; object-fit: cover;
+    }
+    .donate-panel .text {
+      font-size: 1.3em; line-height: 1.6; color: #ddd;
+    }
+    .donate-panel-container .hand {
+      position: absolute; right: -140px; top: 50%;
+      transform: translateX(50%) translateY(-50%);
+      opacity: 0; width: 100px;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      z-index: 2;
+    }
+    .donate-panel-container:hover .hand {
+      transform: translateX(0) translateY(-50%); opacity: 1;
     }
 
-    @media (max-width: 768px) {
-      .overlay-title { font-size: 1.5em; top: 10px; }
-      .slide h2 { font-size: 2em; }
-      .nav-button { font-size: 3em; padding: 20px 25px; }
-      .info-panel { flex-direction: column; width: 95%; padding: 20px; }
-      .info-panel img { width: 100px; height: 100px; margin-bottom: 15px; }
-      .info-panel .text { text-align: center; font-size: 1em; }
-      .info-panel-container .hand { display: none; }
-    }
-
-    /* — Характер-панель — */
+    /* Характер-панель */
     .character-panel-container {
       position: relative; width: fit-content; margin: 80px auto;
     }
@@ -131,40 +151,25 @@
     .character-panel.visible ~ .side-img.right {
       transform: translateY(-50%) translateX(0); opacity: 1;
     }
-    .character-panel-container .character-hand {
-      position: absolute; right: -140px; top: 50%;
-      transform: translateX(50%) translateY(-50%);
-      opacity: 0; width: 100px;
-      transition: transform 0.5s ease, opacity 0.5s ease;
-      z-index: 2;
-    }
-    .character-panel-container:hover .character-hand {
-      transform: translateX(0) translateY(-50%); opacity: 1;
+
+    footer {
+      text-align: center; padding: 20px;
+      font-size: 0.9em; color: #888;
+      background-color: #0b0b12; position: relative; z-index: 10;
     }
 
-    /* — Новая панель «Донат» слева от правого края — */
-    .donate-panel-container {
-      position: relative; width: fit-content; margin: 80px auto;
-    }
-    .donate-panel {
-      background: rgba(28,28,46,0.5); backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center;
-      padding: 60px; border-radius: 12px;
-      transform: translateX(100%); opacity: 0;
-      transition: transform 1s ease, opacity 1s ease;
-      cursor: pointer; z-index: 1;
-      width: 80vw; max-width: 900px;
-    }
-    .donate-panel.visible {
-      transform: translateX(0); opacity: 1;
-    }
-    .donate-panel img {
-      width: 160px; height: 160px; border-radius: 8px;
-      margin-right: 30px; object-fit: cover;
-    }
-    .donate-panel .text {
-      font-size: 1.3em; line-height: 1.6; color: #ddd;
+    @media (max-width: 768px) {
+      .overlay-title { font-size: 1.5em; top: 10px; }
+      .slide h2 { font-size: 2em; }
+      .nav-button { font-size: 3em; padding: 20px 25px; }
+      .info-panel { flex-direction: column; width: 95%; padding: 20px; }
+      .info-panel img { width: 100px; height: 100px; margin-bottom: 15px; }
+      .info-panel .text { text-align: center; font-size: 1em; }
+      .info-panel-container .hand,
+      .donate-panel-container .hand { display: none; }
+      .character-panel { padding: 40px; width: 95%; }
+      .character-panel .cp-text { font-size: 1.2em; }
+      .side-img { display: none; }
     }
   </style>
   <script>
@@ -183,33 +188,22 @@
         show(current);
       };
       show(0);
-      const discordPanel = document.querySelector('.info-panel');
+
+      const panels = document.querySelectorAll('.info-panel, .donate-panel, .character-panel');
       window.addEventListener('scroll', () => {
-        const r = discordPanel.getBoundingClientRect();
-        if (r.top < window.innerHeight && r.bottom > 0) discordPanel.classList.add('visible');
-        else discordPanel.classList.remove('visible');
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      initSlider();
-
-      const charPanel = document.querySelector('.character-panel');
-      const donatePanel = document.querySelector('.donate-panel');
-
-      window.addEventListener('scroll', () => {
-        [charPanel, donatePanel].forEach(panel => {
+        panels.forEach(panel => {
           const r = panel.getBoundingClientRect();
           if (r.top < window.innerHeight && r.bottom > 0) panel.classList.add('visible');
           else panel.classList.remove('visible');
         });
       });
-    });
+    }
+    document.addEventListener('DOMContentLoaded', initSlider);
   </script>
 </head>
 <body>
 
-  <!-- Слайдер и кнопки навигации -->
+  <!-- Слайдер -->
   <div class="slider">
     <div class="overlay-title">
       OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера
@@ -239,20 +233,7 @@
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
 
-  <!-- Характер-панель -->
-  <div class="character-panel-container">
-    <div class="character-panel">
-      <div class="cp-text">
-        Аинз Оул Гоун (псевдо «Момон») — могущественный Лич-король нежити,
-        правитель Великого гроба Сен’юрии, скрывающийся под маской благородного авантюриста-героя.
-      </div>
-    </div>
-    <img src="ainz.png" alt="Ainz" class="side-img left">
-    <img src="momonga.png" alt="Momon" class="side-img right">
-    <img src="ainz_hand.png" alt="Hand" class="character-hand">
-  </div>
-
-  <!-- Новая панель «Донат» -->
+  <!-- Панель «Донат» (выше Аинза) -->
   <div class="donate-panel-container">
     <div class="donate-panel" onclick="location.href='donate.html'">
       <img src="donat.jpg" alt="Donate">
@@ -260,9 +241,21 @@
         Поддержи проект Battle For Yggdrasil: перейди на страницу доната и получи бонусы на сервере!
       </div>
     </div>
+    <img src="ainz_hand.png" alt="Hand" class="hand">
+  </div>
+
+  <!-- Характер-панель Аинза -->
+  <div class="character-panel-container">
+    <div class="character-panel">
+      <div class="cp-text">
+        Аинз Оул Гоун (псевдо «Момон») — могущественный Лич-король нежити,
+        правитель Великого гробницы "Назарик", скрывающийся под маской благородного авантюриста-героя.
+      </div>
+    </div>
+    <img src="ainz.png" alt="Ainz" class="side-img left">
+    <img src="momonga.png" alt="Momon" class="side-img right">
   </div>
 
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 </body>
 </html>
-
