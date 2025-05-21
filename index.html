@@ -19,6 +19,16 @@
       100% { opacity: 1; transform: scale(1); text-shadow: 0 0 30px #b891f9; }
     }
 
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes particleRise {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
+    }
+
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
 
     .overlay-title-wrapper {
@@ -46,8 +56,32 @@
       width: 100px;
       filter: drop-shadow(0 0 20px #b891f9);
       opacity: 0;
-      animation: fadeGlow 1.5s ease-out 0.3s forwards;
+      animation: fadeGlow 1.5s ease-out 0.3s forwards, rotate 12s linear infinite;
     }
+
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background-color: #b891f9;
+      border-radius: 50%;
+      opacity: 0;
+      animation: particleRise 2s ease-out infinite;
+    }
+    .particle:nth-child(1) { left: -10px; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 0px; animation-delay: 0.4s; }
+    .particle:nth-child(3) { left: 10px; animation-delay: 0.8s; }
+    .particle:nth-child(4) { left: -5px; animation-delay: 1.2s; }
+    .particle:nth-child(5) { left: 5px; animation-delay: 1.6s; }
 
     .slide {
       position: absolute; width: 100%; height: 100%;
@@ -255,6 +289,13 @@
 
   <div class="slider">
     <div class="overlay-title-wrapper">
+      <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+      </div>
       <img src="gerb.png" alt="Герб" class="overlay-emblem">
       <div class="overlay-title">
         Battle for Yggdrasil
