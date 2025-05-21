@@ -118,7 +118,7 @@
       position: absolute;
       width: auto;
       height: 300px;
-      object-fit: contain;
+      object-fit: unset;
       opacity: 0;
       transition: transform 1s ease, opacity 1s ease;
     }
@@ -136,12 +136,14 @@
     }
 
     /* Специально для Себаса — позиция и размер */
-   .sebas-panel-container .side-img.left {
-  top: 55%;
+.sebas-panel-container .side-img.left {
+  top: 50%;
   transform: translate(-50px, -50%);
-  height: 300px;
+  height: auto;
+  max-height: 600px;
+  width: auto;
   z-index: 5;
-    }
+}
 
     .separator {
       width: 90vw; max-width: 1200px;
