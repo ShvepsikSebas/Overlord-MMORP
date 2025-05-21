@@ -126,31 +126,30 @@
     </div>
     <div class="slide active"
          style="background-image:url('rules1.png')"
-         onclick="location.href='rules.html'">
+         onclick="location.href='rules.html';">
       <h2>Основные правила сервера</h2>
     </div>
     <div class="slide"
          style="background-image:url('fractions1.png')"
-         onclick="location.href='fractions.html'">
+         onclick="location.href='fractions.html';">
       <h2>Правила фракций</h2>
     </div>
     <div class="slide"
          style="background-image:url('chatrules1.png')"
-         onclick="location.href='chatrules.html'">
+         onclick="location.href='chatrules.html';">
       <h2>Правила общения</h2>
     </div>
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
     <button class="nav-button next" onclick="nextSlide()">❯</button>
     <div class="footer-buttons">
-      <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница"
-         target="_blank">💰 Донат</a>
+      <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница">💰 Донат</a>
       <button id="music-toggle">🔊</button>
     </div>
   </div>
 
   <div class="info-panel-container">
     <div class="info-panel" id="info-panel"
-         onclick="location.href='https://discord.gg/bmjBcBUg'">
+         onclick="location.href='https://discord.gg/bmjBcBUg';">
       <img src="discord_logo.jpg" alt="Discord">
       <div class="text">
         Присоединяйся к нашему официальному Discord-серверу Battle For Yggdrasil:
@@ -164,7 +163,7 @@
 
   <script>
     // Загрузка YouTube IFrame API
-    let tag = document.createElement('script');
+    const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
 
@@ -184,7 +183,7 @@
           rel: 0
         },
         events: {
-          onReady: function(e) {
+          onReady: (e) => {
             e.target.setVolume(15);  // громкость ~15%
             e.target.playVideo();    // сразу воспроизводим
           }
@@ -223,7 +222,7 @@
         }
       });
 
-      // Гарантия плеера после первого клика по странице
+      // Автозапуск после первого клика
       document.addEventListener('click', () => {
         if (player && player.playVideo) player.playVideo();
       }, { once: true });
@@ -238,5 +237,3 @@
   </script>
 </body>
 </html>
-
-
