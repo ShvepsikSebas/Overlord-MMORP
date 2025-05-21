@@ -27,6 +27,11 @@
   pointer-events: none;
 }
 
+#helper-dialog span:last-child:hover {
+  color: #fff;
+  transform: scale(1.2);
+}
+
 #helper-img {
   width: 80px;
   height: auto;
@@ -369,22 +374,70 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initSlider();
-  // Швепсик
-  if (!localStorage.getItem("hideShvepsik")) {
-    const container = document.getElementById("helper-container");
-    const img = document.getElementById("helper-img");
-    const dialog = document.getElementById("helper-dialog");
-    const closeBtn = document.getElementById("close-dialog");
+  // Швепсик с ручной кнопкой и фиксом закрытия
+if (!localStorage.getItem("hideShvepsik")) {
+  const container = document.getElementById("helper-container");
+  const img = document.getElementById("helper-img");
+  const dialog = document.getElementById("helper-dialog");
+  const closeBtn = document.getElementById("close-dialog");
 
-    let clickCount = 0;
-    let phraseIndex = 0;
-    let phrases = [
-      "Нажми на слайды — это переходы по разделам.",
-      "В разделе «Фракции» описаны все стороны конфликта.",
-      "Не забудь зайти на наш Discord, он внизу!",
-      "Поддержать проект можно через вкладку Донат.",
-      "Если потеряешься — просто кликни на меня снова!"
-    ];
+  let clickCount = 0;
+  let phraseIndex = 0;
+  const phrases = [
+    "Нажми на слайды — это переходы по разделам.",
+    "В разделе «Фракции» описаны все стороны конфликта.",
+    "Не забудь зайти на наш Discord, он внизу!",
+    "Поддержать проект можно через вкладку Донат.",
+    "Если потеряешься — просто кликни на меня снова!"
+  ];
+
+  // Добавим стрелочку для ручной прокрутки
+  const nextBtn = document.createElement("span");
+  nextBtn.textContent = "➤";
+  nextBtn.style.position = "absolute";
+  nextBtn.style.bottom = "5px";
+  nextBtn.style.right = "10px";
+  nextBtn.style.cursor = "pointer";
+  nextBtn.style.fontSize = "1.2em";
+  nextBtn.style.color = "#ccc";
+  nextBtn.title = "Следующая подсказка";
+  dialog.appendChild(nextBtn);
+
+  nextBtn.addEventListener("click", () => {
+    phraseIndex = (phraseIndex + 1) % phrases.length;
+    dialog.querySelector(".dialog-text").textContent = phrases[phraseIndex];
+  });
+
+  // Показать через 3 сек
+  setTimeout(() => {
+    container.style.opacity = "1";
+    container.style.pointerEvents = "auto";
+  }, 3000);
+
+  // Клик по Швепсику
+  img.addEventListener("click", () => {
+    clickCount++;
+    if (clickCount >= 2) {
+      container.remove();
+      localStorage.setItem("hideShvepsik", "true");
+    } else {
+      dialog.style.display = dialog.style.display === "none" ? "block" : "block";
+    }
+  });
+
+  // Крестик закрывает окно
+  closeBtn.addEventListener("click", () => {
+    dialog.style.display = "none";
+  });
+
+  // Автоматическая смена каждые 7 сек
+  setInterval(() => {
+    if (dialog.style.display !== "none") {
+      phraseIndex = (phraseIndex + 1) % phrases.length;
+      dialog.querySelector(".dialog-text").textContent = phrases[phraseIndex];
+    }
+  }, 7000);
+}
 
     setTimeout(() => {
       container.style.opacity = "1";
