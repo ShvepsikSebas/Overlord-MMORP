@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Battle For Yggdrasil | Главная</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -16,9 +16,16 @@
 
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
     .overlay-title {
-      position: absolute; top: 20px; width: 100%; text-align: center;
-      font-size: 2em; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.7);
-      z-index: 5; pointer-events: none;
+      position: absolute;
+      top: 30px;
+      width: 100%;
+      text-align: center;
+      font-family: 'UnifrakturCook', cursive;
+      font-size: 5em;
+      color: #fca311;
+      text-shadow: 0 0 30px rgba(252,163,17,0.9);
+      z-index: 5;
+      pointer-events: none;
     }
     .slide {
       position: absolute; width: 100%; height: 100%;
@@ -226,7 +233,9 @@
 
   <!-- slider -->
   <div class="slider">
-    <div class="overlay-title">OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера</div>
+    <div class="overlay-title">
+      Battle for Yggdrasil
+    </div>
     <div class="slide active" style="background-image:url('rules1.png')" onclick="location.href='rules.html'"><h2>Основные правила сервера</h2></div>
     <div class="slide" style="background-image:url('fractions1.png')" onclick="location.href='fractions.html'"><h2>Правила фракций</h2></div>
     <div class="slide" style="background-image:url('chatrules1.png')" onclick="location.href='chatrules.html'"><h2>Правила общения</h2></div>
