@@ -13,12 +13,12 @@
       background-color: #0f0f17;
       color: white;
       font-family: sans-serif;
-      overflow: hidden;
     }
     .slider {
       position: relative;
       height: 100vh;
       width: 100%;
+      overflow: hidden;
     }
     .slide {
       position: absolute;
@@ -69,6 +69,7 @@
       justify-content: space-between;
       align-items: center;
       pointer-events: none;
+      z-index: 5;
     }
     .nav button {
       background: rgba(0, 0, 0, 0.4);
@@ -80,6 +81,7 @@
       cursor: pointer;
       pointer-events: auto;
       transition: background 0.3s;
+      z-index: 6;
     }
     .nav button:hover {
       background: rgba(255, 255, 255, 0.2);
@@ -91,6 +93,7 @@
       display: flex;
       justify-content: center;
       gap: 20px;
+      z-index: 6;
     }
     .buttons a {
       text-decoration: none;
@@ -153,3 +156,4 @@
 
 </body>
 </html>
+
