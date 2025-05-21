@@ -361,40 +361,38 @@
 </head>
 <body>
 
-  <div class="slider">
-    <div class="overlay-title-wrapper">
-      <div class="overlay-emblem-wrapper">
+ <div class="slider">
+  <div class="overlay-title-wrapper">
+    <div class="overlay-emblem-wrapper">
+      <div class="emblem-container">
         <img src="gerb.png" alt="Герб" class="overlay-emblem">
         <div class="particles">
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
+          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
         </div>
-      </div>
-      <div class="overlay-title">
-        Battle for Yggdrasil
+        <div class="explosion"></div>
       </div>
     </div>
-
-    <div class="slide active" style="background-image:url('rules1.png')" onclick="location.href='rules.html'"><h2>Основные правила сервера</h2></div>
-    <div class="slide" style="background-image:url('fractions1.png')" onclick="location.href='fractions.html'"><h2>Правила фракций</h2></div>
-    <div class="slide" style="background-image:url('chatrules1.png')" onclick="location.href='chatrules.html'"><h2>Правила общения</h2></div>
-    <div class="slide" style="background-image:url('lor.png')" onclick="location.href='Lor.html'"><h2>Лор (История)</h2></div>
-    <button class="nav-button prev" onclick="prevSlide()">❮</button>
-    <button class="nav-button next" onclick="nextSlide()">❯</button>
+    <div class="overlay-title">Battle for Yggdrasil</div>
   </div>
+
+  <div class="slide active" style="background-image:url('rules1.png')">
+    <h2 onclick="location.href='rules.html'">Основные правила сервера</h2>
+  </div>
+  <div class="slide" style="background-image:url('fractions1.png')">
+    <h2 onclick="location.href='fractions.html'">Правила фракций</h2>
+  </div>
+  <div class="slide" style="background-image:url('chatrules1.png')">
+    <h2 onclick="location.href='chatrules.html'">Правила общения</h2>
+  </div>
+  <div class="slide" style="background-image:url('lor.png')">
+    <h2 onclick="location.href='Lor.html'">Лор (История)</h2>
+  </div>
+
+  <button class="nav-button prev" onclick="prevSlide()">❮</button>
+  <button class="nav-button next" onclick="nextSlide()">❯</button>
+</div>
   <!-- discord -->
   <div class="info-panel-container">
     <div class="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
@@ -455,6 +453,28 @@
 
   <!-- footer -->
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    initSlider();
+
+    const emblem = document.querySelector('.overlay-emblem');
+    const container = emblem.closest('.emblem-container');
+    const explosion = container.querySelector('.explosion');
+
+    emblem.addEventListener('click', () => {
+      explosion.classList.add('active');
+      emblem.classList.add('hidden');
+
+      setTimeout(() => {
+        explosion.classList.remove('active');
+      }, 1000);
+
+      setTimeout(() => {
+        emblem.classList.remove('hidden');
+      }, 3000);
+    });
+  });
+</script>
 
 </body>
 </html>
