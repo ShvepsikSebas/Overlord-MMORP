@@ -2,86 +2,53 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Overlord MMORP | Главная</title>
+  <title>Overlord MMORP</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .slider {
-      scroll-snap-type: x mandatory;
-      overflow-x: scroll;
-      scroll-behavior: smooth;
-    }
-    .slide {
-      scroll-snap-align: center;
-      min-width: 100vw;
-      min-height: 100vh;
-    }
-    .arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 3rem;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 0.5rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-    }
-  </style>
 </head>
-<body class="bg-black text-white font-sans">
-  <div class="relative w-full h-screen overflow-hidden">
-    <div id="slider" class="slider flex">
+<body class="bg-gray-950 text-white font-sans">
+  <header class="bg-gray-900 text-white py-4 px-8 flex justify-between items-center">
+    <h1 class="text-xl font-bold">Overlord MMORP</h1>
+    <nav class="space-x-6">
+      <a href="index.html" class="hover:underline">Главная</a>
+      <a href="rules.html" class="hover:underline">Правила</a>
+      <a href="fractions.html" class="hover:underline">Фракции</a>
+      <a href="chatrules.html" class="hover:underline">Общение</a>
+    </nav>
+  </header>
 
-      <!-- Slide 1 -->
-      <div class="slide flex items-center justify-center bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1549921296-3a13e7f60c06?auto=format&fit=crop&w=1950&q=80');">
-        <a href="rules.html" class="bg-black bg-opacity-60 p-8 rounded-lg hover:bg-opacity-80 transition">
-          <h1 class="text-4xl font-bold text-center">📜 Основные правила</h1>
-          <p class="text-center text-gray-300 mt-4">RP, наказания, поведение и лор</p>
+  <main class="flex items-center justify-center min-h-screen">
+    <div class="relative w-full max-w-4xl">
+      <div class="flex overflow-hidden rounded-2xl">
+        <!-- Слайд 1 -->
+        <a href="rules.html" class="flex-shrink-0 w-full bg-cover bg-center text-center bg-gray-800 p-12" style="background-image: url('https://i.imgur.com/f9JDa6Z.jpeg');">
+          <div class="bg-black bg-opacity-60 p-8 rounded-xl">
+            <h2 class="text-4xl font-bold mb-4">📜 Основные правила</h2>
+            <p class="text-gray-300">Всё о поведении игроков, RP и наказаниях</p>
+          </div>
+        </a>
+        <!-- Слайд 2 -->
+        <a href="fractions.html" class="flex-shrink-0 w-full bg-cover bg-center text-center bg-gray-800 p-12" style="background-image: url('https://i.imgur.com/GNFlK6A.jpeg');">
+          <div class="bg-black bg-opacity-60 p-8 rounded-xl">
+            <h2 class="text-4xl font-bold mb-4">🏰 Правила фракций</h2>
+            <p class="text-gray-300">Создание, структура и взаимодействие</p>
+          </div>
+        </a>
+        <!-- Слайд 3 -->
+        <a href="chatrules.html" class="flex-shrink-0 w-full bg-cover bg-center text-center bg-gray-800 p-12" style="background-image: url('https://i.imgur.com/bQ7WQIk.jpeg');">
+          <div class="bg-black bg-opacity-60 p-8 rounded-xl">
+            <h2 class="text-4xl font-bold mb-4">💬 Правила общения</h2>
+            <p class="text-gray-300">Голосовой и текстовый чат</p>
+          </div>
         </a>
       </div>
-
-      <!-- Slide 2 -->
-      <div class="slide flex items-center justify-center bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1604079628045-943f8fffa0c7?auto=format&fit=crop&w=1950&q=80');">
-        <a href="fractions.html" class="bg-black bg-opacity-60 p-8 rounded-lg hover:bg-opacity-80 transition">
-          <h1 class="text-4xl font-bold text-center">🏰 Правила фракций</h1>
-          <p class="text-center text-gray-300 mt-4">Уставы, базы, войны, структура</p>
-        </a>
-      </div>
-
-      <!-- Slide 3 -->
-      <div class="slide flex items-center justify-center bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1600085911430-d2412f36785d?auto=format&fit=crop&w=1950&q=80');">
-        <a href="chatrules.html" class="bg-black bg-opacity-60 p-8 rounded-lg hover:bg-opacity-80 transition">
-          <h1 class="text-4xl font-bold text-center">💬 Правила общения</h1>
-          <p class="text-center text-gray-300 mt-4">Чат, микрофоны, токсичность и наказания</p>
-        </a>
-      </div>
-
     </div>
+  </main>
 
-    <!-- Arrows -->
-    <button class="arrow left-4" onclick="scrollSlider(-1)">❮</button>
-    <button class="arrow right-4" onclick="scrollSlider(1)">❯</button>
-  </div>
-
-  <!-- Bottom icons -->
-  <div class="absolute bottom-6 w-full flex justify-center gap-12">
-    <a href="https://discord.gg/bmjBcBUg" target="_blank" class="flex flex-col items-center hover:opacity-80">
-      <img src="https://img.icons8.com/ios-filled/100/ffffff/discord-logo.png" alt="Discord" class="w-12 h-12">
-      <span class="text-sm mt-1 text-gray-300">Discord</span>
-    </a>
-    <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank" class="flex flex-col items-center hover:opacity-80">
-      <img src="https://img.icons8.com/ios-filled/100/ffffff/coins.png" alt="Donate" class="w-12 h-12">
-      <span class="text-sm mt-1 text-gray-300">Донат</span>
-    </a>
-  </div>
-
-  <script>
-    const slider = document.getElementById('slider');
-    let index = 0;
-    function scrollSlider(direction) {
-      const slides = document.querySelectorAll('.slide');
-      index = Math.min(Math.max(index + direction, 0), slides.length - 1);
-      slider.scrollTo({ left: slides[index].offsetLeft, behavior: 'smooth' });
-    }
-  </script>
+  <footer class="py-10 text-center text-gray-500">
+    <div class="flex justify-center space-x-8">
+      <a href="https://discord.gg/bmjBcBUg" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-full">Discord</a>
+      <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-full">Донат</a>
+    </div>
+  </footer>
 </body>
 </html>
