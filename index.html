@@ -85,6 +85,7 @@
       transition: background 0.3s;
     }
     .footer-buttons a:hover { background-color: #fff; }
+
     .info-panel-container { position: relative; width: fit-content; margin: 50px auto; }
     .info-panel {
       background: rgba(28,28,46,0.5);
@@ -102,9 +103,22 @@
       width: 80vw;
       max-width: 900px;
     }
-    .info-panel.visible { transform: translateX(0); opacity: 1; }
-    .info-panel img { width: 160px; height: 160px; border-radius: 8px; margin-right: 30px; object-fit: cover; }
-    .info-panel .text { font-size: 1.3em; line-height: 1.6; color: #ddd; }
+    .info-panel.visible {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .info-panel img {
+      width: 160px;
+      height: 160px;
+      border-radius: 8px;
+      margin-right: 30px;
+      object-fit: cover;
+    }
+    .info-panel .text {
+      font-size: 1.3em;
+      line-height: 1.6;
+      color: #ddd;
+    }
     .info-panel-container .hand {
       position: absolute;
       right: -140px;
@@ -119,6 +133,7 @@
       transform: translateX(0) translateY(-50%);
       opacity: 1;
     }
+
     footer {
       text-align: center;
       padding: 20px;
@@ -128,6 +143,7 @@
       position: relative;
       z-index: 10;
     }
+
     @media (max-width: 768px) {
       .overlay-title { font-size: 1.5em; top: 10px; }
       .slide h2 { font-size: 2em; }
@@ -138,6 +154,79 @@
       .info-panel .text { text-align: center; font-size: 1em; }
       .info-panel-container .hand { display: none; }
     }
+
+    /* === НОВЫЕ СТИЛИ ДЛЯ ХАРАКТЕР-ПАНЕЛИ === */
+    .character-panel-container {
+      position: relative;
+      width: fit-content;
+      margin: 80px auto;
+    }
+    .character-panel {
+      background: rgba(28, 28, 46, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 80px;
+      border-radius: 12px;
+      transform: translateY(100%);
+      opacity: 0;
+      transition: transform 1s ease, opacity 1s ease;
+      width: 90vw;
+      max-width: 1200px;
+      text-align: center;
+      position: relative;
+    }
+    .character-panel.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .character-panel .cp-text {
+      font-size: 1.6em;
+      line-height: 1.4;
+      color: #ddd;
+      opacity: 0;
+      animation: fadeInText 1s 0.3s forwards;
+    }
+    @keyframes fadeInText {
+      to { opacity: 1; }
+    }
+    .side-img {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      object-fit: cover;
+      opacity: 0;
+      transition: transform 1s ease, opacity 1s ease;
+    }
+    .side-img.left {
+      left: -260px;
+      top: 50%;
+      transform: translateY(-50%) translateX(-50px);
+    }
+    .side-img.right {
+      right: -260px;
+      top: 50%;
+      transform: translateY(-50%) translateX(50px);
+    }
+    .character-panel.visible ~ .side-img.left,
+    .character-panel.visible ~ .side-img.right {
+      transform: translateY(-50%) translateX(0);
+      opacity: 1;
+    }
+    .character-panel-container .character-hand {
+      position: absolute;
+      right: -140px;
+      top: 50%;
+      transform: translateX(50%) translateY(-50%);
+      opacity: 0;
+      width: 100px;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      z-index: 2;
+    }
+    .character-panel-container:hover .character-hand {
+      transform: translateX(0) translateY(-50%);
+      opacity: 1;
+    }
+    /* === Конец новых стилей === */
   </style>
   <script>
     function initSlider() {
@@ -179,6 +268,7 @@
       <a href="donate.html" target="_blank">💰 Донат</a>
     </div>
   </div>
+
   <div class="info-panel-container">
     <div class="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
       <img src="discord_logo.jpg" alt="Discord">
@@ -188,7 +278,32 @@
     </div>
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
+
+  <!-- НОВАЯ ХАРАКТЕР-ПАНЕЛЬ -->
+  <div class="character-panel-container">
+    <div class="character-panel">
+      <div class="cp-text">
+        Аинз Ооал Гоун (псевдо «Момон») — могущественный Лич-король нежити, правитель Великой гробницы "Назарик", скрывающийся под маской благородного авантюриста-героя.
+      </div>
+    </div>
+    <img src="ainz.png" alt="Ainz" class="side-img left">
+    <img src="momonga.png" alt="Momon" class="side-img right">
+    <img src="ainz_hand.png" alt="Hand" class="character-hand">
+  </div>
+
+  <script>
+    // Анимация скролла для характер-панели
+    document.addEventListener('DOMContentLoaded', () => {
+      const charPanel = document.querySelector('.character-panel');
+      window.addEventListener('scroll', () => {
+        const r = charPanel.getBoundingClientRect();
+        if (r.top < window.innerHeight) {
+          charPanel.classList.add('visible');
+        }
+      });
+    });
+  </script>
+
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 </body>
 </html>
-
