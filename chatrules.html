@@ -6,52 +6,42 @@
   <title>Правила общения</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0;
-      padding: 40px;
+      font-family: 'Roboto', sans-serif;
       background-color: #0d0d16;
       color: #fff;
-      font-family: 'Roboto', sans-serif;
-      line-height: 1.8;
-      font-size: 18px;
+      overflow-x: hidden;
       position: relative;
-    }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 30px;
-      text-align: center;
-      color: #fca311;
-      text-shadow: 0 0 15px #fca311;
+      padding: 40px;
+      line-height: 1.6;
     }
     .nav {
       position: fixed;
       top: 20px;
       left: 20px;
       display: flex;
-      align-items: center;
       gap: 10px;
-      z-index: 10;
+      z-index: 20;
     }
     .nav a {
       color: #fff;
       text-decoration: none;
-      background-color: #222;
+      background: #222;
       padding: 10px 15px;
       border-radius: 8px;
-      transition: background-color 0.3s, box-shadow 0.3s;
+      transition: background 0.3s, box-shadow 0.3s;
     }
     .nav a:hover {
-      background-color: #444;
+      background: #444;
       box-shadow: 0 0 10px #fca311;
     }
-    /* Музыкальный переключатель */
-    #music-toggle {
-      background: none;
-      border: none;
-      font-size: 1.5em;
-      cursor: pointer;
+    h1 {
+      font-size: 2.5em;
+      text-align: center;
+      margin-bottom: 30px;
       color: #fca311;
-      padding: 5px;
+      text-shadow: 0 0 15px #fca311;
     }
     .content {
       max-width: 1000px;
@@ -86,88 +76,27 @@
     .to-top:hover {
       opacity: 0.8;
     }
+    @media (max-width: 768px) {
+      body { padding: 20px; }
+      h1 { font-size: 2em; }
+      .content strong { font-size: 1em; }
+      .nav { flex-direction: column; }
+    }
   </style>
-
-  <!-- 1) YouTube Iframe API -->
-  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    let player;
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('bgMusic', {
-        videoId: 'gfz4Z7vNxJ8',
-        playerVars: {
-          autoplay: 1,
-          loop: 1,
-          playlist: 'gfz4Z7vNxJ8',
-          controls: 0,
-          modestbranding: 1
-        },
-        events: {
-          onReady: function(e) {
-            // регулируем громкость (0–100)
-            const vol = localStorage.getItem('musicVol') ?? 30;
-            e.target.setVolume(vol);
-            // сохраняем, если не было
-            if (!localStorage.getItem('musicOn')) localStorage.setItem('musicOn', 'true');
-            if (localStorage.getItem('musicOn') === 'true') {
-              e.target.playVideo();
-            }
-          }
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelector('.to-top').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-    }
-
-    // переключатель музыки
-    window.toggleMusic = function() {
-      const isOn = localStorage.getItem('musicOn') === 'true';
-      if (!player) return;
-      if (isOn) {
-        player.pauseVideo();
-        localStorage.setItem('musicOn', 'false');
-      } else {
-        player.playVideo();
-        localStorage.setItem('musicOn', 'true');
-      }
-      updateToggleIcon();
-    };
-
-    function updateToggleIcon() {
-      const btn = document.getElementById('music-toggle');
-      btn.textContent = localStorage.getItem('musicOn') === 'true' ? '🔊' : '🔇';
-    }
-
-    // SPA-навигация: подгружаем .content без перезагрузки
-    document.addEventListener('click', e => {
-      const a = e.target.closest('.nav a');
-      if (!a) return;
-      e.preventDefault();
-      fetch(a.href)
-        .then(r => r.text())
-        .then(html => {
-          const doc = new DOMParser().parseFromString(html, 'text/html');
-          document.title = doc.title;
-          document.querySelector('h1').innerText = doc.querySelector('h1').innerText;
-          document.querySelector('.content').innerHTML = doc.querySelector('.content').innerHTML;
-          history.pushState(null, '', a.href);
-          window.scrollTo(0, 0);
-        });
     });
-    window.addEventListener('popstate', () => location.reload());
-
-    // после загрузки страницы обновляем иконку
-    document.addEventListener('DOMContentLoaded', updateToggleIcon);
   </script>
 </head>
-
 <body>
-  <!-- 2) Контейнер для YouTube-плеера (невидимый) -->
-  <div id="bgMusic" style="width:0;height:0;overflow:hidden;"></div>
-
   <div class="nav">
     <a href="index.html">Главная</a>
     <a href="rules.html">Общие правила</a>
     <a href="fractions.html">Правила фракций</a>
-    <button id="music-toggle" onclick="toggleMusic()"></button>
+    <a href="chatrules.html">Правила общения</a>
   </div>
 
   <h1>💬 Правила общения</h1>
