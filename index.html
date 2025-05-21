@@ -76,6 +76,19 @@
       animation: fadeGlow 1.5s ease-out 0.3s forwards, rotate 12s linear infinite, shimmer 3s ease-in-out infinite;
       transition: opacity 1s ease, transform 0.5s ease;
     }
+.overlay-emblem::before {
+  content: "";
+  position: absolute;
+  top: -30%;
+  left: -30%;
+  width: 160%;
+  height: 160%;
+  background: radial-gradient(circle, rgba(185,145,249,0.3) 20%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(20px);
+  animation: flicker 2s infinite;
+  z-index: -1;
+}
 
     .overlay-emblem.hidden {
       opacity: 0;
@@ -304,6 +317,16 @@
       }
       .side-img { display: none; }
     }
+
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+  }
+  20%, 22%, 24%, 55% {
+    opacity: 0.3;
+  }
+}
+
   </style>
   <script>
     function initSlider() {
@@ -354,7 +377,7 @@
 
         setTimeout(() => {
           emblem.classList.remove('hidden');
-        }, 3000);
+        }, 2000);
       });
     });
   </script>
