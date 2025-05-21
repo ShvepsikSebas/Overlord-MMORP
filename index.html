@@ -29,6 +29,11 @@
       100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
     }
 
+    @keyframes shimmer {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.7); }
+    }
+
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
 
     .overlay-title-wrapper {
@@ -54,6 +59,7 @@
     .overlay-emblem-wrapper {
       position: relative;
       display: inline-block;
+      pointer-events: auto;
     }
 
     .overlay-emblem {
@@ -61,7 +67,13 @@
       width: 100px;
       filter: drop-shadow(0 0 20px #b891f9);
       opacity: 0;
-      animation: fadeGlow 1.5s ease-out 0.3s forwards, rotate 12s linear infinite;
+      animation: fadeGlow 1.5s ease-out 0.3s forwards, rotate 12s linear infinite, shimmer 3s ease-in-out infinite;
+    }
+
+    .overlay-emblem-wrapper:hover .particle {
+      animation-play-state: paused;
+      opacity: 0.2 !important;
+      transform: scale(1.5);
     }
 
     .particles {
@@ -80,8 +92,9 @@
       background-color: #b891f9;
       border-radius: 50%;
       opacity: 0;
-      animation: particleRise 2s ease-out infinite;
+      animation: particleRise 2s ease-out infinite, shimmer 2s infinite;
     }
+
     .particle:nth-child(1) { left: -15px; animation-delay: 0s; }
     .particle:nth-child(2) { left: -10px; animation-delay: 0.3s; }
     .particle:nth-child(3) { left: -5px; animation-delay: 0.6s; }
@@ -266,7 +279,7 @@
       }
       .side-img { display: none; }
     }
-  </style>
+   </style>
   <script>
     function initSlider() {
       let current = 0, slides = document.querySelectorAll('.slide');
@@ -336,7 +349,6 @@
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
     <button class="nav-button next" onclick="nextSlide()">❯</button>
   </div>
-
   <!-- discord -->
   <div class="info-panel-container">
     <div class="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
