@@ -46,90 +46,67 @@
     .prev { left: 10px; } .next { right: 10px; }
     .nav-button:hover { background: rgba(255,255,255,0.2); }
 
-    /* Discord-панель */
-    .info-panel-container { position: relative; width: fit-content; margin: 50px auto; }
-    .info-panel {
-      background: rgba(28,28,46,0.5); backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center;
-      padding: 60px; border-radius: 12px;
-      transform: translateX(-100%); opacity: 0;
-      transition: transform 1s ease, opacity 1s ease;
-      cursor: pointer; z-index: 1;
-      width: 80vw; max-width: 900px;
+    /* Панели */
+    .info-panel-container,
+    .donate-panel-container,
+    .character-panel-container,
+    .sebas-panel-container {
+      position: relative; width: fit-content; margin: 50px auto;
     }
-    .info-panel.visible {
-      transform: translateX(0); opacity: 1;
-    }
-    .info-panel img {
-      width: 160px; height: 160px; border-radius: 8px;
-      margin-right: 30px; object-fit: cover;
-    }
-    .info-panel .text {
-      font-size: 1.3em; line-height: 1.6; color: #ddd;
-    }
-    .info-panel-container .hand {
-      position: absolute; right: -140px; top: 50%;
-      transform: translateX(50%) translateY(-50%);
-      opacity: 0; width: 100px;
-      transition: transform 0.5s ease, opacity 0.5s ease;
-      z-index: 2;
-    }
-    .info-panel-container:hover .hand {
-      transform: translateX(0) translateY(-50%); opacity: 1;
-    }
-
-    /* Новая панель «Донат» */
-    .donate-panel-container {
-      position: relative; width: fit-content; margin: 80px auto;
-    }
-    .donate-panel {
-      background: rgba(28,28,46,0.5); backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center;
-      padding: 60px; border-radius: 12px;
-      transform: translateX(100%); opacity: 0;
-      transition: transform 1s ease, opacity 1s ease;
-      cursor: pointer; z-index: 1;
-      width: 80vw; max-width: 900px;
-    }
-    .donate-panel.visible {
-      transform: translateX(0); opacity: 1;
-    }
-    .donate-panel img {
-      width: 160px; height: 160px; border-radius: 8px;
-      margin-right: 30px; object-fit: cover;
-    }
-    .donate-panel .text {
-      font-size: 1.3em; line-height: 1.6; color: #ddd;
-    }
-    .donate-panel-container .hand {
-      position: absolute; left: -140px; top: 50%;
-      transform: translateX(-50%) translateY(-50%);
-      opacity: 0; width: 100px;
-      transition: transform 0.5s ease, opacity 0.5s ease;
-      z-index: 2;
-    }
-    .donate-panel-container:hover .hand {
-      transform: translateX(0) translateY(-50%); opacity: 1;
-    }
-
-    /* Разделитель */
-    .separator {
-      width: 90vw; max-width: 1200px;
-      height: 1px; background: #444;
-      margin: 60px auto 20px;
-    }
-    .separator-title {
-      text-align: center; font-size: 1.6em;
-      margin-bottom: 40px; color: #fff;
-    }
-
-    /* Характер-панель */
-    .character-panel-container {
-      position: relative; width: fit-content; margin: 0 auto 80px;
-    }
+    .info-panel,
+    .donate-panel,
     .character-panel {
+      background: rgba(28,28,46,0.5); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center;
+      padding: 60px; border-radius: 12px;
+      transform: translateX(-100%);
+      opacity: 0;
+      transition: transform 1s ease, opacity 1s ease;
+      cursor: pointer; z-index: 1;
+      width: 80vw; max-width: 900px;
+    }
+    .character-panel { transform: translateY(100%); }
+    .info-panel.visible,
+    .donate-panel.visible,
+    .character-panel.visible {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .character-panel.visible { transform: translateY(0); }
+
+    .info-panel img,
+    .donate-panel img,
+    .character-panel img {
+      width: 160px; height: 160px; border-radius: 8px;
+      margin-right: 30px; object-fit: cover;
+    }
+    .info-panel .text,
+    .donate-panel .text,
+    .character-panel .cp-text {
+      font-size: 1.3em; line-height: 1.6; color: #ddd;
+    }
+
+    /* Рука */
+    .info-panel-container .hand,
+    .donate-panel-container .hand {
+      position: absolute; width: 100px; top: 50%; opacity: 0;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      z-index: 2;
+    }
+    .info-panel-container .hand { right: -140px; transform: translateX(50%) translateY(-50%); }
+    .donate-panel-container .hand { left: -140px; transform: translateX(-50%) translateY(-50%); }
+    .info-panel-container:hover .hand,
+    .donate-panel-container:hover .hand {
+      transform: translateX(0) translateY(-50%);
+      opacity: 1;
+    }
+
+    /* Характер-панели */
+    .character-panel-container,
+    .sebas-panel-container { margin: 80px auto; }
+    .character-panel,
+    .sebas-panel-container .character-panel {
       background: rgba(28,28,46,0.6); backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.2);
       padding: 80px; border-radius: 12px;
@@ -138,32 +115,36 @@
       width: 90vw; max-width: 1200px; text-align: center;
       position: relative;
     }
-    .character-panel.visible {
-      transform: translateY(0); opacity: 1;
-    }
-    .character-panel .cp-text {
+    .character-panel .cp-text,
+    .sebas-panel-container .character-panel .cp-text {
       font-size: 1.6em; line-height: 1.4; color: #ddd;
       opacity: 0; animation: fadeInText 1s 0.3s forwards;
     }
     @keyframes fadeInText { to { opacity: 1; } }
+
     .side-img {
       position: absolute; width: 220px; height: 220px; object-fit: cover;
       opacity: 0; transition: transform 1s ease, opacity 1s ease;
     }
-    .side-img.left {
-      left: -260px; top: 50%; transform: translateY(-50%) translateX(-50px);
-    }
-    .side-img.right {
-      right: -260px; top: 50%; transform: translateY(-50%) translateX(50px);
-    }
+    .side-img.left { left: -260px; top: 50%; transform: translateY(-50%) translateX(-50px); }
+    .side-img.right { right: -260px; top: 50%; transform: translateY(-50%) translateX(50px); }
     .character-panel.visible ~ .side-img.left,
-    .character-panel.visible ~ .side-img.right {
+    .character-panel.visible ~ .side-img.right,
+    .sebas-panel-container .character-panel.visible ~ .side-img.left {
       transform: translateY(-50%) translateX(0); opacity: 1;
     }
 
+    /* Подстройка Себас */
+    .sebas-panel-container .side-img.left {
+      top: 60%; transform: translateY(-60%) translateX(-50px);
+    }
+
+    /* Разделитель */
+    .separator { width: 90vw; max-width: 1200px; height: 1px; background: #444; margin: 60px auto 20px; }
+    .separator-title { text-align: center; font-size: 1.6em; margin-bottom: 40px; color: #fff; }
+
     footer {
-      text-align: center; padding: 20px;
-      font-size: 0.9em; color: #888;
+      text-align: center; padding: 20px; font-size: 0.9em; color: #888;
       background-color: #0b0b12; position: relative; z-index: 10;
     }
 
@@ -171,12 +152,16 @@
       .overlay-title { font-size: 1.5em; top: 10px; }
       .slide h2 { font-size: 2em; }
       .nav-button { font-size: 3em; padding: 20px 25px; }
-      .info-panel, .donate-panel { flex-direction: column; width: 95%; padding: 20px; }
-      .info-panel img, .donate-panel img { width: 100px; height: 100px; margin-bottom: 15px; }
-      .info-panel .text, .donate-panel .text { text-align: center; font-size: 1em; }
+      .info-panel, .donate-panel, .character-panel {
+        flex-direction: column; width: 95%; padding: 20px;
+      }
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 100px; height: 100px; margin-bottom: 15px;
+      }
+      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
+        text-align: center; font-size: 1em;
+      }
       .info-panel-container .hand, .donate-panel-container .hand { display: none; }
-      .character-panel { padding: 40px; width: 95%; }
-      .character-panel .cp-text { font-size: 1.2em; }
       .side-img { display: none; }
     }
   </style>
@@ -187,14 +172,8 @@
         slides.forEach(s => s.classList.remove('active'));
         slides[i].classList.add('active');
       }
-      window.prevSlide = () => {
-        current = (current - 1 + slides.length) % slides.length;
-        show(current);
-      };
-      window.nextSlide = () => {
-        current = (current + 1) % slides.length;
-        show(current);
-      };
+      window.prevSlide = () => { current = (current - 1 + slides.length) % slides.length; show(current); };
+      window.nextSlide = () => { current = (current + 1) % slides.length; show(current); };
       show(0);
 
       const panels = document.querySelectorAll('.info-panel, .donate-panel, .character-panel');
@@ -212,25 +191,25 @@
 <body>
 
   <!-- Слайдер -->
- <div class="slider">
-  <div class="overlay-title">
-    OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера
-  </div>
-  <div class="slide active" style="background-image: url('rules1.png');" onclick="location.href='rules.html'">
-    <h2>Основные правила сервера</h2>
-  </div>
-  <div class="slide" style="background-image: url('fractions1.png');" onclick="location.href='fractions.html'">
-    <h2>Правила фракций</h2>
-  </div>
-  <div class="slide" style="background-image: url('chatrules1.png');" onclick="location.href='chatrules.html'">
-    <h2>Правила общения</h2>
-  </div>
-  <div class="slide" style="background-image: url('lor.png');" onclick="location.href='Lor.html'">
-    <h2>Лор(История)</h2>
-  </div>
-  <button class="nav-button prev" onclick="prevSlide()">❮</button>
-  <button class="nav-button next" onclick="nextSlide()">❯</button>
-</div>
+  <div class="slider">
+    <div class="overlay-title">
+      OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера
+    </div>
+    <div class="slide active" style="background-image: url('rules1.png');" onclick="location.href='rules.html'">
+      <h2>Основные правила сервера<\/h2>
+    <\/div>
+    <div class="slide" style="background-image: url('fractions1.png');" onclick="location.href='fractions.html'">
+      <h2>Правила фракций<\/h2>
+    <\/div>
+    <div class="slide" style="background-image: url('chatrules1.png');" onclick="location.href='chatrules.html'">
+      <h2>Правила общения<\/h2>
+    <\/div>
+    <div class="slide" style="background-image: url('lor.png');" onclick="location.href='Lor.html'">
+      <h2>Лор(История)<\/h2>
+    <\/div>
+    <button class="nav-button prev" onclick="prevSlide()">❮<\/button>
+    <button class="nav-button next" onclick="nextSlide()">❯<\/button>
+  <\/div>
 
   <!-- Discord-панель -->
   <div class="info-panel-container">
@@ -239,47 +218,48 @@
       <div class="text">
         Присоединяйся к нашему официальному Discord-серверу Battle For Yggdrasil:
         общайся с командой, участвуй в ивентах и получай последние новости о проекте!
-      </div>
-    </div>
+      <\/div>
+    <\/div>
     <img src="ainz_hand.png" alt="Hand" class="hand">
-  </div>
+  <\/div>
 
-  <!-- Панель «Донат» (выше Аинза) -->
+  <!-- Донат-панель -->
   <div class="donate-panel-container">
     <div class="donate-panel" onclick="location.href='donate.html'">
       <img src="donat.jpg" alt="Donate">
       <div class="text">
         Поддержи проект Battle For Yggdrasil: перейди на страницу доната и получи бонусы на сервере!
-      </div>
-    </div>
+      <\/div>
+    <\/div>
     <img src="ainzhand_left.png" alt="Hand" class="hand">
-  </div>
+  <\/div>
 
   <!-- Разделитель и заголовок -->
-  <div class="separator"></div>
-  <h2 class="separator-title">Краткое описание Лорных персонажей</h2>
+  <div class="separator"><\/div>
+  <h2 class="separator-title">Краткое описание Лорных персонажей<\/h2>
 
   <!-- Характер-панель Аинза -->
   <div class="character-panel-container">
     <div class="character-panel">
       <div class="cp-text">
         Аинз Оул Гоун (псевдо «Момон») — могущественный Лич-король нежити,
-        правитель Великой гробницы "Назарик, скрывающийся под маской благородного авантюриста-героя.
-      </div>
-    </div>
+        правитель Великой гробницы "Назарик"\, скрывающийся под маской благородного авантюриста-героя.
+      <\/div>
+    <\/div>
     <img src="ainz.png" alt="Ainz" class="side-img left">
     <img src="momonga.png" alt="Momon" class="side-img right">
-  </div>
+  <\/div>
+
   <!-- Характер-панель Себаса -->
-  <div class="character-panel-container">
+  <div class="sebas-panel-container">
     <div class="character-panel">
       <div class="cp-text">
         Себас Чарпентье — верный дворецкий и телохранитель семьи Шарктоп, мастер ближнего боя и искусный стратег, преданный своему господину без малейшего сомнения.
-      </div>
-    </div>
+      <\/div>
+    <\/div>
     <img src="sebas.png" alt="Sebas" class="side-img left">
-  </div>
+  <\/div>
 
-  <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
-</body>
-</html>
+  <footer>© 2025 Battle For Yggdrasil — Все права защищены<\/footer>
+<\/body>
+<\/html>
