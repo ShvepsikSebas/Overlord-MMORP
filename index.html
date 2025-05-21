@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Battle For Yggdrasil | Главная</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -14,18 +14,24 @@
       overflow-x: hidden;
     }
 
+    @keyframes fadeGlow {
+      0% { opacity: 0; transform: scale(0.95); text-shadow: 0 0 0px #b891f9; }
+      100% { opacity: 1; transform: scale(1); text-shadow: 0 0 30px #b891f9; }
+    }
+
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
     .overlay-title {
       position: absolute;
       top: 30px;
       width: 100%;
       text-align: center;
-      font-family: 'UnifrakturCook', cursive;
-      font-size: 5em;
-      color: #fca311;
-      text-shadow: 0 0 30px rgba(252,163,17,0.9);
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 6em;
+      color: #b891f9;
+      text-shadow: 0 0 30px rgba(185, 145, 249, 0.9);
       z-index: 5;
       pointer-events: none;
+      animation: fadeGlow 1.5s ease-out forwards;
     }
     .slide {
       position: absolute; width: 100%; height: 100%;
@@ -231,7 +237,6 @@
 </head>
 <body>
 
-  <!-- slider -->
   <div class="slider">
     <div class="overlay-title">
       Battle for Yggdrasil
