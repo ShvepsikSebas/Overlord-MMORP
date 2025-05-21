@@ -35,14 +35,6 @@
       background: #444;
       box-shadow: 0 0 10px #fca311;
     }
-    #music-toggle {
-      background: none;
-      border: none;
-      font-size: 1.5em;
-      cursor: pointer;
-      color: #fca311;
-      padding: 5px;
-    }
     h1 {
       font-size: 2.5em;
       text-align: center;
@@ -55,9 +47,7 @@
       margin: 0 auto;
       text-align: center;
     }
-    .content p {
-      margin-bottom: 1.2em;
-    }
+    .content p { margin-bottom: 1.2em; }
     .content strong {
       display: block;
       margin-top: 1.8em;
@@ -82,77 +72,21 @@
     }
     .to-top:hover { opacity: 0.8; }
   </style>
-
-  <!-- YouTube Iframe API + Music on/off -->
-  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    let player;
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('bgMusic', {
-        videoId: 'gfz4Z7vNxJ8',
-        playerVars: {
-          autoplay: 1,
-          loop: 1,
-          playlist: 'gfz4Z7vNxJ8',
-          controls: 0,
-          modestbranding: 1
-        },
-        events: {
-          onReady: function(e) {
-            const vol = localStorage.getItem('musicVol') || 30;
-            e.target.setVolume(vol);
-            if (localStorage.getItem('musicOn') === null)
-              localStorage.setItem('musicOn', 'true');
-            if (localStorage.getItem('musicOn') === 'true')
-              e.target.playVideo();
-          }
-        }
+    // "Наверх"
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelector('.to-top').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-    }
-    window.toggleMusic = function() {
-      if (!player) return;
-      const isOn = localStorage.getItem('musicOn') === 'true';
-      if (isOn) player.pauseVideo();
-      else player.playVideo();
-      localStorage.setItem('musicOn', isOn ? 'false' : 'true');
-      updateIcon();
-    };
-    function updateIcon() {
-      document.getElementById('music-toggle').textContent =
-        localStorage.getItem('musicOn') === 'true' ? '🔊' : '🔇';
-    }
-    document.addEventListener('DOMContentLoaded', updateIcon);
-
-    // SPA navigation
-    document.addEventListener('click', e => {
-      const a = e.target.closest('.nav a');
-      if (!a) return;
-      e.preventDefault();
-      fetch(a.href)
-        .then(res => res.text())
-        .then(html => {
-          const doc = new DOMParser().parseFromString(html, 'text/html');
-          document.title = doc.title;
-          document.querySelector('h1').innerText = doc.querySelector('h1').innerText;
-          document.querySelector('.content').innerHTML = doc.querySelector('.content').innerHTML;
-          history.pushState(null, '', a.href);
-          window.scrollTo(0, 0);
-        });
     });
-    window.addEventListener('popstate', () => location.reload());
   </script>
 </head>
-
 <body>
-  <!-- Hidden YouTube player container -->
-  <div id="bgMusic" style="width:0; height:0; overflow:hidden;"></div>
-
   <div class="nav">
     <a href="index.html">Главная</a>
     <a href="rules.html">Общие правила</a>
     <a href="fractions.html">Правила фракций</a>
     <a href="chatrules.html">Правила общения</a>
-    <button id="music-toggle" onclick="toggleMusic()"></button>
   </div>
 
   <h1>⚔ Правила фракций</h1>
