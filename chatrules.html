@@ -20,6 +20,7 @@
       margin-bottom: 30px;
       text-align: center;
       color: #fca311;
+      text-shadow: 0 0 15px #fca311;
     }
     .nav {
       position: fixed;
@@ -33,10 +34,11 @@
       padding: 10px 15px;
       border-radius: 8px;
       margin-right: 10px;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s, box-shadow 0.3s;
     }
     .nav a:hover {
       background-color: #444;
+      box-shadow: 0 0 10px #fca311;
     }
     .content {
       max-width: 1000px;
@@ -51,17 +53,35 @@
       margin-top: 1.8em;
       font-size: 1.2em;
       color: #fca311;
+      text-shadow: 0 0 10px #fca311;
+    }
+    .to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #fca311;
+      color: #000;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 15px #fca311;
+      transition: opacity 0.3s ease-in-out;
+    }
+    .to-top:hover {
+      opacity: 0.8;
     }
   </style>
 </head>
 <body>
   <div class="nav">
     <a href="index.html">Главная</a>
-    <a href="fractions.html">Правила фракций</a>
     <a href="rules.html">Общие правила</a>
+    <a href="fractions.html">Правила фракций</a>
   </div>
 
-  <h1>💬 Правила общения и чата</h1>
+  <h1>💬 Правила общения</h1>
 
   <div class="content">
     <strong>Voice Abuse (VA)</strong>
@@ -96,7 +116,10 @@
 
     <strong>Манипуляции</strong>
     <p>Запрещены любые манипуляции, введение в заблуждение администрации или игроков.<br>Наказание: бан на 3 дня или по усмотрению администрации.</p>
-  </div>
+ </div>
+
+  <button class="to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">⬆ Наверх</button>
 </body>
 </html>
+
 
