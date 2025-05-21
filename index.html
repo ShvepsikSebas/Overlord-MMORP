@@ -4,122 +4,134 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YGGDRASIL | Главная</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
     body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
       background-color: #0d0d16;
-      font-family: Arial, sans-serif;
+      color: #fff;
       overflow-x: hidden;
     }
     .slider {
       position: relative;
-      height: 100vh;
       width: 100%;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
     }
     .slide {
-      display: none;
-      height: 100vh;
-      width: 100%;
+      min-width: 100%;
+      height: 100%;
+      transition: 0.8s;
       background-size: cover;
       background-position: center;
-      position: absolute;
-      top: 0;
-      left: 0;
-      transition: opacity 1s ease-in-out;
-    }
-    .slide.active {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
     .slide-title {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3em;
-      color: #fff;
-      text-shadow: 0 0 20px #ffffff;
-      text-align: center;
+      font-size: 4em;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 0 15px white;
+      padding: 20px;
       cursor: pointer;
-      transition: text-shadow 0.3s ease;
     }
-    .slider-button {
+    .nav-buttons {
       position: absolute;
       top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
       transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
+      padding: 0 20px;
+    }
+    .nav-button {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid white;
+      color: white;
       font-size: 3em;
-      border: none;
-      padding: 0.2em 0.4em;
+      padding: 20px 30px;
       cursor: pointer;
-      z-index: 10;
-      height: 120px;
-      width: 60px;
+      transition: 0.3s;
+      border-radius: 12px;
     }
-    .slider-button:hover {
-      background: rgba(255, 255, 255, 0.4);
+    .nav-button:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
-    .prev {
-      left: 10px;
-    }
-    .next {
-      right: 10px;
-    }
-    .buttons {
+    .footer-buttons {
       position: absolute;
       bottom: 20px;
       width: 100%;
       display: flex;
       justify-content: center;
-      gap: 40px;
+      gap: 20px;
     }
-    .buttons a {
-      background-color: #fca311;
-      color: #000;
-      text-decoration: none;
-      padding: 15px 30px;
-      border-radius: 10px;
+    .footer-button {
+      background: #fca311;
+      color: #0d0d16;
       font-weight: bold;
-      font-size: 18px;
-      transition: background-color 0.3s ease;
+      font-size: 1.2em;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.3s;
     }
-    .buttons a:hover {
-      background-color: #ffba33;
+    .footer-button:hover {
+      background: #ffb733;
     }
   </style>
 </head>
 <body>
-  <div class="slider">
-    <div class="slide active" style="background-image: url('rules1.png');">
-      <div class="slide-title" onclick="location.href='rules.html'">Основные правила сервера</div>
-    </div>
-    <div class="slide" style="background-image: url('fractions1.png');">
-      <div class="slide-title" onclick="location.href='fractions.html'">Правила фракций</div>
-    </div>
-    <div class="slide" style="background-image: url('chatrules1.png');">
-      <div class="slide-title" onclick="location.href='chatrules.html'">Правила общения</div>
-    </div>
-    <button class="slider-button prev" onclick="changeSlide(-1)">&#10094;</button>
-    <button class="slider-button next" onclick="changeSlide(1)">&#10095;</button>
-    <div class="buttons">
-      <a href="https://discord.gg/bmjBcBUg" target="_blank">Discord</a>
-      <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">Донат</a>
-    </div>
+  <div class="slider" id="slider">
+    <a href="rules.html" class="slide" style="background-image: url('rules1.png');">
+      <div class="slide-title">Основные правила сервера</div>
+    </a>
+    <a href="fractions.html" class="slide" style="background-image: url('fractions1.png');">
+      <div class="slide-title">Правила фракций</div>
+    </a>
+    <a href="chatrules.html" class="slide" style="background-image: url('chatrules1.png');">
+      <div class="slide-title">Правила общения</div>
+    </a>
+  </div>
+
+  <div class="nav-buttons">
+    <div class="nav-button" onclick="prevSlide()">⟵</div>
+    <div class="nav-button" onclick="nextSlide()">⟶</div>
+  </div>
+
+  <div class="footer-buttons">
+    <a class="footer-button" href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">Донат</a>
+    <a class="footer-button" href="https://discord.gg/bmjBcBUg" target="_blank">Discord</a>
   </div>
 
   <script>
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.slide');
+    const slider = document.getElementById('slider');
+    let currentIndex = 0;
 
-    function changeSlide(n) {
-      slides[currentSlide].classList.remove('active');
-      currentSlide = (currentSlide + n + slides.length) % slides.length;
-      slides[currentSlide].classList.add('active');
+    function showSlide(index) {
+      const slides = document.querySelectorAll('.slide');
+      if (index >= slides.length) index = 0;
+      if (index < 0) index = slides.length - 1;
+      slider.style.transform = `translateX(-${index * 100}%)`;
+      currentIndex = index;
     }
+
+    function nextSlide() {
+      showSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentIndex - 1);
+    }
+
+    showSlide(currentIndex);
   </script>
 </body>
 </html>
