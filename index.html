@@ -3,135 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YGGDRASIL | Главная</title>
+  <title> OVERLORD MMORP BATTLE FOR YGGDRASIL GMOD | Главная</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #0d0d16;
-      color: #fff;
-      overflow-x: hidden;
-    }
-    .slider {
-      position: relative;
-      width: 100%;
-      height: 100vh; /* Полная высота экрана */
-      overflow: hidden;
-    }
-    .overlay-title {
-      position: absolute;
-      top: 20px;
-      width: 100%;
-      text-align: center;
-      font-size: 2em;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 0 0 10px rgba(0,0,0,0.7);
-      z-index: 5;
-      pointer-events: none;
-      padding: 0 10px;
-    }
-    .slide {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity 1s ease;
-      cursor: pointer;
-      top: 0; left: 0;
-    }
-    .slide.active {
-      opacity: 1;
-      z-index: 2;
-    }
-    .slide h2 {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3em;
-      color: #fff;
-      text-shadow: 0 0 20px rgba(255,255,255,0.8);
-      opacity: 0;
-      transition: opacity 1s ease 0.5s;
-      pointer-events: none;
-    }
-    .slide.active h2 {
-      opacity: 1;
-    }
-    .nav-button {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 0, 0, 0.4);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 5em;
-      padding: 30px 40px;
-      transition: background 0.3s;
-      z-index: 3;
-    }
-    .nav-button:hover {
-      background: rgba(255,255,255,0.2);
-    }
+    body { font-family: 'Roboto', sans-serif; background-color: #0d0d16; color: #fff; overflow-x: hidden; }
+    .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
+    .overlay-title { position: absolute; top: 20px; width: 100%; text-align: center; font-size: 2em; font-weight: bold; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.7); z-index: 5; pointer-events: none; padding: 0 10px; }
+    .slide { position: absolute; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 1s ease; cursor: pointer; top: 0; left: 0; }
+    .slide.active { opacity: 1; z-index: 2; }
+    .slide h2 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3em; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.8); opacity: 0; transition: opacity 1s ease 0.5s; pointer-events: none; }
+    .slide.active h2 { opacity: 1; }
+    .nav-button { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: #fff; border: none; border-radius: 12px; cursor: pointer; font-size: 5em; padding: 30px 40px; transition: background 0.3s; z-index: 3; }
+    .nav-button:hover { background: rgba(255,255,255,0.2); }
     .prev { left: 10px; }
     .next { right: 10px; }
-    .footer-buttons {
-      position: absolute;
-      bottom: 40px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      z-index: 4;
-    }
-    .footer-buttons a {
-      background-color: #fca311;
-      color: #000;
-      padding: 12px 24px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1em;
-      transition: background 0.3s;
-    }
-    .footer-buttons a:hover {
-      background-color: #fff;
-    }
-    footer {
-      padding: 20px;
-      text-align: center;
-      font-size: 0.9em;
-      color: #888;
-      background-color: #0b0b12;
-    }
+    .footer-buttons { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 4; }
+    .footer-buttons a { background-color: #fca311; color: #000; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1em; transition: background 0.3s; }
+    .footer-buttons a:hover { background-color: #fff; }
+    .info-panel { position: relative; margin: 50px 20px; max-width: 800px; background: #1c1c2e; display: flex; align-items: center; padding: 20px; border-radius: 8px; transform: translateX(-100%); opacity: 0; transition: transform 1s ease, opacity 1s ease; }
+    .info-panel.visible { transform: translateX(0); opacity: 1; }
+    .info-panel img { width: 100px; height: 100px; border-radius: 8px; margin-right: 20px; object-fit: cover; }
+    .info-panel .text { font-size: 1.1em; line-height: 1.5; color: #ddd; }
+    footer { text-align: center; padding: 20px; font-size: 0.9em; color: #888; background-color: #0b0b12; margin-top: auto; }
     @media (max-width: 768px) {
       .overlay-title { font-size: 1.5em; top: 10px; }
       .slider { height: 100vh; }
       .slide h2 { font-size: 2em; }
       .nav-button { font-size: 3em; padding: 20px 25px; }
       .footer-buttons a { padding: 10px 16px; font-size: 1em; }
-      footer { font-size: 0.8em; }
+      .info-panel { flex-direction: column; transform: translateX(-100%); }
+      .info-panel img { margin: 0 0 15px; }
+      .info-panel .text { text-align: center; }
     }
   </style>
 </head>
 <body>
   <div class="slider">
     <div class="overlay-title">OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера</div>
-    <div class="slide active" style="background-image: url('rules1.png');" onclick="location.href='rules.html'">
-      <h2>Основные правила сервера</h2>
-    </div>
-    <div class="slide" style="background-image: url('fractions1.png');" onclick="location.href='fractions.html'">
-      <h2>Правила фракций</h2>
-    </div>
-    <div class="slide" style="background-image: url('chatrules1.png');" onclick="location.href='chatrules.html'">
-      <h2>Правила общения</h2>
-    </div>
+    <div class="slide active" style="background-image: url('rules1.jpg');" onclick="location.href='rules.html'"><h2>Основные правила сервера</h2></div>
+    <div class="slide" style="background-image: url('fractions1.jpg');" onclick="location.href='fractions.html'"><h2>Правила фракций</h2></div>
+    <div class="slide" style="background-image: url('chatrules1.jpg');" onclick="location.href='chatrules.html'"><h2>Правила общения</h2></div>
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
     <button class="nav-button next" onclick="nextSlide()">❯</button>
     <div class="footer-buttons">
@@ -139,22 +51,28 @@
       <a href="https://discord.gg/bmjBcBUg" target="_blank">💬 Discord</a>
     </div>
   </div>
-  <footer>© 2025 OVERLORD MMORP | Battle For Yggdrasil | GMOD — Все права защищены</footer>
+
+  <a href="https://discord.gg/bmjBcBUg" target="_blank" class="info-panel" id="info-panel">
+    <img src="discord_logo.jpg" alt="Discord">
+    <div class="text">
+      Присоединяйся к нашему официальному Discord-серверу YGGDRASIL: общайся с командой, участвуй в ивентах и получай последние новости о проекте!
+    </div>
+  </a>
+
+  <footer>© 2025 OVERLORD MMORP | Battle For Yggdrasil | GMOD RP — Все права защищены</footer>
+
   <script>
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
-    function showSlide(index) {
-      slides.forEach(s => s.classList.remove('active'));
-      slides[index].classList.add('active');
-    }
-    function prevSlide() {
-      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-      showSlide(currentSlide);
-    }
-    function nextSlide() {
-      currentSlide = (currentSlide + 1) % slides.length;
-      showSlide(currentSlide);
-    }
+    function showSlide(index) { slides.forEach(s => s.classList.remove('active')); slides[index].classList.add('active'); }
+    function prevSlide() { currentSlide = (currentSlide - 1 + slides.length) % slides.length; showSlide(currentSlide); }
+    function nextSlide() { currentSlide = (currentSlide + 1) % slides.length; showSlide(currentSlide); }
+    const panel = document.getElementById('info-panel');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { panel.classList.toggle('visible', entry.isIntersecting); });
+    }, { threshold: 0.3 });
+    observer.observe(panel);
   </script>
 </body>
 </html>
+
