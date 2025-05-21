@@ -304,7 +304,49 @@
       }
       .side-img { display: none; }
     }
-  </style>
+.emblem-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.overlay-emblem {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.overlay-emblem.hidden {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.explosion {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -50%) scale(0);
+  background: radial-gradient(circle, #b891f9 10%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 10;
+}
+
+.explosion.active {
+  animation: explosion 1s ease-out;
+  opacity: 1;
+}
+
+@keyframes explosion {
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+  50%  { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+} 
+ </style>
   <script>
     function initSlider() {
       let current = 0, slides = document.querySelectorAll('.slide');
@@ -361,21 +403,15 @@
 </head>
 <body>
 
- <div class="slider">
-  <div class="overlay-title-wrapper">
-    <div class="overlay-emblem-wrapper">
-      <div class="emblem-container">
-        <img src="gerb.png" alt="Герб" class="overlay-emblem">
-        <div class="particles">
-          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-        </div>
-        <div class="explosion"></div>
-      </div>
+<div class="overlay-title-wrapper">
+  <div class="overlay-emblem-wrapper">
+    <div class="emblem-container">
+      <img src="gerb.png" alt="Герб" class="overlay-emblem">
+      <div class="explosion"></div>
     </div>
-    <div class="overlay-title">Battle for Yggdrasil</div>
   </div>
+  <div class="overlay-title">Battle for Yggdrasil</div>
+</div>
 
   <div class="slide active" style="background-image:url('rules1.png')">
     <h2 onclick="location.href='rules.html'">Основные правила сервера</h2>
@@ -453,6 +489,28 @@
 
   <!-- footer -->
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    initSlider();
+
+    const emblem = document.querySelector('.overlay-emblem');
+    const container = emblem.closest('.emblem-container');
+    const explosion = container.querySelector('.explosion');
+
+    emblem.addEventListener('click', () => {
+      explosion.classList.add('active');
+      emblem.classList.add('hidden');
+
+      setTimeout(() => {
+        explosion.classList.remove('active');
+      }, 1000);
+
+      setTimeout(() => {
+        emblem.classList.remove('hidden');
+      }, 3000);
+    });
+  });
+</script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     initSlider();
