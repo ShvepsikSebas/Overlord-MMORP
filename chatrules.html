@@ -14,6 +14,7 @@
       font-family: 'Roboto', sans-serif;
       line-height: 1.8;
       font-size: 18px;
+      position: relative;
     }
     h1 {
       font-size: 2.5em;
@@ -26,6 +27,10 @@
       position: fixed;
       top: 20px;
       left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 10;
     }
     .nav a {
       color: #fff;
@@ -33,12 +38,20 @@
       background-color: #222;
       padding: 10px 15px;
       border-radius: 8px;
-      margin-right: 10px;
       transition: background-color 0.3s, box-shadow 0.3s;
     }
     .nav a:hover {
       background-color: #444;
       box-shadow: 0 0 10px #fca311;
+    }
+    /* Музыкальный переключатель */
+    #music-toggle {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #fca311;
+      padding: 5px;
     }
     .content {
       max-width: 1000px;
@@ -68,17 +81,65 @@
       cursor: pointer;
       box-shadow: 0 0 15px #fca311;
       transition: opacity 0.3s ease-in-out;
+      z-index: 10;
     }
     .to-top:hover {
       opacity: 0.8;
     }
   </style>
+
+  <!-- Скрипт в head: создаёт YouTube-плеер, если включена музыка -->
+  <script>
+    (function() {
+      const VIDEO_ID = 'gfz4Z7vNxJ8';
+      function createPlayer() {
+        if (document.getElementById('bgMusic')) return;
+        const src = `https://www.youtube.com/embed/${VIDEO_ID}` +
+                    `?autoplay=1&loop=1&playlist=${VIDEO_ID}&controls=0&mute=0`;
+        const iframe = document.createElement('iframe');
+        iframe.id = 'bgMusic';
+        iframe.src = src;
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay; encrypted-media';
+        Object.assign(iframe.style, {
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          width: '0',
+          height: '0',
+          opacity: '0',
+          pointerEvents: 'none'
+        });
+        document.body.appendChild(iframe);
+      }
+      window.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('musicOn') === null) {
+          localStorage.setItem('musicOn', 'true');
+        }
+        if (localStorage.getItem('musicOn') === 'true') {
+          createPlayer();
+        }
+      });
+      window.toggleMusic = function() {
+        const isOn = localStorage.getItem('musicOn') === 'true';
+        if (isOn) {
+          localStorage.setItem('musicOn', 'false');
+          const bg = document.getElementById('bgMusic');
+          if (bg) bg.remove();
+        } else {
+          localStorage.setItem('musicOn', 'true');
+          createPlayer();
+        }
+      };
+    })();
+  </script>
 </head>
 <body>
   <div class="nav">
     <a href="index.html">Главная</a>
     <a href="rules.html">Общие правила</a>
     <a href="fractions.html">Правила фракций</a>
+    <button id="music-toggle"></button>
   </div>
 
   <h1>💬 Правила общения</h1>
@@ -116,10 +177,26 @@
 
     <strong>Манипуляции</strong>
     <p>Запрещены любые манипуляции, введение в заблуждение администрации или игроков.<br>Наказание: бан на 3 дня или по усмотрению администрации.</p>
- </div>
+  </div>
 
   <button class="to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">⬆ Наверх</button>
+
+  <!-- Скрипт внизу body: переключает музыку и обновляет иконку -->
+  <script>
+    (function() {
+      const btn = document.getElementById('music-toggle');
+      function updateIcon() {
+        btn.textContent = localStorage.getItem('musicOn') === 'true' ? '🔊' : '🔇';
+      }
+      btn.addEventListener('click', function() {
+        window.toggleMusic();
+        updateIcon();
+      });
+      updateIcon();
+    })();
+  </script>
 </body>
 </html>
+
 
 
