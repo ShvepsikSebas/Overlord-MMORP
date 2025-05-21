@@ -1,18 +1,53 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battle For Yggdrasil | Главная</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Roboto', sans-serif;
       background-color: #0d0d16;
       color: #fff;
       overflow-x: hidden;
+    }
+ <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #0d0d16;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+@keyframes shake {
+  0% { transform: rotate(0deg) translate(0, 0); }
+  20% { transform: rotate(-2deg) translate(-1px, 0); }
+  40% { transform: rotate(2deg) translate(1px, 0); }
+  60% { transform: rotate(-1deg) translate(-1px, 0); }
+  80% { transform: rotate(1deg) translate(1px, 0); }
+  100% { transform: rotate(0deg) translate(0, 0); }
+
+    @keyframes fadeGlow {
+      0% { opacity: 0; transform: scale(0.95); text-shadow: 0 0 0px #b891f9; }
+      100% { opacity: 1; transform: scale(1); text-shadow: 0 0 30px #b891f9; }
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes particleRise {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
+    }
+
+    @keyframes shimmer {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.7); }
     }
 
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
@@ -47,16 +82,14 @@
       height: 100px;
       width: 100px;
       filter: drop-shadow(0 0 20px #b891f9);
-      opacity: 1;
+      opacity: 0;
       animation: fadeGlow 1.5s ease-out 0.3s forwards, rotate 12s linear infinite, shimmer 3s ease-in-out infinite;
-      transition: opacity 0.5s ease;
-      cursor: pointer;
     }
 
-    .overlay-emblem.hidden {
-      opacity: 0;
-      transform: scale(0);
-      pointer-events: none;
+    .overlay-emblem-wrapper:hover .particle {
+      animation-play-state: paused;
+      opacity: 0.2 !important;
+      transform: scale(1.5);
     }
 
     .particles {
@@ -87,103 +120,185 @@
     .particle:nth-child(7) { left: 15px; animation-delay: 1.8s; }
     .particle:nth-child(8) { left: -20px; animation-delay: 2.1s; }
     .particle:nth-child(9) { left: 20px; animation-delay: 2.4s; }
+    .particle:nth-child(10) { left: -25px; animation-delay: 2.7s; }
+    .particle:nth-child(11) { left: 25px; animation-delay: 3s; }
+    .particle:nth-child(12) { left: -30px; animation-delay: 3.3s; }
+    .particle:nth-child(13) { left: 30px; animation-delay: 3.6s; }
+    .particle:nth-child(14) { left: -35px; animation-delay: 3.9s; }
+    .particle:nth-child(15) { left: 35px; animation-delay: 4.2s; }
 
-    .explosion {
-      position: absolute;
-      top: 50%;
-      left: 50%;
+    .slide {
+      position: absolute; width: 100%; height: 100%;
+      background-size: cover; background-position: center;
+      opacity: 0; transition: opacity 1s ease; cursor: pointer;
+    }
+    .slide.active { opacity: 1; z-index: 2; }
+    .slide h2 {
+      position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 150px;
-      height: 150px;
-      background: radial-gradient(circle, #b891f9 10%, transparent 70%);
-      border-radius: 50%;
+      font-size: 3em; color: #fff;
+      text-shadow: 0 0 20px rgba(255,255,255,0.8);
+      opacity: 0; transition: opacity 1s ease 0.5s;
+    }
+    .slide.active h2 { opacity: 1; }
+    .nav-button {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.4); color: #fff; border: none;
+      border-radius: 12px; cursor: pointer;
+      font-size: 5em; padding: 30px 40px;
+      transition: background 0.3s; z-index: 3;
+    }
+    .prev { left: 10px; } .next { right: 10px; }
+    .nav-button:hover { background: rgba(255,255,255,0.2); }
+
+    .info-panel-container,
+    .donate-panel-container,
+    .character-panel-container,
+    .sebas-panel-container,
+    .albedo-panel-container {
+      position: relative;
+      width: fit-content;
+      margin: 50px auto;
+      overflow: visible;
+    }
+
+    .info-panel,
+    .donate-panel,
+    .character-panel,
+    .sebas-panel-container .character-panel,
+    .albedo-panel-container .character-panel {
+      background: rgba(28,28,46,0.5);
+      backdrop-filter: blur(10px);
+      border: none;
+      display: flex; align-items: center;
+      padding: 60px; border-radius: 12px;
+      transform: translateX(-100%); opacity: 0;
+      transition: transform 1s ease, opacity 1s ease;
+      width: 80vw; max-width: 900px;
+      cursor: pointer; z-index: 1;
+    }
+    .character-panel { transform: translateY(100%); }
+    .info-panel.visible,
+    .donate-panel.visible,
+    .character-panel.visible,
+    .sebas-panel-container .character-panel.visible,
+    .albedo-panel-container .character-panel.visible {
+      transform: translateX(0); opacity: 1;
+    }
+    .character-panel.visible { transform: translateY(0); }
+
+    .info-panel .text,
+    .donate-panel .text,
+    .character-panel .cp-text {
+      font-size: 1.3em; line-height: 1.6; color: #ddd;
+    }
+
+    .info-panel img,
+    .donate-panel img,
+    .character-panel img,
+    .sebas-panel-container .side-img {
+      width: 160px; height: 160px;
+      object-fit: cover; margin-right: 30px;
+      border-radius: 8px;
+    }
+
+    .info-panel-container .hand,
+    .donate-panel-container .hand {
+      position: absolute; top: 50%; width: 100px; opacity: 0;
+      transition: transform 0.5s ease, opacity 0.5s ease; z-index: 2;
+    }
+    .info-panel-container .hand {
+      right: -140px; transform: translate(50%, -50%);
+    }
+    .donate-panel-container .hand {
+      left: -140px; transform: translate(-50%, -50%);
+    }
+    .info-panel-container:hover .hand,
+    .donate-panel-container:hover .hand {
+      transform: translate(0, -50%); opacity: 1;
+    }
+
+    @keyframes fadeInText { to { opacity: 1; } }
+    .character-panel .cp-text {
+      opacity: 0; animation: fadeInText 1s 0.3s forwards;
+    }
+
+    .side-img {
+      position: absolute;
+      width: auto;
+      height: 300px;
+      object-fit: unset;
       opacity: 0;
-      pointer-events: none;
-      z-index: 6;
+      transition: transform 1s ease, opacity 1s ease;
+    }
+    .side-img.left {
+      left: -260px; top: 50%;
+      transform: translate(-50px, -50%);
+    }
+    .side-img.right {
+      right: -260px; top: 50%;
+      transform: translate(50px, -50%);
+    }
+    .character-panel.visible ~ .side-img.left,
+    .character-panel.visible ~ .side-img.right {
+      transform: translate(0, -50%); opacity: 1;
     }
 
-    .explosion.active {
-      animation: explosion 1s ease-out;
-      opacity: 1;
+    .sebas-panel-container .side-img.left {
+      top: 50%;
+      transform: translate(-50px, -50%);
+      height: auto;
+      max-height: 400px;
+      width: auto;
+      z-index: 5;
+    }
+    .albedo-panel-container .side-img.right {
+      top: 50%;
+      right: -295px;
+      transform: translate(50px, -50%);
+      height: auto;
+      max-height: 260px;
+      width: auto;
+      z-index: 5;
+    }
+    .separator {
+      width: 90vw; max-width: 1200px;
+      height: 1px; background: #444;
+      margin: 60px auto 20px;
+    }
+    .separator-title {
+      text-align: center; font-size: 1.6em;
+      margin-bottom: 40px; color: #fff;
     }
 
-    @keyframes fadeGlow {
-      0% { opacity: 0; transform: scale(0.95); text-shadow: 0 0 0px #b891f9; }
-      100% { opacity: 1; transform: scale(1); text-shadow: 0 0 30px #b891f9; }
+    footer {
+      text-align: center; padding: 20px;
+      font-size: 0.9em; color: #888;
+      background-color: #0b0b12; position: relative; z-index: 10;
     }
 
-    @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    @media (max-width: 768px) {
+      .overlay-title { font-size: 1.5em; top: 10px; }
+      .slide h2 { font-size: 2em; }
+      .nav-button { font-size: 3em; padding: 20px 25px; }
+      .info-panel, .donate-panel, .character-panel {
+        flex-direction: column; width: 95%; padding: 20px;
+      }
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 100px; height: 100px; margin-bottom: 15px;
+      }
+      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
+        text-align: center; font-size: 1em;
+      }
+      .info-panel-container .hand, .donate-panel-container .hand {
+        display: none;
+      }
+      .side-img { display: none; }
     }
-
-    @keyframes particleRise {
-      0% { transform: translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
-    }
-
-    @keyframes shimmer {
-      0%, 100% { filter: brightness(1); }
-      50% { filter: brightness(1.7); }
-    }
-
-    @keyframes explosion {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(2.5); opacity: 0.3; }
-      100% { transform: scale(0); opacity: 0; }
-    }
-
-    @keyframes shake {
-      0% { transform: rotate(0deg) translate(0, 0); }
-      20% { transform: rotate(-2deg) translate(-1px, 0); }
-      40% { transform: rotate(2deg) translate(1px, 0); }
-      60% { transform: rotate(-1deg) translate(-1px, 0); }
-      80% { transform: rotate(1deg) translate(1px, 0); }
-      100% { transform: rotate(0deg) translate(0, 0); }
-    }
-  </style>
-</head>
-<body>
-  <div class="slider">
-    <div class="overlay-title-wrapper">
-      <div class="overlay-emblem-wrapper">
-        <img src="gerb.png" alt="Герб" class="overlay-emblem" />
-        <div class="particles">
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-        </div>
-      </div>
-      <div class="overlay-title">Battle for Yggdrasil</div>
-    </div>
-    <div class="slide active" style="background-image:url('rules1.png')" onclick="location.href='rules.html'">
-      <h2>Основные правила сервера</h2>
-    </div>
-    <div class="slide" style="background-image:url('fractions1.png')" onclick="location.href='fractions.html'">
-      <h2>Правила фракций</h2>
-    </div>
-    <div class="slide" style="background-image:url('chatrules1.png')" onclick="location.href='chatrules.html'">
-      <h2>Правила общения</h2>
-    </div>
-    <div class="slide" style="background-image:url('lor.png')" onclick="location.href='Lor.html'">
-      <h2>Лор (История)</h2>
-    </div>
-    <button class="nav-button prev" onclick="prevSlide()">❮</button>
-    <button class="nav-button next" onclick="nextSlide()">❯</button>
-  </div>
-
-  <div class="explosion"></div>
-
+   </style>
   <script>
     function initSlider() {
-      let current = 0;
-      const slides = document.querySelectorAll('.slide');
+      let current = 0, slides = document.querySelectorAll('.slide');
       function show(i) {
         slides.forEach(s => s.classList.remove('active'));
         slides[i].classList.add('active');
@@ -197,17 +312,31 @@
         show(current);
       };
       show(0);
+
+      const panels = document.querySelectorAll(
+        '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
+      );
+
+      window.addEventListener('scroll', () => {
+        panels.forEach(panel => {
+          const r = panel.getBoundingClientRect();
+          panel.classList.toggle('visible',
+            r.top < window.innerHeight && r.bottom > 0
+          );
+        });
+      });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       initSlider();
 
       const emblem = document.querySelector('.overlay-emblem');
-      const explosion = document.querySelector('.explosion');
+      const explosion = document.createElement('div');
+      explosion.classList.add('explosion');
+      emblem.parentElement.appendChild(explosion);
 
       emblem.addEventListener('click', () => {
         emblem.style.animation = 'shake 0.4s ease';
-
         setTimeout(() => {
           explosion.classList.add('active');
           emblem.classList.add('hidden');
@@ -216,13 +345,36 @@
         setTimeout(() => {
           explosion.classList.remove('active');
           emblem.classList.remove('hidden');
-          emblem.style.animation = ''; // сброс анимации
+          emblem.style.animation = '';
         }, 3000);
       });
     });
   </script>
+</head>
+<body>
 
-  <!-- discord -->
+  <div class="slider">
+    <div class="overlay-title-wrapper">
+      <div class="overlay-emblem-wrapper">
+        <img src="gerb.png" alt="Герб" class="overlay-emblem">
+        <div class="particles">
+          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+          <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        </div>
+      </div>
+      <div class="overlay-title">Battle for Yggdrasil</div>
+    </div>
+
+    <div class="slide active" style="background-image:url('rules1.png')" onclick="location.href='rules.html'"><h2>Основные правила сервера</h2></div>
+    <div class="slide" style="background-image:url('fractions1.png')" onclick="location.href='fractions.html'"><h2>Правила фракций</h2></div>
+    <div class="slide" style="background-image:url('chatrules1.png')" onclick="location.href='chatrules.html'"><h2>Правила общения</h2></div>
+    <div class="slide" style="background-image:url('lor.png')" onclick="location.href='Lor.html'"><h2>Лор (История)</h2></div>
+    <button class="nav-button prev" onclick="prevSlide()">❮</button>
+    <button class="nav-button next" onclick="nextSlide()">❯</button>
+  </div>
+
   <div class="info-panel-container">
     <div class="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
       <img src="discord_logo.jpg" alt="Discord">
@@ -234,7 +386,6 @@
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
 
-  <!-- donate -->
   <div class="donate-panel-container">
     <div class="donate-panel" onclick="location.href='donate.html'">
       <img src="donat.jpg" alt="Donate">
@@ -245,11 +396,9 @@
     <img src="ainzhand_left.png" alt="Hand" class="hand">
   </div>
 
-  <!-- separator -->
   <div class="separator"></div>
   <h2 class="separator-title">Краткое описание Лорных персонажей</h2>
 
-  <!-- Ainz + Momon -->
   <div class="character-panel-container">
     <div class="character-panel">
       <div class="cp-text">
@@ -260,7 +409,6 @@
     <img src="momonga.png" alt="Momon" class="side-img right">
   </div>
 
-  <!-- Sebas -->
   <div class="sebas-panel-container">
     <div class="character-panel">
       <div class="cp-text">
@@ -270,7 +418,6 @@
     <img src="sebas.png" alt="Sebas" class="side-img left">
   </div>
 
-  <!-- Albedo -->
   <div class="albedo-panel-container">
     <div class="character-panel">
       <div class="cp-text">
@@ -280,5 +427,7 @@
     <img src="albedo.png" alt="Albedo" class="side-img right">
   </div>
 
-  <!-- footer -->
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
+
+</body>
+</html>
