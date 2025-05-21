@@ -144,7 +144,14 @@
   width: auto;
   z-index: 5;
 }
-
+.albedo-panel-container .side-img.left {
+  top: 50%;
+  transform: translate(-50px, -50%);
+  height: auto;
+  max-height: 380px;
+  width: auto;
+  z-index: 5;
+}
     .separator {
       width: 90vw; max-width: 1200px;
       height: 1px; background: #444;
@@ -198,7 +205,8 @@
       show(0);
 
       const panels = document.querySelectorAll(
-        '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel'
+        '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
+
       );
       window.addEventListener('scroll', () => {
         panels.forEach(panel => {
@@ -276,6 +284,17 @@
     </div>
     <img src="sebas.png" alt="Sebas" class="side-img left">
   </div>
+<!-- Характер-панель Альбедо -->
+<div class="albedo-panel-container">
+  <div class="character-panel">
+    <div class="cp-text">
+      Альбедо — начальница Стражей Великой Гробницы Назарик. Обладает безупречным интеллектом, стратегическим мышлением и абсолютной преданностью Аинзу. За холодной внешностью скрывает пылающую любовь к своему господину.
+    </div>
+  </div>
+
+  <img src="albedo.png" alt="Albedo" class="side-img left">
+</div>
+
 
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 </body>
