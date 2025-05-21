@@ -144,9 +144,9 @@
   width: auto;
   z-index: 5;
 }
-.albedo-panel-container .side-img.left {
+.albedo-panel-container .side-img.right {
   top: 50%;
-  transform: translate(-50px, -50%);
+  transform: translate(50px, -50%);
   height: auto;
   max-height: 380px;
   width: auto;
@@ -204,8 +204,9 @@
       };
       show(0);
 
-      const panels = document.querySelectorAll(
-        '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
+     const panels = document.querySelectorAll(
+  '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
+);
 
       );
       window.addEventListener('scroll', () => {
@@ -291,6 +292,9 @@
       Альбедо — начальница Стражей Великой Гробницы Назарик. Обладает безупречным интеллектом, стратегическим мышлением и абсолютной преданностью Аинзу. За холодной внешностью скрывает пылающую любовь к своему господину.
     </div>
   </div>
+  <img src="albedo.png" alt="Albedo" class="side-img right">
+</div>
+
 
   <img src="albedo.png" alt="Albedo" class="side-img left">
 </div>
