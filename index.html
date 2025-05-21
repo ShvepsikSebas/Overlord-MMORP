@@ -14,6 +14,60 @@
       overflow-x: hidden;
     }
 
+#helper-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  animation: slideIn 1s ease forwards;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#helper-img {
+  width: 80px;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.3s;
+  pointer-events: auto;
+}
+
+#helper-img:hover {
+  transform: scale(1.05);
+}
+
+#helper-dialog {
+  background: rgba(30, 30, 60, 0.9);
+  border: 1px solid #b891f9;
+  border-radius: 10px;
+  padding: 10px 15px;
+  color: #fff;
+  max-width: 260px;
+  font-size: 0.9em;
+  position: relative;
+  pointer-events: auto;
+}
+
+#close-dialog {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  cursor: pointer;
+  color: #bbb;
+}
+
+#close-dialog:hover {
+  color: #fff;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
     @keyframes fadeGlow {
       0% { opacity: 0; transform: scale(0.95); text-shadow: 0 0 0px #b891f9; }
       100% { opacity: 1; transform: scale(1); text-shadow: 0 0 30px #b891f9; }
@@ -315,7 +369,49 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initSlider();
+  // Швепсик
+  if (!localStorage.getItem("hideShvepsik")) {
+    const container = document.getElementById("helper-container");
+    const img = document.getElementById("helper-img");
+    const dialog = document.getElementById("helper-dialog");
+    const closeBtn = document.getElementById("close-dialog");
 
+    let clickCount = 0;
+    let phraseIndex = 0;
+    let phrases = [
+      "Нажми на слайды — это переходы по разделам.",
+      "В разделе «Фракции» описаны все стороны конфликта.",
+      "Не забудь зайти на наш Discord, он внизу!",
+      "Поддержать проект можно через вкладку Донат.",
+      "Если потеряешься — просто кликни на меня снова!"
+    ];
+
+    setTimeout(() => {
+      container.style.opacity = "1";
+      container.style.pointerEvents = "auto";
+    }, 3000);
+
+    img.addEventListener("click", () => {
+      clickCount++;
+      if (clickCount >= 2) {
+        container.remove();
+        localStorage.setItem("hideShvepsik", "true");
+      } else {
+        dialog.style.display = "block";
+      }
+    });
+
+    closeBtn.addEventListener("click", () => {
+      dialog.style.display = "none";
+    });
+
+    setInterval(() => {
+      if (dialog.style.display !== "none") {
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        dialog.querySelector(".dialog-text").textContent = phrases[phraseIndex];
+      }
+    }, 7000);
+  }
     });
   </script>
 </head>
@@ -415,6 +511,14 @@
 
   <!-- footer -->
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
+<!-- Швепсик — помощник -->
+<div id="helper-container">
+  <img id="helper-img" src="ecler.png" alt="Швепсик" title="Я Швепсик!" />
+  <div id="helper-dialog">
+    <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на меня, чтобы узнать больше! (я спрячусь после двух кликов)</div>
+    <span id="close-dialog">✖</span>
+  </div>
+</div>
 
 </body>
 </html>
