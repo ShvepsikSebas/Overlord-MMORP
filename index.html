@@ -145,22 +145,6 @@
       showSlide(currentSlide);
     }
 
-    // Music toggle + автозапуск по клику
-    const audio = document.getElementById('bg-music');
-    audio.volume = 0.05;
-    const musicBtn = document.getElementById('music-toggle');
-    let playedOnce = false;
-    musicBtn.addEventListener('click', () => {
-      if (!playedOnce) {
-        audio.play().catch(() => {
-          console.log('Автозапуск заблокирован, ждём клика.');
-        });
-        playedOnce = true;
-      }
-      audio.muted = !audio.muted;
-      musicBtn.textContent = audio.muted ? '🔇' : '🔊';
-    });
-
     // Scroll reveal
     const panel = document.getElementById('info-panel');
     window.addEventListener('scroll', () => {
