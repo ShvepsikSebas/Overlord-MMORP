@@ -159,6 +159,9 @@
   </style>
 </head>
 <body>
+  <!-- YouTube-плеер для фоновой музыки -->
+  <div id="yt-player"></div>
+
   <div class="slider">
     <div class="overlay-title">
       OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера
@@ -191,57 +194,86 @@
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
 
-  <!-- Фоновая музыка -->
-  <audio id="bg-music" src="background.mp3" preload="auto" loop></audio>
-
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // === Слайдер ===
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.slide');
-    function showSlide(i) {
-      slides.forEach(s => s.classList.remove('active'));
-      slides[i].classList.add('active');
+    // 1) Асинхронно загружаем YouTube IFrame API
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScript = document.getElementsByTagName('script')[0];
+    firstScript.parentNode.insertBefore(tag, firstScript);
+
+    var player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('yt-player', {
+        height: '0', width: '0',
+        videoId: 'gfz4Z7vNxJ8',
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          playlist: 'gfz4Z7vNxJ8',
+          controls: 0,
+          modestbranding: 1,
+          disablekb: 1,
+          iv_load_policy: 3,
+          rel: 0,
+          mute: 1
+        },
+        events: {
+          onReady: function(event) {
+            event.target.setVolume(5);
+            event.target.mute();
+          }
+        }
+      });
     }
-    window.prevSlide = () => {
-      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-      showSlide(currentSlide);
-    };
-    window.nextSlide = () => {
-      currentSlide = (currentSlide + 1) % slides.length;
-      showSlide(currentSlide);
-    };
-    showSlide(0);
 
-    // === Музыка ===
-    const audio = document.getElementById('bg-music');
-    const btn   = document.getElementById('music-toggle');
-    audio.volume = 0.05;
-    audio.muted  = true;
+    document.addEventListener('DOMContentLoaded', function() {
+      // === Слайдер ===
+      let currentSlide = 0;
+      const slides = document.querySelectorAll('.slide');
+      function showSlide(i) {
+        slides.forEach(s => s.classList.remove('active'));
+        slides[i].classList.add('active');
+      }
+      window.prevSlide = function() {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(currentSlide);
+      };
+      window.nextSlide = function() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+      };
+      showSlide(0);
 
-    // Разблокировка play() первым кликом по странице
-    function unlockAudio() {
-      audio.play().catch(() => {});
-      document.removeEventListener('click', unlockAudio);
-    }
-    document.addEventListener('click', unlockAudio, { once: true });
+      // === Разблокировка и переключение музыки ===
+      function unlockYT() {
+        if (player && player.playVideo) {
+          player.playVideo();
+        }
+      }
+      document.addEventListener('click', unlockYT, { once: true });
 
-    // Переключатель звука
-    btn.addEventListener('click', () => {
-      audio.muted = !audio.muted;
-      btn.textContent = audio.muted ? '🔇' : '🔊';
+      const btn = document.getElementById('music-toggle');
+      btn.addEventListener('click', function() {
+        if (!player) return;
+        if (player.isMuted()) {
+          player.unMute();
+          btn.textContent = '🔊';
+        } else {
+          player.mute();
+          btn.textContent = '🔇';
+        }
+      });
+
+      // === Scroll reveal для info-panel ===
+      const panel = document.getElementById('info-panel');
+      window.addEventListener('scroll', () => {
+        const rect = panel.getBoundingClientRect();
+        if (rect.top < window.innerHeight) panel.classList.add('visible');
+        else panel.classList.remove('visible');
+      });
     });
-
-    // === Scroll reveal для info-panel ===
-    const panel = document.getElementById('info-panel');
-    window.addEventListener('scroll', () => {
-      const rect = panel.getBoundingClientRect();
-      if (rect.top < window.innerHeight) panel.classList.add('visible');
-      else panel.classList.remove('visible');
-    });
-  });
   </script>
 </body>
 </html>
