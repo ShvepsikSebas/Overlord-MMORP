@@ -14,33 +14,16 @@
       overflow-x: hidden;
       position: relative;
     }
-    .nav {
+    #music-toggle {
       position: fixed;
       top: 20px;
-      left: 20px;
-      display: flex;
-      gap: 10px;
-      z-index: 20;
-    }
-    .nav a {
-      color: #fff;
-      text-decoration: none;
-      background: #222;
-      padding: 10px 15px;
-      border-radius: 8px;
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-    .nav a:hover {
-      background: #444;
-      box-shadow: 0 0 10px #fca311;
-    }
-    #music-toggle {
+      right: 20px;
       background: none;
       border: none;
       font-size: 1.5em;
       cursor: pointer;
       color: #fca311;
-      padding: 5px;
+      z-index: 20;
     }
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
     .overlay-title {
@@ -175,71 +158,58 @@
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('bgMusic', {
         videoId: 'gfz4Z7vNxJ8',
-        playerVars: { autoplay: 1, loop: 1, playlist: 'gfz4Z7vNxJ8', controls: 0, modestbranding: 1 },
+        playerVars: { autoplay:1, loop:1, playlist:'gfz4Z7vNxJ8', controls:0, modestbranding:1 },
         events: { onReady(e) {
           const vol = localStorage.getItem('musicVol') || 30;
           e.target.setVolume(vol);
+          if (localStorage.getItem('musicOn') === null) localStorage.setItem('musicOn','true');
           if (localStorage.getItem('musicOn') === 'true') e.target.playVideo();
         }}
       });
     }
-
     window.toggleMusic = function() {
       if (!player) return;
-      const isOn = localStorage.getItem('musicOn') === 'true';
-      if (isOn) player.pauseVideo();
-      else player.playVideo();
-      localStorage.setItem('musicOn', isOn ? 'false' : 'true');
+      const isOn = localStorage.getItem('musicOn')==='true';
+      isOn ? player.pauseVideo() : player.playVideo();
+      localStorage.setItem('musicOn', isOn?'false':'true');
       updateIcon();
     };
-
     function updateIcon() {
       document.getElementById('music-toggle').textContent =
-        localStorage.getItem('musicOn') === 'true' ? '🔊' : '🔇';
+        localStorage.getItem('musicOn')==='true'?'🔊':'🔇';
     }
-
     document.addEventListener('DOMContentLoaded', updateIcon);
 
-    // SPA-навигация
-    document.addEventListener('click', e => {
-      const a = e.target.closest('.nav a');
-      if (!a) return;
-      e.preventDefault();
-      fetch(a.href)
-        .then(r => r.text())
-        .then(html => {
-          const doc = new DOMParser().parseFromString(html, 'text/html');
-          document.title = doc.title;
-          document.querySelector('.slider').outerHTML = doc.querySelector('.slider').outerHTML;
-          document.querySelector('.info-panel-container').outerHTML = doc.querySelector('.info-panel-container').outerHTML;
-          history.pushState(null, '', a.href);
-          initSlider();  // после замены DOM
-        });
-    });
-    window.addEventListener('popstate', () => location.reload());
+    function initSlider() {
+      let current=0, slides=document.querySelectorAll('.slide');
+      function show(i){slides.forEach(s=>s.classList.remove('active'));slides[i].classList.add('active');}
+      window.prevSlide=()=>{current=(current-1+slides.length)%slides.length;show(current)};
+      window.nextSlide=()=>{current=(current+1)%slides.length;show(current)};
+      show(0);
+      const panel=document.querySelector('.info-panel');
+      window.addEventListener('scroll',()=>{
+        const r=panel.getBoundingClientRect();
+        if(r.top<window.innerHeight) panel.classList.add('visible');
+        else panel.classList.remove('visible');
+      });
+    }
+    document.addEventListener('DOMContentLoaded', initSlider);
   </script>
 </head>
 <body>
-  <!-- невидимый контейнер YouTube -->
+  <!-- hidden YouTube player -->
   <div id="bgMusic" style="width:0;height:0;overflow:hidden;"></div>
-
-  <div class="nav">
-    <a href="index.html">Главная</a>
-    <a href="rules.html">Общие правила</a>
-    <a href="fractions.html">Правила фракций</a>
-    <a href="chatrules.html">Правила общения</a>
-    <button id="music-toggle" onclick="toggleMusic()"></button>
-  </div>
+  <button id="music-toggle" onclick="toggleMusic()"></button>
 
   <div class="slider">
     <div class="overlay-title">OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера</div>
-    <div class="slide active" style="background-image: url('rules1.png');" onclick="location.href='rules.html'">
+    <div class="slide active" style="background-image:url('rules1.png');" onclick="location.href='rules.html'">
       <h2>Основные правила сервера</h2>
     </div>
-    <div class="slide" style="background-image: url('fractions1.png');" onclick="location.href='fractions.html'">
+    <div class="slide" style="background-image:url('fractions1.png');" onclick="location.href='fractions.html'">
       <h2>Правила фракций</h2>
     </div>
-    <div class="slide" style="background-image: url('chatrules1.png');" onclick="location.href='chatrules.html'">
+    <div class="slide" style="background-image:url('chatrules1.png');" onclick="location.href='chatrules.html'">
       <h2>Правила общения</h2>
     </div>
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
@@ -260,28 +230,6 @@
   </div>
 
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
-
-  <script>
-    function initSlider() {
-      let current = 0;
-      const slides = document.querySelectorAll('.slide');
-      function show(i) {
-        slides.forEach(s => s.classList.remove('active'));
-        slides[i].classList.add('active');
-      }
-      window.prevSlide = () => { current = (current - 1 + slides.length) % slides.length; show(current); };
-      window.nextSlide = () => { current = (current + 1) % slides.length; show(current); };
-      show(0);
-
-      const panel = document.querySelector('.info-panel');
-      window.addEventListener('scroll', () => {
-        const r = panel.getBoundingClientRect();
-        if (r.top < window.innerHeight) panel.classList.add('visible');
-        else panel.classList.remove('visible');
-      });
-    }
-    document.addEventListener('DOMContentLoaded', initSlider);
-  </script>
 </body>
 </html>
 
