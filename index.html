@@ -56,6 +56,19 @@
   pointer-events: auto;
 }
 
+#next-phrase {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 1.2em;
+  color: #ccc;
+}
+#next-phrase:hover {
+  color: #fff;
+  transform: scale(1.2);
+}
+
 #close-dialog {
   position: absolute;
   top: 5px;
@@ -375,12 +388,13 @@
 document.addEventListener('DOMContentLoaded', () => {
   initSlider();
 
-  // Швепсик с ручной кнопкой и фиксом закрытия
+  // Швепсик
   if (!localStorage.getItem("hideShvepsik")) {
     const container = document.getElementById("helper-container");
     const img = document.getElementById("helper-img");
     const dialog = document.getElementById("helper-dialog");
     const closeBtn = document.getElementById("close-dialog");
+    const nextBtn = document.getElementById("next-phrase");
 
     let clickCount = 0;
     let phraseIndex = 0;
@@ -392,28 +406,13 @@ document.addEventListener('DOMContentLoaded', () => {
       "Если потеряешься — просто кликни на меня снова!"
     ];
 
-    // Добавим стрелочку ➤
-    const nextBtn = document.createElement("span");
-    nextBtn.textContent = "➤";
-    nextBtn.style.position = "absolute";
-    nextBtn.style.bottom = "5px";
-    nextBtn.style.right = "10px";
-    nextBtn.style.cursor = "pointer";
-    nextBtn.style.fontSize = "1.2em";
-    nextBtn.style.color = "#ccc";
-    nextBtn.title = "Следующая подсказка";
-    dialog.appendChild(nextBtn);
-
-    nextBtn.addEventListener("click", () => {
-      phraseIndex = (phraseIndex + 1) % phrases.length;
-      dialog.querySelector(".dialog-text").textContent = phrases[phraseIndex];
-    });
-
+    // Показываем Швепсика
     setTimeout(() => {
       container.style.opacity = "1";
       container.style.pointerEvents = "auto";
     }, 3000);
 
+    // Клик по Швепсику
     img.addEventListener("click", () => {
       clickCount++;
       if (clickCount >= 2) {
@@ -424,10 +423,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Крестик закрывает диалог
     closeBtn.addEventListener("click", () => {
       dialog.style.display = "none";
     });
 
+    // Стрелка ➤ листает фразы
+    nextBtn.addEventListener("click", () => {
+      phraseIndex = (phraseIndex + 1) % phrases.length;
+      dialog.querySelector(".dialog-text").textContent = phrases[phraseIndex];
+    });
+
+    // Автосмена
     setInterval(() => {
       if (dialog.style.display !== "none") {
         phraseIndex = (phraseIndex + 1) % phrases.length;
@@ -436,6 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 7000);
   }
 });
+
   </script>
 </head>
 <body>
@@ -540,6 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
   <div id="helper-dialog">
     <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на меня, чтобы узнать больше! (я спрячусь после двух кликов)</div>
     <span id="close-dialog">✖</span>
+    <span id="next-phrase">➤</span>
   </div>
 </div>
 
