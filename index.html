@@ -13,7 +13,7 @@
       background-color: #0f0f17;
       color: white;
       font-family: sans-serif;
-      overflow-x: hidden;
+      overflow: hidden;
     }
     .slider {
       position: relative;
@@ -21,16 +21,29 @@
       width: 100%;
     }
     .slide {
-      display: none;
+      position: absolute;
       height: 100%;
       width: 100%;
       background-size: cover;
       background-position: center;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 0;
       cursor: pointer;
-      position: relative;
     }
     .slide.active {
-      display: block;
+      opacity: 1;
+      z-index: 1;
+    }
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
     }
     .slide-title {
       position: absolute;
@@ -38,10 +51,14 @@
       left: 50%;
       transform: translate(-50%, -50%);
       color: white;
-      font-size: 3em;
+      font-size: 5.5em;
       font-weight: bold;
-      text-shadow: 0 0 10px black;
+      text-shadow: 0 0 20px black;
       pointer-events: none;
+      opacity: 0;
+    }
+    .slide.active .slide-title {
+      animation: fadeInUp 1.2s ease forwards;
     }
     .nav {
       position: absolute;
@@ -59,7 +76,7 @@
       color: white;
       font-size: 4em;
       width: 70px;
-      height: 100px;
+      height: 120px;
       cursor: pointer;
       pointer-events: auto;
       transition: background 0.3s;
@@ -79,8 +96,8 @@
       text-decoration: none;
       background: #222;
       color: white;
-      padding: 14px 24px;
-      font-size: 1.1em;
+      padding: 16px 28px;
+      font-size: 1.2em;
       border-radius: 8px;
       transition: background 0.3s;
     }
@@ -136,4 +153,3 @@
 
 </body>
 </html>
-
