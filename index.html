@@ -158,38 +158,49 @@
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('bgMusic', {
         videoId: 'gfz4Z7vNxJ8',
-        playerVars: { autoplay:1, loop:1, playlist:'gfz4Z7vNxJ8', controls:0, modestbranding:1 },
-        events: { onReady(e) {
-          const vol = localStorage.getItem('musicVol') || 30;
-          e.target.setVolume(vol);
-          if (localStorage.getItem('musicOn') === null) localStorage.setItem('musicOn','true');
-          if (localStorage.getItem('musicOn') === 'true') e.target.playVideo();
-        }}
+        playerVars: { autoplay: 1, loop: 1, playlist: 'gfz4Z7vNxJ8', controls: 0, modestbranding: 1 },
+        events: {
+          onReady(e) {
+            e.target.setVolume(5);      // 5% громкости
+            e.target.playVideo();       // автозапуск при загрузке
+            updateIcon();
+          }
+        }
       });
     }
+
     window.toggleMusic = function() {
       if (!player) return;
-      const isOn = localStorage.getItem('musicOn')==='true';
-      isOn ? player.pauseVideo() : player.playVideo();
-      localStorage.setItem('musicOn', isOn?'false':'true');
+      const state = player.getPlayerState();
+      if (state === YT.PlayerState.PLAYING) player.pauseVideo();
+      else player.playVideo();
       updateIcon();
     };
+
     function updateIcon() {
-      document.getElementById('music-toggle').textContent =
-        localStorage.getItem('musicOn')==='true'?'🔊':'🔇';
+      const btn = document.getElementById('music-toggle');
+      const state = player && player.getPlayerState();
+      btn.textContent = (state === YT.PlayerState.PLAYING) ? '🔊' : '🔇';
     }
-    document.addEventListener('DOMContentLoaded', updateIcon);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // обновить иконку, когда API подтянется
+      setTimeout(updateIcon, 1000);
+    });
 
     function initSlider() {
-      let current=0, slides=document.querySelectorAll('.slide');
-      function show(i){slides.forEach(s=>s.classList.remove('active'));slides[i].classList.add('active');}
-      window.prevSlide=()=>{current=(current-1+slides.length)%slides.length;show(current)};
-      window.nextSlide=()=>{current=(current+1)%slides.length;show(current)};
+      let current = 0, slides = document.querySelectorAll('.slide');
+      function show(i) {
+        slides.forEach(s => s.classList.remove('active'));
+        slides[i].classList.add('active');
+      }
+      window.prevSlide = () => { current = (current-1+slides.length)%slides.length; show(current); };
+      window.nextSlide = () => { current = (current+1)%slides.length; show(current); };
       show(0);
-      const panel=document.querySelector('.info-panel');
-      window.addEventListener('scroll',()=>{
-        const r=panel.getBoundingClientRect();
-        if(r.top<window.innerHeight) panel.classList.add('visible');
+      const panel = document.querySelector('.info-panel');
+      window.addEventListener('scroll', () => {
+        const r = panel.getBoundingClientRect();
+        if (r.top < window.innerHeight) panel.classList.add('visible');
         else panel.classList.remove('visible');
       });
     }
@@ -197,19 +208,22 @@
   </script>
 </head>
 <body>
-  <!-- hidden YouTube player -->
+  <!-- скрытый YouTube-плеер -->
   <div id="bgMusic" style="width:0;height:0;overflow:hidden;"></div>
+
   <button id="music-toggle" onclick="toggleMusic()"></button>
 
   <div class="slider">
-    <div class="overlay-title">OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера</div>
-    <div class="slide active" style="background-image:url('rules1.png');" onclick="location.href='rules.html'">
+    <div class="overlay-title">
+      OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера
+    </div>
+    <div class="slide active" style="background-image: url('rules1.png');" onclick="location.href='rules.html'">
       <h2>Основные правила сервера</h2>
     </div>
-    <div class="slide" style="background-image:url('fractions1.png');" onclick="location.href='fractions.html'">
+    <div class="slide" style="background-image: url('fractions1.png');" onclick="location.href='fractions.html'">
       <h2>Правила фракций</h2>
     </div>
-    <div class="slide" style="background-image:url('chatrules1.png');" onclick="location.href='chatrules.html'">
+    <div class="slide" style="background-image: url('chatrules1.png');" onclick="location.href='chatrules.html'">
       <h2>Правила общения</h2>
     </div>
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
@@ -232,5 +246,3 @@
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 </body>
 </html>
-
-
