@@ -26,15 +26,49 @@
     .footer-buttons { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 4; }
     .footer-buttons a { background-color: #fca311; color: #000; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1em; transition: background 0.3s; }
     .footer-buttons a:hover { background-color: #fff; }
-    .info-panel { position: relative; margin: 50px auto; width: 80%; max-width: 900px; background: rgba(28,28,46,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; padding: 60px; border-radius: 12px; transform: translateX(-100%); opacity: 0; transition: transform 1s ease, opacity 1s ease; cursor: pointer; }
+    .info-panel-container { position: relative; }
+    .info-panel {
+      margin: 50px auto;
+      width: 80%;
+      max-width: 900px;
+      background: rgba(28,28,46,0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      padding: 60px;
+      border-radius: 12px;
+      transform: translateX(-100%);
+      opacity: 0;
+      transition: transform 1s ease, opacity 1s ease;
+      cursor: pointer;
+      z-index: 1;
+    }
     .info-panel.visible { transform: translateX(0); opacity: 1; }
     .info-panel img { width: 160px; height: 160px; border-radius: 8px; margin-right: 30px; object-fit: cover; }
     .info-panel .text { font-size: 1.3em; line-height: 1.6; color: #ddd; }
+    .info-panel-container .hand {
+      position: absolute;
+      right: calc((100% - 900px)/2 * -1 - 100px);
+      top: 50%;
+      transform: translateX(100%) translateY(-50%);
+      opacity: 0;
+      width: 100px;
+      height: auto;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      z-index: 2;
+    }
+    .info-panel-container:hover .hand {
+      transform: translateX(0) translateY(-50%);
+      opacity: 1;
+    }
     footer { text-align: center; padding: 20px; font-size: 0.9em; color: #888; background-color: #0b0b12; }
     @media (max-width: 1024px) {
       .info-panel { width: 90%; padding: 40px; }
       .info-panel img { width: 140px; height: 140px; margin-right: 20px; }
       .info-panel .text { font-size: 1.2em; }
+      .info-panel-container .hand { display: none; }
     }
     @media (max-width: 768px) {
       .overlay-title { font-size: 1.5em; top: 10px; }
@@ -61,9 +95,12 @@
     </div>
   </div>
 
-  <div class="info-panel" id="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
-    <img src="discord_logo.jpg" alt="Discord">
-    <div class="text">Присоединяйся к нашему официальному Discord-серверу Battle For Yggdrasil: общайся с командой, участвуй в ивентах и получай последние новости о проекте!</div>
+  <div class="info-panel-container">
+    <div class="info-panel" id="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
+      <img src="discord_logo.jpg" alt="Discord">
+      <div class="text">Присоединяйся к нашему официальному Discord-серверу Battle For Yggdrasil: общайся с командой, участвуй в ивентах и получай последние новости о проекте!</div>
+    </div>
+    <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
 
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
