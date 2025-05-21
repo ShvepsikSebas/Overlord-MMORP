@@ -6,45 +6,35 @@
   <title>Правила фракций</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0;
-      padding: 40px;
+      font-family: 'Roboto', sans-serif;
       background-color: #0d0d16;
       color: #fff;
-      font-family: 'Roboto', sans-serif;
-      line-height: 1.8;
-      font-size: 18px;
+      overflow-x: hidden;
       position: relative;
-    }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 30px;
-      text-align: center;
-      color: #fca311;
-      text-shadow: 0 0 15px #fca311;
+      padding: 40px;
     }
     .nav {
       position: fixed;
       top: 20px;
       left: 20px;
       display: flex;
-      align-items: center;
       gap: 10px;
-      z-index: 10;
+      z-index: 20;
     }
     .nav a {
       color: #fff;
       text-decoration: none;
-      background-color: #222;
+      background: #222;
       padding: 10px 15px;
       border-radius: 8px;
-      transition: background-color 0.3s, box-shadow 0.3s;
+      transition: background 0.3s, box-shadow 0.3s;
     }
     .nav a:hover {
-      background-color: #444;
+      background: #444;
       box-shadow: 0 0 10px #fca311;
     }
-    /* Музыкальный переключатель */
     #music-toggle {
       background: none;
       border: none;
@@ -52,6 +42,13 @@
       cursor: pointer;
       color: #fca311;
       padding: 5px;
+    }
+    h1 {
+      font-size: 2.5em;
+      text-align: center;
+      margin-bottom: 30px;
+      color: #fca311;
+      text-shadow: 0 0 15px #fca311;
     }
     .content {
       max-width: 1000px;
@@ -83,66 +80,79 @@
       transition: opacity 0.3s ease-in-out;
       z-index: 10;
     }
-    .to-top:hover {
-      opacity: 0.8;
-    }
+    .to-top:hover { opacity: 0.8; }
   </style>
 
-  <!-- Скрипт в head: создаёт YouTube-плеер, если включена музыка -->
+  <!-- YouTube Iframe API + Music on/off -->
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    (function() {
-      const VIDEO_ID = 'gfz4Z7vNxJ8';
-
-      function createPlayer() {
-        if (document.getElementById('bgMusic')) return;
-        const src = `https://www.youtube.com/embed/${VIDEO_ID}` +
-                    `?autoplay=1&loop=1&playlist=${VIDEO_ID}&controls=0&mute=0`;
-        const iframe = document.createElement('iframe');
-        iframe.id = 'bgMusic';
-        iframe.src = src;
-        iframe.frameBorder = '0';
-        iframe.allow = 'autoplay; encrypted-media';
-        Object.assign(iframe.style, {
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          width: '0',
-          height: '0',
-          opacity: '0',
-          pointerEvents: 'none'
-        });
-        document.body.appendChild(iframe);
-      }
-
-      window.addEventListener('DOMContentLoaded', function() {
-        if (localStorage.getItem('musicOn') === null) {
-          localStorage.setItem('musicOn', 'true');
-        }
-        if (localStorage.getItem('musicOn') === 'true') {
-          createPlayer();
+    let player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('bgMusic', {
+        videoId: 'gfz4Z7vNxJ8',
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          playlist: 'gfz4Z7vNxJ8',
+          controls: 0,
+          modestbranding: 1
+        },
+        events: {
+          onReady: function(e) {
+            const vol = localStorage.getItem('musicVol') || 30;
+            e.target.setVolume(vol);
+            if (localStorage.getItem('musicOn') === null)
+              localStorage.setItem('musicOn', 'true');
+            if (localStorage.getItem('musicOn') === 'true')
+              e.target.playVideo();
+          }
         }
       });
+    }
+    window.toggleMusic = function() {
+      if (!player) return;
+      const isOn = localStorage.getItem('musicOn') === 'true';
+      if (isOn) player.pauseVideo();
+      else player.playVideo();
+      localStorage.setItem('musicOn', isOn ? 'false' : 'true');
+      updateIcon();
+    };
+    function updateIcon() {
+      document.getElementById('music-toggle').textContent =
+        localStorage.getItem('musicOn') === 'true' ? '🔊' : '🔇';
+    }
+    document.addEventListener('DOMContentLoaded', updateIcon);
 
-      window.toggleMusic = function() {
-        const isOn = localStorage.getItem('musicOn') === 'true';
-        if (isOn) {
-          localStorage.setItem('musicOn', 'false');
-          const bg = document.getElementById('bgMusic');
-          if (bg) bg.remove();
-        } else {
-          localStorage.setItem('musicOn', 'true');
-          createPlayer();
-        }
-      };
-    })();
+    // SPA navigation
+    document.addEventListener('click', e => {
+      const a = e.target.closest('.nav a');
+      if (!a) return;
+      e.preventDefault();
+      fetch(a.href)
+        .then(res => res.text())
+        .then(html => {
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          document.title = doc.title;
+          document.querySelector('h1').innerText = doc.querySelector('h1').innerText;
+          document.querySelector('.content').innerHTML = doc.querySelector('.content').innerHTML;
+          history.pushState(null, '', a.href);
+          window.scrollTo(0, 0);
+        });
+    });
+    window.addEventListener('popstate', () => location.reload());
   </script>
 </head>
+
 <body>
+  <!-- Hidden YouTube player container -->
+  <div id="bgMusic" style="width:0; height:0; overflow:hidden;"></div>
+
   <div class="nav">
     <a href="index.html">Главная</a>
     <a href="rules.html">Общие правила</a>
+    <a href="fractions.html">Правила фракций</a>
     <a href="chatrules.html">Правила общения</a>
-    <button id="music-toggle"></button>
+    <button id="music-toggle" onclick="toggleMusic()"></button>
   </div>
 
   <h1>⚔ Правила фракций</h1>
@@ -153,56 +163,51 @@
 
     <strong>Устав фракции</strong>
     <p>Каждая фракция обязана иметь собственный устав, в котором прописаны:</p>
-    <p>- Название, цель и идеология фракции (если не лор).<br>
-    - Иерархия и структура (лидер, офицеры, обычные члены). Если фракция не лор, то она соблюдает общие правила иерархии и структуры.<br>
-    - Правила вступления/выхода.<br>
-    - Внутренние наказания за нарушения (по типу внутриполитического RP).<br>
-    - Формат взаимодействия с другими фракциями (дружба, война, нейтралитет).</p>
+    <p>
+      - Название, цель и идеология фракции (если не лор).<br>
+      - Иерархия и структура (лидер, офицеры, обычные члены).<br>
+      - Правила вступления/выхода.<br>
+      - Внутренние наказания за нарушения.<br>
+      - Формат взаимодействия с другими фракциями (дружба, война, нейтралитет).
+    </p>
 
     <strong>Лидерство</strong>
-    <p>У каждой фракции должен быть один официальный лидер, зарегистрированный в системе администрации.<br>
-    В случае длительного отсутствия лидера (более 7 дней без предупреждения) — фракция передаётся заместителю или приостанавливается.</p>
+    <p>
+      У каждой фракции должен быть один официальный лидер, зарегистрированный в системе администрации.<br>
+      Если лидер отсутствует более 7 дней без предупреждения — его обязанности передаются заместителю или фракция приостанавливается.
+    </p>
 
     <strong>Базы и территории</strong>
-    <p>Каждая фракция может владеть одной основной базой и дополнительными 2 аванпостами. Все постройки должны быть RP-логичны (никаких "неубиваемых замков" без ресурсообоснования). Территориальные споры решаются через администрацию или заранее согласованное PvP/RP-сражение.</p>
+    <p>
+      Фракция может владеть одной основной базой и до двух аванпостов.<br>
+      Все постройки должны быть RP-логичны. Территориальные споры решаются через администрацию или RP/PvP-сражения.
+    </p>
 
     <strong>Роспуск и переход</strong>
-    <p>Фракция считается распущенной, если:<br>
-    - Менее 3 активных игроков в течение 10 дней.<br>
-    - Лидер добровольно расформировал фракцию (если не лор).<br>
-    - Фракция была уничтожена в RP-событии (если не лор).</p>
-    <p>Участник может покинуть фракцию только через RP-сцену или официальное заявление. Все условия роспуска должны обсуждаться с Высшей Администрацией.</p>
+    <p>
+      Фракция распускается, если:<br>
+      - Менее трёх активных участников в течение 10 дней.<br>
+      - Лидер добровольно распустил фракцию.<br>
+      - Фракция уничтожена в RP-событии.<br>
+      Выход из фракции возможен только через RP-сцену или официальное заявление.
+    </p>
 
     <strong>Лидеры и командиры</strong>
-    <p>Лидеры фракций — это игроки, занявшие нелорные/лорные роли Королей/Лидеров фракций.</p>
-    <ul style="text-align: left;">
-      <li>Лидеры ответственны за свою фракцию и деятельность командиров фракции. Они также ответственны за проведение мероприятий для своей фракции на сервере, поддержание интереса к фракции.</li>
-      <li>Лидеры отвечают за распределение ролей и обязанностей внутри фракции, составление документации и взаимодействие с администрацией.</li>
-      <li>Лидер может иметь до двух заместителей (лорных или не лорных персонажей).</li>
-      <li>Лидер имеет право наказывать командиров и членов за нарушения устава фракции.</li>
+    <p>Лидеры — это назначенные царственные или официальные главы фракции.</p>
+    <ul style="text-align:left;">
+      <li>Лидеры отвечают за управление фракцией и дисциплину.</li>
+      <li>Могут иметь до двух заместителей.</li>
+      <li>Их решения по серьёзным наказаниям согласуются с высшей администрацией.</li>
     </ul>
-    <ul style="text-align: left;">
-      <li>Командиры фракций — офицеры, контролирующие назначенные им отряды.</li>
-      <li>Их полномочия включают назначение исправительных миссий, снижение в ранге и другие меры по уставу фракции.</li>
-      <li>Все серьезные наказания согласуются с лидером фракции.</li>
+    <p>Командиры — офицеры, отвечающие за отдельные отряды:</p>
+    <ul style="text-align:left;">
+      <li>Могут назначать дисциплинарные меры.</li>
+      <li>Ставят задачи и контролируют их выполнение.</li>
+      <li>Все крупные действия должны быть одобрены лидером фракции.</li>
     </ul>
   </div>
 
   <button class="to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">⬆ Наверх</button>
-
-  <!-- Скрипт внизу body: переключает музыку и обновляет иконку -->
-  <script>
-    (function() {
-      const btn = document.getElementById('music-toggle');
-      function updateIcon() {
-        btn.textContent = localStorage.getItem('musicOn') === 'true' ? '🔊' : '🔇';
-      }
-      btn.addEventListener('click', function() {
-        window.toggleMusic();
-        updateIcon();
-      });
-      updateIcon();
-    })();
-  </script>
 </body>
 </html>
+
