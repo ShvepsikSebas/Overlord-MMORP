@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { 
+    body {
       font-family: 'Roboto', sans-serif;
       background-color: #0d0d16;
       color: #fff;
@@ -15,176 +15,142 @@
     }
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
     .overlay-title {
-      position: absolute;
-      top: 20px;
-      width: 100%;
-      text-align: center;
-      font-size: 2em;
-      color: #fff;
+      position: absolute; top: 20px; width: 100%; text-align: center;
+      font-size: 2em; color: #fff;
       text-shadow: 0 0 10px rgba(0,0,0,0.7);
-      z-index: 5;
-      pointer-events: none;
+      z-index: 5; pointer-events: none;
     }
     .slide {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity 1s ease;
-      cursor: pointer;
+      position: absolute; width: 100%; height: 100%;
+      background-size: cover; background-position: center;
+      opacity: 0; transition: opacity 1s ease; cursor: pointer;
     }
     .slide.active { opacity: 1; z-index: 2; }
     .slide h2 {
-      position: absolute;
-      top: 50%; left: 50%;
+      position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 3em;
-      color: #fff;
+      font-size: 3em; color: #fff;
       text-shadow: 0 0 20px rgba(255,255,255,0.8);
-      opacity: 0;
-      transition: opacity 1s ease 0.5s;
+      opacity: 0; transition: opacity 1s ease 0.5s;
     }
     .slide.active h2 { opacity: 1; }
     .nav-button {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0,0,0,0.4);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 5em;
-      padding: 30px 40px;
-      transition: background 0.3s;
-      z-index: 3;
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.4); color: #fff; border: none;
+      border-radius: 12px; cursor: pointer; font-size: 5em;
+      padding: 30px 40px; transition: background 0.3s; z-index: 3;
     }
-    .prev { left: 10px; }
-    .next { right: 10px; }
+    .prev { left: 10px; } .next { right: 10px; }
     .nav-button:hover { background: rgba(255,255,255,0.2); }
     .footer-buttons {
-      position: absolute;
-      bottom: 40px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      z-index: 4;
+      position: absolute; bottom: 40px; width: 100%;
+      display: flex; justify-content: center; gap: 20px; z-index: 4;
     }
     .footer-buttons a, .footer-buttons button {
-      background-color: #fca311;
-      color: #000;
-      padding: 12px 24px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1em;
-      cursor: pointer;
-      border: none;
-      transition: background 0.3s;
+      background-color: #fca311; color: #000;
+      padding: 12px 24px; border-radius: 8px;
+      text-decoration: none; font-weight: bold; font-size: 1.1em;
+      cursor: pointer; border: none; transition: background 0.3s;
     }
-    .footer-buttons a:hover, .footer-buttons button:hover { background-color: #fff; }
-    /* Info panel and hand */
-    .info-panel-container { position: relative; width: fit-content; margin: 50px auto; }
+    .footer-buttons a:hover, .footer-buttons button:hover {
+      background-color: #fff;
+    }
+    .info-panel-container {
+      position: relative; width: fit-content; margin: 50px auto;
+    }
     .info-panel {
       background: rgba(28,28,46,0.5);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255,255,255,0.2);
-      display: flex;
-      align-items: center;
-      padding: 60px;
-      border-radius: 12px;
-      transform: translateX(-100%);
-      opacity: 0;
-      transition: transform 1s ease, opacity 1s ease;
-      cursor: pointer;
-      z-index: 1;
-      width: 80vw;
-      max-width: 900px;
+      display: flex; align-items: center; padding: 60px;
+      border-radius: 12px; transform: translateX(-100%);
+      opacity: 0; transition: transform 1s ease, opacity 1s ease;
+      cursor: pointer; z-index: 1; width: 80vw; max-width: 900px;
     }
     .info-panel.visible { transform: translateX(0); opacity: 1; }
     .info-panel img {
-      width: 160px;
-      height: 160px;
-      border-radius: 8px;
-      margin-right: 30px;
-      object-fit: cover;
+      width: 160px; height: 160px; border-radius: 8px;
+      margin-right: 30px; object-fit: cover;
     }
     .info-panel .text {
-      font-size: 1.3em;
-      line-height: 1.6;
-      color: #ddd;
+      font-size: 1.3em; line-height: 1.6; color: #ddd;
     }
     .info-panel-container .hand {
-      position: absolute;
-      right: -140px;
-      top: 50%;
+      position: absolute; right: -140px; top: 50%;
       transform: translateX(50%) translateY(-50%);
-      opacity: 0;
-      width: 100px;
+      opacity: 0; width: 100px;
       transition: transform 0.5s ease, opacity 0.5s ease;
       z-index: 2;
     }
     .info-panel-container:hover .hand {
-      transform: translateX(0) translateY(-50%);
-      opacity: 1;
+      transform: translateX(0) translateY(-50%); opacity: 1;
     }
     footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 0.9em;
-      color: #888;
-      background-color: #0b0b12;
+      text-align: center; padding: 20px; font-size: 0.9em;
+      color: #888; background-color: #0b0b12;
     }
-    @media (max-width: 1024px) {
+    @media (max-width:1024px) {
       .info-panel { width: 90%; padding: 40px; }
       .info-panel img { width: 140px; height: 140px; margin-right: 20px; }
       .info-panel .text { font-size: 1.2em; }
       .info-panel-container .hand { display: none; }
     }
-    @media (max-width: 768px) {
-      .overlay-title { font-size: 1.5em; top: 10px; }
-      .slider { height: 100vh; }
-      .slide h2 { font-size: 2em; }
-      .nav-button { font-size: 3em; padding: 20px 25px; }
-      .footer-buttons a, .footer-buttons button { padding: 10px 16px; font-size: 1em; }
-      .info-panel { flex-direction: column; width: 95%; padding: 20px; }
-      .info-panel img { width: 100px; height: 100px; margin: 0 0 15px; }
-      .info-panel .text { text-align: center; font-size: 1em; }
-      .info-panel-container .hand { display: none; }
+    @media (max-width:768px) {
+      .overlay-title { font-size:1.5em; top:10px; }
+      .slider { height:100vh; }
+      .slide h2 { font-size:2em; }
+      .nav-button { font-size:3em; padding:20px 25px; }
+      .footer-buttons a, .footer-buttons button {
+        padding:10px 16px; font-size:1em;
+      }
+      .info-panel {
+        flex-direction:column; width:95%; padding:20px;
+      }
+      .info-panel img {
+        width:100px; height:100px; margin:0 0 15px;
+      }
+      .info-panel .text {
+        text-align:center; font-size:1em;
+      }
+      .info-panel-container .hand { display:none; }
     }
   </style>
 </head>
 <body>
-  <!-- YouTube-плеер для фоновой музыки -->
+  <!-- YouTube-плеер для фоновой музыки (невидимый) -->
   <div id="yt-player"></div>
 
   <div class="slider">
     <div class="overlay-title">
       OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера
     </div>
-    <div class="slide active" style="background-image: url('rules1.png');" onclick="location.href='rules.html'">
+    <div class="slide active"
+         style="background-image:url('rules1.png')"
+         onclick="window.open('rules.html','_blank')">
       <h2>Основные правила сервера</h2>
     </div>
-    <div class="slide" style="background-image: url('fractions1.png');" onclick="location.href='fractions.html'">
+    <div class="slide"
+         style="background-image:url('fractions1.png')"
+         onclick="window.open('fractions.html','_blank')">
       <h2>Правила фракций</h2>
     </div>
-    <div class="slide" style="background-image: url('chatrules1.png');" onclick="location.href='chatrules.html'">
+    <div class="slide"
+         style="background-image:url('chatrules1.png')"
+         onclick="window.open('chatrules.html','_blank')">
       <h2>Правила общения</h2>
     </div>
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
     <button class="nav-button next" onclick="nextSlide()">❯</button>
     <div class="footer-buttons">
-      <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">💰 Донат</a>
-      <button id="music-toggle">🔇</button>
+      <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница"
+         target="_blank">💰 Донат</a>
+      <button id="music-toggle">🔊</button>
     </div>
   </div>
 
   <div class="info-panel-container">
-    <div class="info-panel" id="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
+    <div class="info-panel" id="info-panel"
+         onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
       <img src="discord_logo.jpg" alt="Discord">
       <div class="text">
         Присоединяйся к нашему официальному Discord-серверу Battle For Yggdrasil:
@@ -197,13 +163,12 @@
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 
   <script>
-    // 1) Асинхронно загружаем YouTube IFrame API
-    var tag = document.createElement('script');
+    // Загрузка YouTube IFrame API
+    let tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
-    var firstScript = document.getElementsByTagName('script')[0];
-    firstScript.parentNode.insertBefore(tag, firstScript);
+    document.head.appendChild(tag);
 
-    var player;
+    let player;
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('yt-player', {
         height: '0', width: '0',
@@ -216,46 +181,38 @@
           modestbranding: 1,
           disablekb: 1,
           iv_load_policy: 3,
-          rel: 0,
-          mute: 1
+          rel: 0
         },
         events: {
-          onReady: function(event) {
-            event.target.setVolume(5);
-            event.target.mute();
+          onReady: function(e) {
+            e.target.setVolume(15);  // громкость 15%
+            e.target.playVideo();    // пробуем сразу играть
           }
         }
       });
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      // === Слайдер ===
+    document.addEventListener('DOMContentLoaded', () => {
+      // Слайдер
       let currentSlide = 0;
       const slides = document.querySelectorAll('.slide');
       function showSlide(i) {
         slides.forEach(s => s.classList.remove('active'));
         slides[i].classList.add('active');
       }
-      window.prevSlide = function() {
+      window.prevSlide = () => {
         currentSlide = (currentSlide - 1 + slides.length) % slides.length;
         showSlide(currentSlide);
       };
-      window.nextSlide = function() {
+      window.nextSlide = () => {
         currentSlide = (currentSlide + 1) % slides.length;
         showSlide(currentSlide);
       };
       showSlide(0);
 
-      // === Разблокировка и переключение музыки ===
-      function unlockYT() {
-        if (player && player.playVideo) {
-          player.playVideo();
-        }
-      }
-      document.addEventListener('click', unlockYT, { once: true });
-
+      // Переключатель звука
       const btn = document.getElementById('music-toggle');
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', () => {
         if (!player) return;
         if (player.isMuted()) {
           player.unMute();
@@ -266,7 +223,12 @@
         }
       });
 
-      // === Scroll reveal для info-panel ===
+      // Бэкап: попытка запустить после первого клика по странице
+      document.addEventListener('click', () => {
+        if (player && player.playVideo) player.playVideo();
+      }, { once: true });
+
+      // Scroll reveal для панели
       const panel = document.getElementById('info-panel');
       window.addEventListener('scroll', () => {
         const rect = panel.getBoundingClientRect();
