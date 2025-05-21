@@ -6,77 +6,94 @@
   <title>Overlord MMORP</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background-color: #0f0f1a; color: white; font-family: Arial, sans-serif; overflow-x: hidden; }
-    .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
-    .slides { display: flex; transition: transform 0.5s ease-in-out; height: 100%; }
+    body {
+      font-family: sans-serif;
+      background-color: #0f0f1a;
+      overflow-x: hidden;
+      color: white;
+    }
+    .slider {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .slides {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      width: 300vw;
+      height: 100%;
+    }
     .slide {
-      min-width: 100%;
+      flex: 1 0 100%;
       background-size: cover;
       background-position: center;
-      background-repeat: no-repeat;
+      cursor: pointer;
     }
-    .arrow {
+    .nav-button {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 3rem;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.3);
       border: none;
       color: white;
-      padding: 0 10px;
+      font-size: 2rem;
+      padding: 0.5rem 1rem;
       cursor: pointer;
-      z-index: 10;
+      z-index: 1;
     }
-    .arrow.left { left: 10px; }
-    .arrow.right { right: 10px; }
+    .prev { left: 10px; }
+    .next { right: 10px; }
     .footer {
       position: absolute;
-      bottom: 20px;
+      bottom: 30px;
       width: 100%;
       text-align: center;
     }
     .footer a {
-      background: #222;
+      margin: 0 10px;
       padding: 10px 20px;
-      margin: 5px;
+      background-color: #1e1e2f;
       color: white;
       text-decoration: none;
       border-radius: 5px;
-      transition: background 0.3s;
+      transition: background-color 0.3s;
     }
-    .footer a:hover { background: #444; }
+    .footer a:hover {
+      background-color: #33334d;
+    }
   </style>
 </head>
 <body>
   <div class="slider">
     <div class="slides" id="slides">
-      <div class="slide" style="background-image: url('rules.png')"></div>
-      <div class="slide" style="background-image: url('fractions.png')"></div>
-      <div class="slide" style="background-image: url('chatrules.png')"></div>
+      <a href="rules.html" class="slide" style="background-image: url('rules.png');"></a>
+      <a href="fractions.html" class="slide" style="background-image: url('fractions.png');"></a>
+      <a href="chatrules.html" class="slide" style="background-image: url('chatrules.png');"></a>
     </div>
-    <button class="arrow left" onclick="prevSlide()">❮</button>
-    <button class="arrow right" onclick="nextSlide()">❯</button>
+    <button class="nav-button prev" onclick="prevSlide()">❮</button>
+    <button class="nav-button next" onclick="nextSlide()">❯</button>
     <div class="footer">
       <a href="https://discord.gg/bmjBcBUg" target="_blank">Discord</a>
       <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">Донат</a>
     </div>
   </div>
-
   <script>
+    let index = 0;
     const slides = document.getElementById('slides');
-    let currentIndex = 0;
 
-    function showSlide(index) {
-      const totalSlides = slides.children.length;
-      if (index < 0) index = totalSlides - 1;
-      if (index >= totalSlides) index = 0;
-      slides.style.transform = `translateX(-${index * 100}%)`;
-      currentIndex = index;
+    function showSlide(i) {
+      const total = slides.children.length;
+      if (i >= total) index = 0;
+      else if (i < 0) index = total - 1;
+      else index = i;
+      slides.style.transform = `translateX(-${index * 100}vw)`;
     }
 
-    function nextSlide() { showSlide(currentIndex + 1); }
-    function prevSlide() { showSlide(currentIndex - 1); }
+    function nextSlide() { showSlide(index + 1); }
+    function prevSlide() { showSlide(index - 1); }
+
+    showSlide(index);
   </script>
 </body>
 </html>
-
