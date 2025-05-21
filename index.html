@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battle For Yggdrasil | Главная</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -13,74 +13,77 @@
       color: #fff;
       overflow-x: hidden;
     }
-.emblem-container {
-  position: relative;
-  width: 100px;
-  height: 100px;
-}
-
-.overlay-emblem {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  filter: drop-shadow(0 0 25px #b891f9) brightness(1.4);
-}
-
-.overlay-emblem.hidden {
-  opacity: 0;
-  transform: scale(0);
-}
-
-.explosion {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 150px;
-  height: 150px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, #b891f9 0%, transparent 60%);
-  border-radius: 50%;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.explosion.active {
-  animation: explosion 0.8s ease-out;
-  opacity: 1;
-}
-
-@keyframes explosion {
-  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
-  50%  { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; }
-  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-}
-
-    @keyframes fadeGlow {
-      0% { opacity: 0; transform: scale(0.95); text-shadow: 0 0 0px #b891f9; }
-      100% { opacity: 1; transform: scale(1); text-shadow: 0 0 30px #b891f9; }
+    .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
+    .overlay-title-wrapper {
+      position: absolute;
+      top: 30px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      z-index: 5;
+      pointer-events: none;
     }
-
+    .overlay-title {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 6em;
+      color: #b891f9;
+      text-shadow: 0 0 30px rgba(185, 145, 249, 0.9);
+    }
+    .overlay-emblem-wrapper {
+      position: relative;
+      display: inline-block;
+      pointer-events: auto;
+    }
+    .emblem-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
+    .overlay-emblem {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      filter: drop-shadow(0 0 25px #b891f9) brightness(1.4);
+      animation: rotate 12s linear infinite, shimmer 3s ease-in-out infinite;
+    }
+    .overlay-emblem.hidden {
+      opacity: 0;
+      transform: scale(0);
+    }
+    .explosion {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 150px;
+      height: 150px;
+      transform: translate(-50%, -50%) scale(0);
+      background: radial-gradient(circle, #b891f9 0%, transparent 60%);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 10;
+    }
+    .explosion.active {
+      animation: explosion 0.8s ease-out;
+      opacity: 1;
+    }
     @keyframes rotate {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
-    @keyframes particleRise {
-      0% { transform: translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
-    }
-
     @keyframes shimmer {
       0%, 100% { filter: brightness(1); }
       50% { filter: brightness(1.7); }
     }
-
     @keyframes explosion {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(2.5); opacity: 0.3; }
-      100% { transform: scale(0); opacity: 0; }
+      0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+      50%  { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; }
+      100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
     }
 
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
@@ -404,56 +407,34 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initSlider();
-
       const emblem = document.querySelector('.overlay-emblem');
-const container = emblem.parentElement;
-const explosion = document.createElement('div');
-explosion.classList.add('explosion');
-container.appendChild(explosion);
+      const explosion = document.querySelector('.explosion');
 
-emblem.addEventListener('click', () => {
-  explosion.classList.add('active');
-  emblem.classList.add('hidden');
+      emblem.addEventListener('click', () => {
+        explosion.classList.add('active');
+        emblem.classList.add('hidden');
 
-  setTimeout(() => {
-    explosion.classList.remove('active');
-  }, 800);
+        setTimeout(() => {
+          explosion.classList.remove('active');
+        }, 800);
 
-  setTimeout(() => {
-    emblem.classList.remove('hidden');
-  }, 1800);
-});
-
+        setTimeout(() => {
+          emblem.classList.remove('hidden');
+        }, 1800);
+      });
     });
   </script>
 </head>
 <body>
-
   <div class="slider">
     <div class="overlay-title-wrapper">
-     <div class="overlay-emblem-wrapper">
-  <div class="emblem-container">
-    <img src="gerb.png" alt="Герб" class="overlay-emblem">
-        <div class="particles">
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
+      <div class="overlay-emblem-wrapper">
+        <div class="emblem-container">
+          <img src="gerb.png" alt="Герб" class="overlay-emblem">
+          <div class="explosion"></div>
         </div>
       </div>
-      <div class="overlay-title">
-        Battle for Yggdrasil
+      <div class="overlay-title">Battle for Yggdrasil</div>
       </div>
     </div>
 
