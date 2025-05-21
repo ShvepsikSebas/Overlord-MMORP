@@ -126,17 +126,17 @@
     </div>
     <div class="slide active"
          style="background-image:url('rules1.png')"
-         onclick="window.open('rules.html','_blank')">
+         onclick="location.href='rules.html'">
       <h2>Основные правила сервера</h2>
     </div>
     <div class="slide"
          style="background-image:url('fractions1.png')"
-         onclick="window.open('fractions.html','_blank')">
+         onclick="location.href='fractions.html'">
       <h2>Правила фракций</h2>
     </div>
     <div class="slide"
          style="background-image:url('chatrules1.png')"
-         onclick="window.open('chatrules.html','_blank')">
+         onclick="location.href='chatrules.html'">
       <h2>Правила общения</h2>
     </div>
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
@@ -150,7 +150,7 @@
 
   <div class="info-panel-container">
     <div class="info-panel" id="info-panel"
-         onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
+         onclick="location.href='https://discord.gg/bmjBcBUg'">
       <img src="discord_logo.jpg" alt="Discord">
       <div class="text">
         Присоединяйся к нашему официальному Discord-серверу Battle For Yggdrasil:
@@ -185,8 +185,8 @@
         },
         events: {
           onReady: function(e) {
-            e.target.setVolume(15);  // громкость 15%
-            e.target.playVideo();    // пробуем сразу играть
+            e.target.setVolume(15);  // громкость ~15%
+            e.target.playVideo();    // сразу воспроизводим
           }
         }
       });
@@ -223,7 +223,7 @@
         }
       });
 
-      // Бэкап: попытка запустить после первого клика по странице
+      // Гарантия плеера после первого клика по странице
       document.addEventListener('click', () => {
         if (player && player.playVideo) player.playVideo();
       }, { once: true });
@@ -232,11 +232,11 @@
       const panel = document.getElementById('info-panel');
       window.addEventListener('scroll', () => {
         const rect = panel.getBoundingClientRect();
-        if (rect.top < window.innerHeight) panel.classList.add('visible');
-        else panel.classList.remove('visible');
+        panel.classList.toggle('visible', rect.top < window.innerHeight);
       });
     });
   </script>
 </body>
 </html>
+
 
