@@ -2,9 +2,9 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Battle For Yggdrasil | Главная</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -13,22 +13,6 @@
       color: #fff;
       overflow-x: hidden;
     }
- <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #0d0d16;
-      color: #fff;
-      overflow-x: hidden;
-    }
-
-@keyframes shake {
-  0% { transform: rotate(0deg) translate(0, 0); }
-  20% { transform: rotate(-2deg) translate(-1px, 0); }
-  40% { transform: rotate(2deg) translate(1px, 0); }
-  60% { transform: rotate(-1deg) translate(-1px, 0); }
-  80% { transform: rotate(1deg) translate(1px, 0); }
-  100% { transform: rotate(0deg) translate(0, 0); }
 
     @keyframes fadeGlow {
       0% { opacity: 0; transform: scale(0.95); text-shadow: 0 0 0px #b891f9; }
@@ -48,6 +32,12 @@
     @keyframes shimmer {
       0%, 100% { filter: brightness(1); }
       50% { filter: brightness(1.7); }
+    }
+
+    @keyframes explosion {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(2.5); opacity: 0.3; }
+      100% { transform: scale(0); opacity: 0; }
     }
 
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
@@ -82,14 +72,33 @@
       height: 100px;
       width: 100px;
       filter: drop-shadow(0 0 20px #b891f9);
-      opacity: 0;
+      opacity: 1;
       animation: fadeGlow 1.5s ease-out 0.3s forwards, rotate 12s linear infinite, shimmer 3s ease-in-out infinite;
+      transition: opacity 1s ease, transform 0.5s ease;
     }
 
-    .overlay-emblem-wrapper:hover .particle {
-      animation-play-state: paused;
-      opacity: 0.2 !important;
-      transform: scale(1.5);
+    .overlay-emblem.hidden {
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    .explosion {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, #b891f9 10%, transparent 70%);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    .explosion.active {
+      animation: explosion 1s ease-out;
+      opacity: 1;
     }
 
     .particles {
@@ -295,7 +304,7 @@
       }
       .side-img { display: none; }
     }
-   </style>
+  </style>
   <script>
     function initSlider() {
       let current = 0, slides = document.querySelectorAll('.slide');
@@ -336,16 +345,15 @@
       emblem.parentElement.appendChild(explosion);
 
       emblem.addEventListener('click', () => {
-        emblem.style.animation = 'shake 0.4s ease';
-        setTimeout(() => {
-          explosion.classList.add('active');
-          emblem.classList.add('hidden');
-        }, 400);
+        explosion.classList.add('active');
+        emblem.classList.add('hidden');
 
         setTimeout(() => {
           explosion.classList.remove('active');
+        }, 1000);
+
+        setTimeout(() => {
           emblem.classList.remove('hidden');
-          emblem.style.animation = '';
         }, 3000);
       });
     });
@@ -358,13 +366,26 @@
       <div class="overlay-emblem-wrapper">
         <img src="gerb.png" alt="Герб" class="overlay-emblem">
         <div class="particles">
-          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-          <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-          <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
         </div>
       </div>
-      <div class="overlay-title">Battle for Yggdrasil</div>
+      <div class="overlay-title">
+        Battle for Yggdrasil
+      </div>
     </div>
 
     <div class="slide active" style="background-image:url('rules1.png')" onclick="location.href='rules.html'"><h2>Основные правила сервера</h2></div>
@@ -374,7 +395,7 @@
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
     <button class="nav-button next" onclick="nextSlide()">❯</button>
   </div>
-
+  <!-- discord -->
   <div class="info-panel-container">
     <div class="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
       <img src="discord_logo.jpg" alt="Discord">
@@ -386,6 +407,7 @@
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
 
+  <!-- donate -->
   <div class="donate-panel-container">
     <div class="donate-panel" onclick="location.href='donate.html'">
       <img src="donat.jpg" alt="Donate">
@@ -396,9 +418,11 @@
     <img src="ainzhand_left.png" alt="Hand" class="hand">
   </div>
 
+  <!-- separator -->
   <div class="separator"></div>
   <h2 class="separator-title">Краткое описание Лорных персонажей</h2>
 
+  <!-- Ainz + Momon -->
   <div class="character-panel-container">
     <div class="character-panel">
       <div class="cp-text">
@@ -409,6 +433,7 @@
     <img src="momonga.png" alt="Momon" class="side-img right">
   </div>
 
+  <!-- Sebas -->
   <div class="sebas-panel-container">
     <div class="character-panel">
       <div class="cp-text">
@@ -418,6 +443,7 @@
     <img src="sebas.png" alt="Sebas" class="side-img left">
   </div>
 
+  <!-- Albedo -->
   <div class="albedo-panel-container">
     <div class="character-panel">
       <div class="cp-text">
@@ -427,6 +453,7 @@
     <img src="albedo.png" alt="Albedo" class="side-img right">
   </div>
 
+  <!-- footer -->
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 
 </body>
