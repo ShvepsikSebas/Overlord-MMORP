@@ -47,7 +47,8 @@
     .info-panel-container,
     .donate-panel-container,
     .character-panel-container,
-    .sebas-panel-container {
+    .sebas-panel-container,
+    .albedo-panel-container {
       position: relative;
       width: fit-content;
       margin: 50px auto;
@@ -57,7 +58,8 @@
     .info-panel,
     .donate-panel,
     .character-panel,
-    .sebas-panel-container .character-panel {
+    .sebas-panel-container .character-panel,
+    .albedo-panel-container .character-panel {
       background: rgba(28,28,46,0.5);
       backdrop-filter: blur(10px);
       border: none;
@@ -72,7 +74,8 @@
     .info-panel.visible,
     .donate-panel.visible,
     .character-panel.visible,
-    .sebas-panel-container .character-panel.visible {
+    .sebas-panel-container .character-panel.visible,
+    .albedo-panel-container .character-panel.visible {
       transform: translateX(0); opacity: 1;
     }
     .character-panel.visible { transform: translateY(0); }
@@ -113,7 +116,6 @@
       opacity: 0; animation: fadeInText 1s 0.3s forwards;
     }
 
-    /* Боковые картинки — исправлено */
     .side-img {
       position: absolute;
       width: auto;
@@ -135,23 +137,22 @@
       transform: translate(0, -50%); opacity: 1;
     }
 
-    /* Специально для Себаса — позиция и размер */
-.sebas-panel-container .side-img.left {
-  top: 50%;
-  transform: translate(-50px, -50%);
-  height: auto;
-  max-height: 400px;
-  width: auto;
-  z-index: 5;
-}
-.albedo-panel-container .side-img.right {
-  top: 50%;
-  transform: translate(50px, -50%);
-  height: auto;
-  max-height: 380px;
-  width: auto;
-  z-index: 5;
-}
+    .sebas-panel-container .side-img.left {
+      top: 50%;
+      transform: translate(-50px, -50%);
+      height: auto;
+      max-height: 400px;
+      width: auto;
+      z-index: 5;
+    }
+    .albedo-panel-container .side-img.right {
+      top: 50%;
+      transform: translate(50px, -50%);
+      height: auto;
+      max-height: 380px;
+      width: auto;
+      z-index: 5;
+    }
     .separator {
       width: 90vw; max-width: 1200px;
       height: 1px; background: #444;
@@ -204,11 +205,10 @@
       };
       show(0);
 
-     const panels = document.querySelectorAll(
-  '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
-);
-
+      const panels = document.querySelectorAll(
+        '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
       );
+
       window.addEventListener('scroll', () => {
         panels.forEach(panel => {
           const r = panel.getBoundingClientRect();
@@ -223,26 +223,54 @@
 </head>
 <body>
 
+ </style>
+  <script>
+    function initSlider() {
+      let current = 0, slides = document.querySelectorAll('.slide');
+      function show(i) {
+        slides.forEach(s => s.classList.remove('active'));
+        slides[i].classList.add('active');
+      }
+      window.prevSlide = () => {
+        current = (current - 1 + slides.length) % slides.length;
+        show(current);
+      };
+      window.nextSlide = () => {
+        current = (current + 1) % slides.length;
+        show(current);
+      };
+      show(0);
+
+      const panels = document.querySelectorAll(
+        '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
+      );
+
+      window.addEventListener('scroll', () => {
+        panels.forEach(panel => {
+          const r = panel.getBoundingClientRect();
+          panel.classList.toggle('visible',
+            r.top < window.innerHeight && r.bottom > 0
+          );
+        });
+      });
+    }
+    document.addEventListener('DOMContentLoaded', initSlider);
+  </script>
+</head>
+<body>
+
+  <!-- slider -->
   <div class="slider">
-    <div class="overlay-title">
-      OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера
-    </div>
-    <div class="slide active" style="background-image:url('rules1.png')" onclick="location.href='rules.html'">
-      <h2>Основные правила сервера</h2>
-    </div>
-    <div class="slide" style="background-image:url('fractions1.png')" onclick="location.href='fractions.html'">
-      <h2>Правила фракций</h2>
-    </div>
-    <div class="slide" style="background-image:url('chatrules1.png')" onclick="location.href='chatrules.html'">
-      <h2>Правила общения</h2>
-    </div>
-    <div class="slide" style="background-image:url('lor.png')" onclick="location.href='Lor.html'">
-      <h2>Лор (История)</h2>
-    </div>
+    <div class="overlay-title">OVERLORD MMORP | Battle For Yggdrasil | GMOD RP | Основные правила сервера</div>
+    <div class="slide active" style="background-image:url('rules1.png')" onclick="location.href='rules.html'"><h2>Основные правила сервера</h2></div>
+    <div class="slide" style="background-image:url('fractions1.png')" onclick="location.href='fractions.html'"><h2>Правила фракций</h2></div>
+    <div class="slide" style="background-image:url('chatrules1.png')" onclick="location.href='chatrules.html'"><h2>Правила общения</h2></div>
+    <div class="slide" style="background-image:url('lor.png')" onclick="location.href='Lor.html'"><h2>Лор (История)</h2></div>
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
     <button class="nav-button next" onclick="nextSlide()">❯</button>
   </div>
 
+  <!-- discord -->
   <div class="info-panel-container">
     <div class="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
       <img src="discord_logo.jpg" alt="Discord">
@@ -254,6 +282,7 @@
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
 
+  <!-- donate -->
   <div class="donate-panel-container">
     <div class="donate-panel" onclick="location.href='donate.html'">
       <img src="donat.jpg" alt="Donate">
@@ -264,9 +293,11 @@
     <img src="ainzhand_left.png" alt="Hand" class="hand">
   </div>
 
+  <!-- separator -->
   <div class="separator"></div>
   <h2 class="separator-title">Краткое описание Лорных персонажей</h2>
 
+  <!-- Ainz + Momon -->
   <div class="character-panel-container">
     <div class="character-panel">
       <div class="cp-text">
@@ -277,6 +308,7 @@
     <img src="momonga.png" alt="Momon" class="side-img right">
   </div>
 
+  <!-- Sebas -->
   <div class="sebas-panel-container">
     <div class="character-panel">
       <div class="cp-text">
@@ -285,21 +317,19 @@
     </div>
     <img src="sebas.png" alt="Sebas" class="side-img left">
   </div>
-<!-- Характер-панель Альбедо -->
-<div class="albedo-panel-container">
-  <div class="character-panel">
-    <div class="cp-text">
-      Альбедо — начальница Стражей Великой Гробницы Назарик. Обладает безупречным интеллектом, стратегическим мышлением и абсолютной преданностью Аинзу. За холодной внешностью скрывает пылающую любовь к своему господину.
+
+  <!-- Albedo -->
+  <div class="albedo-panel-container">
+    <div class="character-panel">
+      <div class="cp-text">
+        Альбедо — начальница Стражей Великой Гробницы Назарик. Обладает безупречным интеллектом, стратегическим мышлением и абсолютной преданностью Аинзу. За холодной внешностью скрывает пылающую любовь к своему господину.
+      </div>
     </div>
+    <img src="albedo.png" alt="Albedo" class="side-img right">
   </div>
-  <img src="albedo.png" alt="Albedo" class="side-img right">
-</div>
 
-
-  <img src="albedo.png" alt="Albedo" class="side-img left">
-</div>
-
-
+  <!-- footer -->
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
+
 </body>
 </html>
