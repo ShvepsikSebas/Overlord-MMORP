@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle For Yggdrasil | Донат</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="animations/animations.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0d0d16;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .nav {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+        }
+        .nav a {
+            color: #fff;
+            text-decoration: none;
+            background: #222;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .nav a:hover {
+            background: #444;
+            box-shadow: 0 0 10px #fca311;
+        }
+
+        .donate-section {
+            padding: 40px;
+            margin-top: 60px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fca311;
+            text-shadow: 0 0 15px #fca311;
+        }
+
+        .donate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .donate-card {
+            background: rgba(28,28,46,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .donate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(252,163,17,0.3);
+        }
+
+        .donate-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .donate-card h3 {
+            color: #fca311;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .price {
+            font-size: 1.2em;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .details-btn {
+            background: #fca311;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .details-btn:hover {
+            background: #ffb733;
+        }
+
+        .hidden-content {
+            display: none;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .hidden-content p {
+            margin-bottom: 10px;
+        }
+
+        .features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features li {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .features li:before {
+            content: "•";
+            color: #fca311;
+            position: absolute;
+            left: 0;
+        }
+
+        .to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #fca311;
+            color: #000;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px #fca311;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 10;
+        }
+
+        .to-top:hover { opacity: 0.8; }
+
+        @media (max-width: 768px) {
+            .donate-grid {
+                grid-template-columns: 1fr;
+            }
+            .nav {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <script src="animations/animations.js"></script>
+</head>
+<body>
+    <div class="nav fade-in">
+        <a href="index.html">Главная</a>
+    </div>
+
+    <main>
+        <section id="titles" class="donate-section">
+            <h1 class="slide-in">👑 Королевские титулы</h1>
+            <div class="donate-grid">
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/Korol.jpeg" alt="Король">
+                    <h3>Король</h3>
+                    <div class="price">1000 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                    <div class="hidden-content">
+                        <p>Высший титул, дающий полную власть над королевством</p>
+                        <ul class="features">
+                            <li>Полный контроль над территорией</li>
+                            <li>Создание законов</li>
+                            <li>Управление армией</li>
+                            <li>Королевская казна</li>
+                            <li>Особые привилегии</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/prin.jpg" alt="Принц">
+                    <h3>Принц</h3>
+                    <div class="price">750 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                    <div class="hidden-content">
+                        <p>Титул наследника престола</p>
+                        <ul class="features">
+                            <li>Право на престол</li>
+                            <li>Управление частью территории</li>
+                            <li>Собственная гвардия</li>
+                            <li>Королевские привилегии</li>
+                            <li>Особые способности</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/1.jpg" alt="Королевский Стражник">
+                    <h3>Королевский Стражник</h3>
+                    <div class="price">500 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                    <div class="hidden-content">
+                        <p>Элитный защитник королевства</p>
+                        <ul class="features">
+                            <li>Защита королевской семьи</li>
+                            <li>Особые привилегии</li>
+                            <li>Элитное снаряжение</li>
+                            <li>Доступ к секретным зонам</li>
+                            <li>Боевые бонусы</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/mag.jpg" alt="Придворный маг">
+                    <h3>Придворный маг</h3>
+                    <div class="price">600 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                    <div class="hidden-content">
+                        <p>Главный советник по магическим делам</p>
+                        <ul class="features">
+                            <li>Доступ к запретной магии</li>
+                            <li>Особые заклинания</li>
+                            <li>Магические артефакты</li>
+                            <li>Исследовательские возможности</li>
+                            <li>Магические бонусы</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="create" class="donate-section">
+            <h1 class="slide-in">⚔ Создание</h1>
+            <div class="donate-grid">
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/i.webp" alt="Создать персонажа">
+                    <h3>Создать персонажа</h3>
+                    <div class="price">От 2000 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                    <div class="hidden-content">
+                        <p>Создайте уникального персонажа с особыми способностями</p>
+                        <ul class="features">
+                            <li>Выбор расы и класса</li>
+                            <li>Настройка внешности</li>
+                            <li>Особые способности</li>
+                            <li>Уникальные навыки</li>
+                            <li>Специальное снаряжение</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/Guild.webp" alt="Создать Гильдию">
+                    <h3>Создать Гильдию</h3>
+                    <div class="price">От 2500 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                    <div class="hidden-content">
+                        <p>Основайте свою гильдию и пригласите других игроков</p>
+                        <ul class="features">
+                            <li>Собственная территория</li>
+                            <li>Управление членами</li>
+                            <li>Гильдейские бонусы</li>
+                            <li>Гильдейский банк</li>
+                            <li>Особые задания</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/Kol.jpg" alt="Создать Королевство">
+                    <h3>Создать Королевство</h3>
+                    <div class="price">5 000 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                    <div class="hidden-content">
+                        <p>Станьте правителем собственного королевства</p>
+                        <ul class="features">
+                            <li>Полный контроль</li>
+                            <li>Собственные законы</li>
+                            <li>Управление ресурсами</li>
+                            <li>Дипломатические отношения</li>
+                            <li>Королевская казна</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/Otr.jpg" alt="Создать Отряд">
+                    <h3>Создать Отряд</h3>
+                    <div class="price">От 3 000 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                    <div class="hidden-content">
+                        <p>Сформируйте боевой отряд для совместных сражений</p>
+                        <ul class="features">
+                            <li>До 5 игроков</li>
+                            <li>Совместные бонусы</li>
+                            <li>Тактические преимущества</li>
+                            <li>Специальные задания</li>
+                            <li>Отрядное снаряжение</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="lorniks" class="donate-section">
+            <h1 class="slide-in">📚 Лорники</h1>
+            <div class="donate-grid">
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/lornik1.jpg" alt="Лорник 1">
+                    <h3>Лорник Назарика</h3>
+                    <p>Хранитель древних знаний</p>
+                    <div class="price">400 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                </div>
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/lornik2.jpg" alt="Лорник 2">
+                    <h3>Лорник Магии</h3>
+                    <p>Знаток магических искусств</p>
+                    <div class="price">400 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                </div>
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/lornik3.jpg" alt="Лорник 3">
+                    <h3>Лорник Истории</h3>
+                    <p>Хранитель исторических тайн</p>
+                    <div class="price">400 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                </div>
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/lornik4.jpg" alt="Лорник 4">
+                    <h3>Лорник Артефактов</h3>
+                    <p>Знаток древних артефактов</p>
+                    <div class="price">400 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                </div>
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/lornik5.jpg" alt="Лорник 5">
+                    <h3>Лорник Рас</h3>
+                    <p>Эксперт по расам мира</p>
+                    <div class="price">400 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                </div>
+                <div class="donate-card animate-on-scroll">
+                    <img src="images/lornik6.jpg" alt="Лорник 6">
+                    <h3>Лорник Территорий</h3>
+                    <p>Знаток географии мира</p>
+                    <div class="price">400 монет</div>
+                    <button class="details-btn">Подробнее</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <button class="to-top pulse">⬆ Наверх</button>
+
+    <div class="modal" id="detailsModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2 class="modal-title"></h2>
+            <p class="modal-description"></p>
+            <ul class="modal-features"></ul>
+            <div class="modal-price"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Overlord Fan Site</p>
+            <div class="social-links">
+                <a href="https://discord.gg/your-server" target="_blank" class="discord-link">
+                    <i class="fab fa-discord"></i>
+                </a>
+                <a href="https://youtube.com/your-channel" target="_blank" class="youtube-link">
+                    <i class="fab fa-youtube"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Обработка кнопки "Наверх"
+            document.querySelector('.to-top').addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Обработка кнопок "Подробнее"
+            document.querySelectorAll('.details-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const content = btn.nextElementSibling;
+                    if (content.style.display === 'block') {
+                        content.style.display = 'none';
+                        btn.textContent = 'Подробнее';
+                    } else {
+                        content.style.display = 'block';
+                        btn.textContent = 'Скрыть';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
