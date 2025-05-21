@@ -147,9 +147,10 @@
     }
     .albedo-panel-container .side-img.right {
       top: 50%;
+      right: -270px;
       transform: translate(50px, -50%);
       height: auto;
-      max-height: 240px;
+      max-height: 260px;
       width: auto;
       z-index: 5;
     }
@@ -188,42 +189,6 @@
       .side-img { display: none; }
     }
   </style>
-  <script>
-    function initSlider() {
-      let current = 0, slides = document.querySelectorAll('.slide');
-      function show(i) {
-        slides.forEach(s => s.classList.remove('active'));
-        slides[i].classList.add('active');
-      }
-      window.prevSlide = () => {
-        current = (current - 1 + slides.length) % slides.length;
-        show(current);
-      };
-      window.nextSlide = () => {
-        current = (current + 1) % slides.length;
-        show(current);
-      };
-      show(0);
-
-      const panels = document.querySelectorAll(
-        '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
-      );
-
-      window.addEventListener('scroll', () => {
-        panels.forEach(panel => {
-          const r = panel.getBoundingClientRect();
-          panel.classList.toggle('visible',
-            r.top < window.innerHeight && r.bottom > 0
-          );
-        });
-      });
-    }
-    document.addEventListener('DOMContentLoaded', initSlider);
-  </script>
-</head>
-<body>
-
- </style>
   <script>
     function initSlider() {
       let current = 0, slides = document.querySelectorAll('.slide');
