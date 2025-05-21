@@ -187,8 +187,14 @@
         slides.forEach(s => s.classList.remove('active'));
         slides[i].classList.add('active');
       }
-      window.prevSlide = () => { current = (current - 1 + slides.length) % slides.length; show(current); };
-      window.nextSlide = () => { current = (current + 1) % slides.length; show(current); };
+      window.prevSlide = () => {
+        current = (current - 1 + slides.length) % slides.length;
+        show(current);
+      };
+      window.nextSlide = () => {
+        current = (current + 1) % slides.length;
+        show(current);
+      };
       show(0);
 
       const panels = document.querySelectorAll('.info-panel, .donate-panel, .character-panel');
@@ -255,7 +261,7 @@
     <div class="character-panel">
       <div class="cp-text">
         Аинз Ооал Гоун (псевдо «Момон») — могущественный Лич-король нежити,
-        правитель Великой гробницы "Назарик", скрывающийся под маской благородного авантюриста-героя.
+        правитель Великой гробницы "Назарик", скрывающийся под маской благородного авантюриста-героя Момона.
       </div>
     </div>
     <img src="ainz.png" alt="Ainz" class="side-img left">
@@ -265,4 +271,3 @@
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 </body>
 </html>
-
