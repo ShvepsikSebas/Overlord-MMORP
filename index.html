@@ -92,6 +92,32 @@
       .info-panel-container .hand { display: none; }
     }
   </style>
+
+  <!-- Скрипт для вставки YouTube-аудио -->
+  <script>
+    window.addEventListener('DOMContentLoaded', function() {
+      const videoId = 'gfz4Z7vNxJ8';
+      const src = 'https://www.youtube.com/embed/' + videoId +
+                  '?autoplay=1&loop=1&playlist=' + videoId +
+                  '&controls=0&mute=0';
+
+      const iframe = document.createElement('iframe');
+      iframe.src = src;
+      iframe.frameBorder = '0';
+      iframe.allow = 'autoplay; encrypted-media';
+      Object.assign(iframe.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '0',
+        height: '0',
+        opacity: '0',
+        pointerEvents: 'none'
+      });
+
+      document.body.appendChild(iframe);
+    });
+  </script>
 </head>
 <body>
   <div class="slider">
@@ -122,9 +148,6 @@
     </div>
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
-
-  <!-- Аудио: убедитесь, что файл называется именно background-music.mp3 -->
-  <audio id="bg-music" src="background-music.mp3" preload="auto" loop></audio>
 
   <footer>© 2025  Battle For Yggdrasil — Все права защищены</footer>
 
@@ -158,3 +181,4 @@
   </script>
 </body>
 </html>
+
