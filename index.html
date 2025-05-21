@@ -8,7 +8,6 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
       font-family: 'Roboto', sans-serif;
       background-color: #0d0d16;
       color: #fff;
@@ -49,22 +48,23 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 3em;
+      font-size: 5em;           /* увеличенный размер шрифта */
       color: #fff;
       background: rgba(0, 0, 0, 0.4);
       border: none;
       cursor: pointer;
-      padding: 10px 20px;
+      padding: 30px 40px;       /* увеличенные отступы */
       z-index: 3;
+      border-radius: 12px;
     }
     .nav-button:hover {
       background: rgba(255, 255, 255, 0.2);
     }
     .prev {
-      left: 0;
+      left: 10px;
     }
     .next {
-      right: 0;
+      right: 10px;
     }
     .footer-buttons {
       position: absolute;
@@ -92,17 +92,19 @@
 </head>
 <body>
   <div class="slider">
-    <div class="slide active" style="background-image: url('rules1.png');" onclick="location.href='rules.html'">
+    <div class="slide active" style="background-image: url('rules1.jpg');" onclick="location.href='rules.html'">
       <h2>Основные правила сервера</h2>
     </div>
-    <div class="slide" style="background-image: url('fractions1.png');" onclick="location.href='fractions.html'">
+    <div class="slide" style="background-image: url('fractions1.jpg');" onclick="location.href='fractions.html'">
       <h2>Правила фракций</h2>
     </div>
-    <div class="slide" style="background-image: url('chatrules1.png');" onclick="location.href='chatrules.html'">
+    <div class="slide" style="background-image: url('chatrules1.jpg');" onclick="location.href='chatrules.html'">
       <h2>Правила общения</h2>
     </div>
+
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
     <button class="nav-button next" onclick="nextSlide()">❯</button>
+
     <div class="footer-buttons">
       <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">💰 Донат</a>
       <a href="https://discord.gg/bmjBcBUg" target="_blank">💬 Discord</a>
@@ -114,9 +116,7 @@
     const slides = document.querySelectorAll('.slide');
 
     function showSlide(index) {
-      slides.forEach((slide, i) => {
-        slide.classList.remove('active');
-      });
+      slides.forEach(slide => slide.classList.remove('active'));
       slides[index].classList.add('active');
     }
 
@@ -132,5 +132,6 @@
   </script>
 </body>
 </html>
+
 
 
