@@ -35,14 +35,6 @@
       background: #444;
       box-shadow: 0 0 10px #fca311;
     }
-    #music-toggle {
-      background: none;
-      border: none;
-      font-size: 1.5em;
-      cursor: pointer;
-      color: #fca311;
-      padding: 5px;
-    }
     h1 {
       font-size: 2.5em;
       text-align: center;
@@ -55,9 +47,7 @@
       margin: 0 auto;
       text-align: center;
     }
-    .content p {
-      margin-bottom: 1.2em;
-    }
+    .content p { margin-bottom: 1.2em; }
     .content strong {
       display: block;
       margin-top: 1.8em;
@@ -82,70 +72,37 @@
     }
     .to-top:hover { opacity: 0.8; }
   </style>
-
-  <!-- YouTube Iframe API + Music on/off + SPA navigation -->
-  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    let player;
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('bgMusic', {
-        videoId: 'gfz4Z7vNxJ8',
-        playerVars: { autoplay:1, loop:1, playlist:'gfz4Z7vNxJ8', controls:0, modestbranding:1 },
-        events: { onReady(e) {
-            const vol = localStorage.getItem('musicVol') || 30;
-            e.target.setVolume(vol);
-            if (localStorage.getItem('musicOn')===null) localStorage.setItem('musicOn','true');
-            if (localStorage.getItem('musicOn')==='true') e.target.playVideo();
-          }
-        }
-      });
-    }
-    window.toggleMusic = function() {
-      if (!player) return;
-      const isOn = localStorage.getItem('musicOn')==='true';
-      isOn ? player.pauseVideo() : player.playVideo();
-      localStorage.setItem('musicOn', isOn ? 'false' : 'true');
-      updateIcon();
-    };
-    function updateIcon() {
-      document.getElementById('music-toggle').textContent =
-        localStorage.getItem('musicOn')==='true' ? '🔊' : '🔇';
-    }
-    document.addEventListener('DOMContentLoaded', updateIcon);
-
-    // SPA navigation
-    document.addEventListener('click', e => {
-      const a = e.target.closest('.nav a');
-      if (!a) return;
-      e.preventDefault();
-      fetch(a.href).then(r=>r.text()).then(html=>{
-        const doc = new DOMParser().parseFromString(html,'text/html');
-        document.title = doc.title;
-        document.querySelector('h1').innerText = doc.querySelector('h1').innerText;
-        document.querySelector('.content').innerHTML = doc.querySelector('.content').innerHTML;
-        history.pushState(null,'',a.href);
-        window.scrollTo(0,0);
+    // Инициализация "Наверх"
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelector('.to-top').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
-    window.addEventListener('popstate', ()=>location.reload());
   </script>
 </head>
-
 <body>
-  <!-- Hidden YouTube player -->
-  <div id="bgMusic" style="width:0;height:0;overflow:hidden;"></div>
-
   <div class="nav">
     <a href="index.html">Главная</a>
     <a href="rules.html">Общие правила</a>
     <a href="fractions.html">Правила фракций</a>
     <a href="chatrules.html">Правила общения</a>
-    <button id="music-toggle" onclick="toggleMusic()"></button>
   </div>
 
   <h1>📜 Основные правила сервера</h1>
 
   <div class="content">
+    <strong>Основные положения правил сервера</strong>
+    <p>Администрация имеет право не обсуждать свои решения с игроками. Решения можно обжаловать только при наличии очевидного нарушения со стороны администрации.</p>
+    <p>Строго запрещено покрывать нарушения других игроков. При выявлении факта сокрытия — наказание понесут оба.</p>
+    <p>Администрация оставляет за собой право изменять правила проекта. Все изменения публикуются в официальном Discord-канале.</p>
+    <p>Администрация не несёт ответственности за внутриигровые ресурсы, купленные у третьих лиц вне официальных источников. Примечание: покупка внутриигровых ресурсов разрешена только у владельца проекта. Игроки, продающие свои услуги без согласования с администрацией, могут быть наказаны.</p>
+    <p>Только администрация имеет право откатывать RP-ситуации, если они нарушают игровой процесс или лор сервера.</p>
+
+    <strong>Правила RolePlay-процесса</strong>
+    <p>RolePlay — это отыгрывание собственного персонажа, событий и действий, происходящих вокруг него в рамках фэнтезийного мира. Любые действия, направленные во вред RP-процессу или разрушающие атмосферу мира, будут наказываться.</p>
+
+    <strong>Non-RP</strong>
     <strong>Основные положения правил сервера</strong>
     <p>Администрация имеет право не обсуждать свои решения с игроками. Решения можно обжаловать только при наличии очевидного нарушения со стороны администрации.</p>
     <p>Строго запрещено покрывать нарушения других игроков. При выявлении факта сокрытия — наказание понесут оба.</p>
