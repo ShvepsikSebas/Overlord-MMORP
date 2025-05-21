@@ -1,29 +1,56 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Overlord MMORP | Правила</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Основные правила сервера</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background-color: #0d0d16;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      line-height: 1.6;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    .nav {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+    }
+    .nav a {
+      color: #fff;
+      text-decoration: none;
+      background-color: #222;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-right: 10px;
+      transition: background-color 0.3s;
+    }
+    .nav a:hover {
+      background-color: #444;
+    }
+    pre {
+      white-space: pre-wrap;
+      font-size: 1em;
+    }
+  </style>
 </head>
-<body class="bg-gray-950 text-white font-sans">
-  <header class="bg-gray-900 text-white py-4 px-8 flex justify-between items-center">
-    <h1 class="text-xl font-bold">Overlord MMORP</h1>
-    <nav class="space-x-6">
-      <a href="/index.html" class="hover:underline">Главная</a>
-      <a href="/rules.html" class="hover:underline">Общие правила</a>
-      <a href="/chatrules.html" class="hover:underline">Правила общения</a>
-      <a href="/fractions.html" class="hover:underline">Фракции</a>
-    </nav>
-  </header>
+<body>
+  <div class="nav">
+    <a href="index.html">Главная</a>
+    <a href="fractions.html">Правила фракций</a>
+    <a href="chatrules.html">Правила общения</a>
+  </div>
 
-  <main class="max-w-5xl mx-auto py-10 px-6">
-    <h2 class="text-3xl font-bold mb-6">📜 Основные правила сервера</h2>
-    <div class="space-y-4 text-gray-200">
-  </header>
+  <h1>📜 Основные правила сервера</h1>
 
-    <!-- Полный оригинальный текст без сокращений -->
-    <article class="prose prose-invert max-w-none text-gray-200">
-<pre>
+  <pre>
 Основные положения правил сервера
 1.1. Администрация имеет право не обсуждать свои решения с игроками. Решения можно обжаловать только при наличии очевидного нарушения со стороны администрации.
 1.2. Строго запрещено покрывать нарушения других игроков. При выявлении факта сокрытия — наказание понесут оба.
@@ -118,13 +145,7 @@ RolePlay — это отыгрывание собственного персон
 
 2.16. NLR - New Life Rule - Правило новой жизни. Каждый раз, когда вы умираете в битве, это считается "критическим ранением", вас отправляют обратно на базу и вас там лечат. Это ролевое объяснение. Вместо вас умер какой-то безымянный боец вашего королевства.
 NLR действует 5 минут после смерти. Во время этих пяти минут игрок не имеет права покидать спаун.
-</pre>
-    </article>
-  </main>
-
-  <footer class="bg-gray-800 text-center text-gray-400 py-6">
-    &copy; 2025 Overlord MMORP. Все права защищены.
-  </footer>
-
+  </pre>
 </body>
 </html>
+
