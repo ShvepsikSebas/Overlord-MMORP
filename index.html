@@ -35,10 +35,6 @@
   pointer-events: auto;
 }
 
-#helper-img:hover {
-  transform: scale(1.05);
-}
-
 #helper-dialog {
   background: rgba(30, 30, 60, 0.9);
   border: 1px solid #b891f9;
@@ -51,28 +47,30 @@
   pointer-events: auto;
 }
 
+#close-dialog,
 #next-phrase {
   position: absolute;
-  bottom: 5px;
-  right: 10px;
-  cursor: pointer;
   font-size: 1.2em;
+  cursor: pointer;
   color: #ccc;
 }
 
+#close-dialog {
+  top: 5px;
+  right: 8px;
+}
+
+#next-phrase {
+  bottom: 5px;
+  right: 10px;
+}
+
+#close-dialog:hover,
 #next-phrase:hover {
   color: #fff;
   transform: scale(1.2);
 }
 
-#close-dialog:hover {
-  color: #fff;
-  transform: scale(1.2);
-}
-
-#close-dialog:hover {
-  color: #fff;
-}
 
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
@@ -536,14 +534,75 @@ document.addEventListener('DOMContentLoaded', () => {
   <!-- footer -->
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 <!-- Швепсик — помощник -->
-<div id="helper-container">
+<div id="helper-container" style="display:none;">
   <img id="helper-img" src="ecler.png" alt="Швепсик" title="Я Швепсик!" />
-  <div id="helper-dialog">
+  <div id="helper-dialog" style="display: block;">
     <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на меня, чтобы узнать больше! (я спрячусь после двух кликов)</div>
-    <span id="close-dialog">✖</span>
-    <span id="next-phrase">➤</span>
+    <span id="close-dialog" title="Закрыть">✖</span>
+    <span id="next-phrase" title="Следующая фраза">➤</span>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById("helper-container");
+  const img = document.getElementById("helper-img");
+  const dialog = document.getElementById("helper-dialog");
+  const closeBtn = document.getElementById("close-dialog");
+  const nextBtn = document.getElementById("next-phrase");
+  const textBox = dialog.querySelector(".dialog-text");
+
+  let clickCount = 0;
+  let phraseIndex = 0;
+  const phrases = [
+    "Нажми на слайды — это переходы по разделам.",
+    "В разделе «Фракции» описаны все стороны конфликта.",
+    "Не забудь зайти на наш Discord, он внизу!",
+    "Поддержать проект можно через вкладку Донат.",
+    "Если потеряешься — просто кликни на меня снова!"
+  ];
+
+  // Показываем Швепсика через 2 сек
+  if (!localStorage.getItem("hideShvepsik")) {
+    setTimeout(() => {
+      container.style.display = "flex";
+      container.style.opacity = "1";
+      container.style.pointerEvents = "auto";
+    }, 3000);
+  }
+
+  // Клик по Швепсику
+  img.addEventListener("click", () => {
+    clickCount++;
+    if (clickCount >= 2) {
+      container.remove();
+      localStorage.setItem("hideShvepsik", "true");
+    } else {
+      dialog.style.display = dialog.style.display === "none" ? "block" : "none";
+    }
+  });
+
+  // Закрыть диалог крестиком
+  closeBtn.addEventListener("click", () => {
+    dialog.style.display = "none";
+  });
+
+  // Следующая подсказка
+  nextBtn.addEventListener("click", () => {
+    phraseIndex = (phraseIndex + 1) % phrases.length;
+    textBox.textContent = phrases[phraseIndex];
+  });
+
+  // Автосмена
+  setInterval(() => {
+    if (dialog.style.display !== "none") {
+      phraseIndex = (phraseIndex + 1) % phrases.length;
+      textBox.textContent = phrases[phraseIndex];
+    }
+  }, 7000);
+});
+</script>
+
 
 </body>
 </html>
