@@ -27,9 +27,21 @@
       background-size: cover;
       background-position: center;
       cursor: pointer;
+      position: relative;
     }
     .slide.active {
       display: block;
+    }
+    .slide-title {
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 3em;
+      font-weight: bold;
+      text-shadow: 0 0 10px black;
+      pointer-events: none;
     }
     .nav {
       position: absolute;
@@ -80,9 +92,15 @@
 <body>
 
 <div class="slider">
-  <div class="slide active" style="background-image: url('rules1.png');" onclick="location.href='rules.html'"></div>
-  <div class="slide" style="background-image: url('fractions1.png');" onclick="location.href='fractions.html'"></div>
-  <div class="slide" style="background-image: url('chatrules1.png');" onclick="location.href='chatrules.html'"></div>
+  <div class="slide active" style="background-image: url('rules1.png');" onclick="location.href='rules.html'">
+    <div class="slide-title">Основные правила сервера</div>
+  </div>
+  <div class="slide" style="background-image: url('fractions1.png');" onclick="location.href='fractions.html'">
+    <div class="slide-title">Правила фракций</div>
+  </div>
+  <div class="slide" style="background-image: url('chatrules1.png');" onclick="location.href='chatrules.html'">
+    <div class="slide-title">Правила общения</div>
+  </div>
 
   <div class="nav">
     <button onclick="prevSlide()">&#10094;</button>
