@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Battle For Yggdrasil | Главная</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -13,77 +13,31 @@
       color: #fff;
       overflow-x: hidden;
     }
-    .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
-    .overlay-title-wrapper {
-  position: absolute;
-  top: 30px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-  pointer-events: none;
-}
-    .overlay-title {
-      font-family: 'Cinzel Decorative', cursive;
-      font-size: 6em;
-      color: #b891f9;
-      text-shadow: 0 0 30px rgba(185, 145, 249, 0.9);
+
+    @keyframes fadeGlow {
+      0% { opacity: 0; transform: scale(0.95); text-shadow: 0 0 0px #b891f9; }
+      100% { opacity: 1; transform: scale(1); text-shadow: 0 0 30px #b891f9; }
     }
-    .overlay-emblem-wrapper {
-      position: relative;
-      display: inline-block;
-      pointer-events: auto;
-    }
-    .emblem-container {
-      position: relative;
-      width: 100px;
-      height: 100px;
-    }
-    .overlay-emblem {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      opacity: 1;
-      transform: scale(1);
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      filter: drop-shadow(0 0 25px #b891f9) brightness(1.4);
-      animation: rotate 12s linear infinite, shimmer 3s ease-in-out infinite;
-    }
-    .overlay-emblem.hidden {
-      opacity: 0;
-      transform: scale(0);
-    }
-    .explosion {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 150px;
-      height: 150px;
-      transform: translate(-50%, -50%) scale(0);
-      background: radial-gradient(circle, #b891f9 0%, transparent 60%);
-      border-radius: 50%;
-      pointer-events: none;
-      opacity: 0;
-      z-index: 10;
-    }
-    .explosion.active {
-      animation: explosion 0.8s ease-out;
-      opacity: 1;
-    }
+
     @keyframes rotate {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    @keyframes particleRise {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
+    }
+
     @keyframes shimmer {
       0%, 100% { filter: brightness(1); }
       50% { filter: brightness(1.7); }
     }
+
     @keyframes explosion {
-      0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
-      50%  { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; }
-      100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(2.5); opacity: 0.3; }
+      100% { transform: scale(0); opacity: 0; }
     }
 
     .slider { position: relative; width: 100%; height: 100vh; overflow: hidden; }
@@ -122,19 +76,6 @@
       animation: fadeGlow 1.5s ease-out 0.3s forwards, rotate 12s linear infinite, shimmer 3s ease-in-out infinite;
       transition: opacity 1s ease, transform 0.5s ease;
     }
-.overlay-emblem::before {
-  content: "";
-  position: absolute;
-  top: -30%;
-  left: -30%;
-  width: 160%;
-  height: 160%;
-  background: radial-gradient(circle, rgba(185,145,249,0.3) 20%, transparent 70%);
-  border-radius: 50%;
-  filter: blur(20px);
-  animation: flicker 2s infinite;
-  z-index: -1;
-}
 
     .overlay-emblem.hidden {
       opacity: 0;
@@ -195,19 +136,10 @@
     .particle:nth-child(14) { left: -35px; animation-delay: 3.9s; }
     .particle:nth-child(15) { left: 35px; animation-delay: 4.2s; }
 
-   .slide {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1s ease;
-  cursor: pointer;
-  z-index: 1;
-}
+    .slide {
+      position: absolute; width: 100%; height: 100%;
+      background-size: cover; background-position: center;
+      opacity: 0; transition: opacity 1s ease; cursor: pointer;
     }
     .slide.active { opacity: 1; z-index: 2; }
     .slide h2 {
@@ -372,16 +304,6 @@
       }
       .side-img { display: none; }
     }
-
-@keyframes flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-    opacity: 1;
-  }
-  20%, 22%, 24%, 55% {
-    opacity: 0.3;
-  }
-}
-
   </style>
   <script>
     function initSlider() {
@@ -416,8 +338,11 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initSlider();
+
       const emblem = document.querySelector('.overlay-emblem');
-      const explosion = document.querySelector('.explosion');
+      const explosion = document.createElement('div');
+      explosion.classList.add('explosion');
+      emblem.parentElement.appendChild(explosion);
 
       emblem.addEventListener('click', () => {
         explosion.classList.add('active');
@@ -425,43 +350,51 @@
 
         setTimeout(() => {
           explosion.classList.remove('active');
-        }, 800);
+        }, 1000);
 
         setTimeout(() => {
           emblem.classList.remove('hidden');
-        }, 1800);
+        }, 3000);
       });
     });
   </script>
 </head>
 <body>
- <div class="slider">
-  <div class="overlay-title-wrapper">
-    <div class="overlay-emblem-wrapper">
-      <div class="emblem-container">
+
+  <div class="slider">
+    <div class="overlay-title-wrapper">
+      <div class="overlay-emblem-wrapper">
         <img src="gerb.png" alt="Герб" class="overlay-emblem">
-        <div class="explosion"></div>
+        <div class="particles">
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+        </div>
+      </div>
+      <div class="overlay-title">
+        Battle for Yggdrasil
       </div>
     </div>
-    <div class="overlay-title">Battle for Yggdrasil</div>
-  </div>
 
-  <div class="slide active" style="background-image:url('rules1.png')">
-    <h2 onclick="location.href='rules.html'">Основные правила сервера</h2>
+    <div class="slide active" style="background-image:url('rules1.png')" onclick="location.href='rules.html'"><h2>Основные правила сервера</h2></div>
+    <div class="slide" style="background-image:url('fractions1.png')" onclick="location.href='fractions.html'"><h2>Правила фракций</h2></div>
+    <div class="slide" style="background-image:url('chatrules1.png')" onclick="location.href='chatrules.html'"><h2>Правила общения</h2></div>
+    <div class="slide" style="background-image:url('lor.png')" onclick="location.href='Lor.html'"><h2>Лор (История)</h2></div>
+    <button class="nav-button prev" onclick="prevSlide()">❮</button>
+    <button class="nav-button next" onclick="nextSlide()">❯</button>
   </div>
-  <div class="slide" style="background-image:url('fractions1.png')">
-    <h2 onclick="location.href='fractions.html'">Правила фракций</h2>
-  </div>
-  <div class="slide" style="background-image:url('chatrules1.png')">
-    <h2 onclick="location.href='chatrules.html'">Правила общения</h2>
-  </div>
-  <div class="slide" style="background-image:url('lor.png')">
-    <h2 onclick="location.href='Lor.html'">Лор (История)</h2>
-  </div>
-
-  <button class="nav-button prev" onclick="prevSlide()">❮</button>
-  <button class="nav-button next" onclick="nextSlide()">❯</button>
-</div>
   <!-- discord -->
   <div class="info-panel-container">
     <div class="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
