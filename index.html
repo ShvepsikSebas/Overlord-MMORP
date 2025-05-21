@@ -3,147 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YGGDRASIL — Главная</title>
+  <title>YGGDRASIL - Главная</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
-      font-family: Arial, sans-serif;
       background-color: #0d0d16;
-      color: white;
+      font-family: 'Roboto', sans-serif;
       overflow-x: hidden;
     }
-
-    .slider-container {
+    .slider {
       position: relative;
-      width: 100%;
+      width: 100vw;
       height: 100vh;
+      overflow: hidden;
     }
-
     .slide {
-      display: none;
-      width: 100%;
-      height: 100%;
       position: absolute;
-      top: 0;
-      left: 0;
-      cursor: pointer;
-    }
-
-    .slide img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
     }
-
     .slide.active {
-      display: block;
-      animation: fade 0.6s ease-in-out;
+      opacity: 1;
+      z-index: 1;
     }
-
-    @keyframes fade {
-      from {opacity: 0;}
-      to {opacity: 1;}
-    }
-
-    .slide-title {
+    .title {
       position: absolute;
       top: 50%;
-      width: 100%;
-      text-align: center;
-      font-size: 48px;
-      color: #fca311;
-      text-shadow: 2px 2px 5px #000;
-      transform: translateY(-50%);
-      z-index: 3;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 3em;
+      font-weight: bold;
+      text-shadow: 0 0 10px #fff, 0 0 20px #f0f, 0 0 30px #f0f;
+      z-index: 2;
       cursor: pointer;
     }
-
     .arrow {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
       font-size: 64px;
-      color: rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.7);
       cursor: pointer;
       user-select: none;
       z-index: 3;
+      width: 96px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 10px #fff, 0 0 20px #0ff, 0 0 40px #0ff;
     }
-
     .arrow:hover {
       color: #fff;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
     }
-
-    .left-arrow {
-      left: 20px;
+    .left {
+      left: 0;
     }
-
-    .right-arrow {
-      right: 20px;
+    .right {
+      right: 0;
     }
-
     .bottom-buttons {
       position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 20px;
+      width: 100%;
       display: flex;
+      justify-content: center;
       gap: 20px;
-      z-index: 5;
+      z-index: 3;
     }
-
     .bottom-buttons a {
-      background-color: #fca311;
-      color: black;
-      text-decoration: none;
       padding: 12px 24px;
-      border-radius: 10px;
+      background-color: #fca311;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
       font-weight: bold;
-      transition: background-color 0.3s;
+      box-shadow: 0 0 15px #fca311;
+      transition: transform 0.2s;
     }
-
     .bottom-buttons a:hover {
-      background-color: #ffb933;
-    }
-
-    @media (max-width: 768px) {
-      .slide-title {
-        font-size: 28px;
-      }
-
-      .arrow {
-        font-size: 48px;
-      }
-
-      .bottom-buttons a {
-        padding: 10px 16px;
-        font-size: 14px;
-      }
+      transform: scale(1.1);
+      box-shadow: 0 0 25px #fca311;
     }
   </style>
 </head>
 <body>
-  <div class="slider-container">
-    <div class="slide active" onclick="goTo('rules.html')">
-      <img src="rules1.png" alt="Основные правила сервера" />
-      <div class="slide-title" onclick="goTo('rules.html')">Основные правила сервера</div>
+  <div class="slider">
+    <div class="slide active" style="background-image: url('rules1.jpg');">
+      <div class="title" onclick="window.location.href='rules.html'">Основные правила сервера</div>
     </div>
-    <div class="slide" onclick="goTo('fractions.html')">
-      <img src="fractions1.png" alt="Правила фракций" />
-      <div class="slide-title" onclick="goTo('fractions.html')">Правила фракций</div>
+    <div class="slide" style="background-image: url('fractions1.jpg');">
+      <div class="title" onclick="window.location.href='fractions.html'">Правила фракций</div>
     </div>
-    <div class="slide" onclick="goTo('chatrules.html')">
-      <img src="chatrules1.png" alt="Правила общения" />
-      <div class="slide-title" onclick="goTo('chatrules.html')">Правила общения</div>
+    <div class="slide" style="background-image: url('chatrules1.jpg');">
+      <div class="title" onclick="window.location.href='chatrules.html'">Правила общения</div>
     </div>
-
-    <div class="arrow left-arrow" onclick="changeSlide(-1)">&#10094;</div>
-    <div class="arrow right-arrow" onclick="changeSlide(1)">&#10095;</div>
-
+    <div class="arrow left" onclick="prevSlide()">&#10094;</div>
+    <div class="arrow right" onclick="nextSlide()">&#10095;</div>
     <div class="bottom-buttons">
       <a href="https://discord.gg/bmjBcBUg" target="_blank">Discord</a>
       <a href="https://sites.google.com/view/battle-for-yggdrasil/главная-страница" target="_blank">Донат</a>
@@ -151,18 +120,25 @@
   </div>
 
   <script>
-    let slideIndex = 0;
+    let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
 
-    function changeSlide(n) {
-      slides[slideIndex].classList.remove('active');
-      slideIndex = (slideIndex + n + slides.length) % slides.length;
-      slides[slideIndex].classList.add('active');
+    function showSlide(index) {
+      slides.forEach(slide => slide.classList.remove('active'));
+      slides[index].classList.add('active');
     }
 
-    function goTo(url) {
-      window.location.href = url;
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      showSlide(currentSlide);
     }
+
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+      showSlide(currentSlide);
+    }
+
+    setInterval(nextSlide, 10000);
   </script>
 </body>
 </html>
