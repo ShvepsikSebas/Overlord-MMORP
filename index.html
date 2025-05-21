@@ -283,7 +283,7 @@
   <div class="character-panel-container">
     <div class="character-panel">
       <div class="cp-text">
-        Аинз Ооал Гоун (псевдо «Момон») — могущественный Лич-король нежити, правитель Великой гробницы "Назарик", скрывающийся под маской благородного авантюриста-героя.
+        Аинз Ооал Гоун (псевдо «Момон») — могущественный Лич-король нежити, правитель Великого гроба Сен’юрии, скрывающийся под маской благородного авантюриста-героя.
       </div>
     </div>
     <img src="ainz.png" alt="Ainz" class="side-img left">
@@ -292,13 +292,16 @@
   </div>
 
   <script>
-    // Анимация скролла для характер-панели
+    // Теперь при скролле вверх/вниз панель и боковые картинки будут анимироваться как «вход» и «выход»
     document.addEventListener('DOMContentLoaded', () => {
       const charPanel = document.querySelector('.character-panel');
       window.addEventListener('scroll', () => {
         const r = charPanel.getBoundingClientRect();
-        if (r.top < window.innerHeight) {
+        // когда панель полностью вышла за нижнюю границу, класс убирается
+        if (r.top < window.innerHeight && r.bottom > 0) {
           charPanel.classList.add('visible');
+        } else {
+          charPanel.classList.remove('visible');
         }
       });
     });
