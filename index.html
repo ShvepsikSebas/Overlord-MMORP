@@ -403,6 +403,53 @@
   opacity: 1;
 }
 
+.shalltear-panel-container {
+  position: relative;
+  width: fit-content;
+  margin: 50px auto;
+  overflow: visible;
+}
+
+.shalltear-panel-container .character-panel {
+  background: rgba(28,28,46,0.5);
+  backdrop-filter: blur(10px);
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 60px;
+  border-radius: 12px;
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: transform 1s ease, opacity 1s ease;
+  width: 80vw;
+  max-width: 900px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.shalltear-panel-container .character-panel.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.shalltear-panel-container .side-img.left {
+  position: absolute;
+  left: -260px;
+  top: 50%;
+  transform: translate(-50px, -50%);
+  width: auto;
+  height: auto;
+  max-height: 360px;
+  opacity: 0;
+  transition: transform 1s ease, opacity 1s ease;
+  z-index: 5;
+}
+
+.shalltear-panel-container .character-panel.visible ~ .side-img.left {
+  transform: translate(0, -50%);
+  opacity: 1;
+}
+
     .separator {
       width: 90vw; max-width: 1200px;
       height: 1px; background: #444;
@@ -456,7 +503,7 @@
     show(0);
 
     const panels = document.querySelectorAll(
-      '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel, .demiurge-panel-container .character-panel, .cocytus-panel-container .character-panel'
+       '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel, .demiurge-panel-container .character-panel, .cocytus-panel-container .character-panel, .shalltear-panel-container .character-panel'
     );
 
     // Сразу проверим на загрузке
@@ -587,6 +634,16 @@
     </div>
   </div>
   <img src="cocytus.png" alt="Cocytus" class="side-img right">
+</div>
+
+<!-- Shalltear -->
+<div class="shalltear-panel-container">
+  <div class="character-panel">
+    <div class="cp-text">
+      Шалтир  — Страж Третьего этажа Назарика. Вампир-аристократ, смертельно опасная, но внешне милая и женственная. Обладает невероятной силой и исступлённой любовью к Аинзу, ради которого готова на всё.
+    </div>
+  </div>
+  <img src="vampir.png" alt="Shalltear" class="side-img left">
 </div>
 
   <!-- footer -->
