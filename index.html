@@ -355,6 +355,54 @@
   transform: translate(0, -50%);
   opacity: 1;
 }
+
+.cocytus-panel-container {
+  position: relative;
+  width: fit-content;
+  margin: 50px auto;
+  overflow: visible;
+}
+
+.cocytus-panel-container .character-panel {
+  background: rgba(28,28,46,0.5);
+  backdrop-filter: blur(10px);
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 60px;
+  border-radius: 12px;
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: transform 1s ease, opacity 1s ease;
+  width: 80vw;
+  max-width: 900px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.cocytus-panel-container .character-panel.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.cocytus-panel-container .side-img.right {
+  position: absolute;
+  right: -260px;
+  top: 50%;
+  transform: translate(50px, -50%);
+  width: auto;
+  height: auto;
+  max-height: 360px;
+  opacity: 0;
+  transition: transform 1s ease, opacity 1s ease;
+  z-index: 5;
+}
+
+.cocytus-panel-container .character-panel.visible ~ .side-img.right {
+  transform: translate(0, -50%);
+  opacity: 1;
+}
+
     .separator {
       width: 90vw; max-width: 1200px;
       height: 1px; background: #444;
@@ -408,7 +456,7 @@
     show(0);
 
     const panels = document.querySelectorAll(
-      '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel, .demiurge-panel-container .character-panel'
+      '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel, .demiurge-panel-container .character-panel, .cocytus-panel-container .character-panel'
     );
 
     // Сразу проверим на загрузке
@@ -529,6 +577,16 @@
     </div>
   </div>
   <img src="demon.png" alt="Demiurge" class="side-img left">
+</div>
+
+<!-- Cocytus -->
+<div class="cocytus-panel-container">
+  <div class="character-panel">
+    <div class="cp-text">
+      Коцитус — Страж Пятого этажа Великой Гробницы Назарик. Воин чести, монстр с телом насекомого и душой самурая. Обладает непревзойдённой боевой мощью, безупречной дисциплиной и фанатичной преданностью Аинзу.
+    </div>
+  </div>
+  <img src="cocytus.png" alt="Cocytus" class="side-img right">
 </div>
 
   <!-- footer -->
