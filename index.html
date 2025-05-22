@@ -650,6 +650,30 @@
       }
       .side-img { display: none; }
     }
+
+#report-discord {
+  position: fixed;
+  left: -210px; /* Спрятан, только кусочек видно */
+  top: 50%;
+  transform: translateY(-50%);
+  background: #5865F2;
+  color: white;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: 0 10px 10px 0;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 9999;
+  transition: left 0.3s ease;
+  writing-mode: horizontal-tb;
+  white-space: nowrap;
+}
+
+#report-discord:hover {
+  left: 0;
+}
+
   </style>
 <script>
   function initSlider() {
@@ -848,6 +872,9 @@
     <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!</div>
     <span id="close-dialog" title="Закрыть">✖</span>
     <span id="next-phrase" title="Следующая фраза">➤</span>
+
+<div id="report-discord" onclick="window.open('https://discord.com/users/ВАШ_ID', '_blank')">
+  🛠 Сообщить о проблеме в Discord
   </div>
 </div>
 
