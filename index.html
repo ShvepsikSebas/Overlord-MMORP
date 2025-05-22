@@ -31,71 +31,32 @@
   overflow: hidden;
 }
 
-.flying-particles::before {
-  content: '';
+.flying-particles span {
   position: absolute;
   width: 4px;
   height: 4px;
+  background: rgba(185, 145, 249, 0.5);
   border-radius: 50%;
-  background: rgba(185, 145, 249, 0.4);
-  animation: flyUp 20s linear infinite, shimmer 4s ease-in-out infinite;
-  box-shadow:
-    3vw 100vh rgba(185, 145, 249, 0.2),
-    6vw 150vh rgba(185, 145, 249, 0.3),
-    9vw 180vh rgba(185, 145, 249, 0.4),
-    12vw 130vh rgba(185, 145, 249, 0.2),
-    15vw 170vh rgba(185, 145, 249, 0.3),
-    18vw 120vh rgba(185, 145, 249, 0.4),
-    21vw 160vh rgba(185, 145, 249, 0.2),
-    24vw 140vh rgba(185, 145, 249, 0.3),
-    27vw 180vh rgba(185, 145, 249, 0.4),
-    30vw 130vh rgba(185, 145, 249, 0.2),
-    33vw 150vh rgba(185, 145, 249, 0.3),
-    36vw 170vh rgba(185, 145, 249, 0.4),
-    39vw 120vh rgba(185, 145, 249, 0.2),
-    42vw 180vh rgba(185, 145, 249, 0.3),
-    45vw 110vh rgba(185, 145, 249, 0.4),
-    48vw 190vh rgba(185, 145, 249, 0.2),
-    51vw 150vh rgba(185, 145, 249, 0.3),
-    54vw 170vh rgba(185, 145, 249, 0.4),
-    57vw 140vh rgba(185, 145, 249, 0.2),
-    60vw 180vh rgba(185, 145, 249, 0.3),
-    63vw 130vh rgba(185, 145, 249, 0.4),
-    66vw 150vh rgba(185, 145, 249, 0.2),
-    69vw 190vh rgba(185, 145, 249, 0.3),
-    72vw 170vh rgba(185, 145, 249, 0.4),
-    75vw 160vh rgba(185, 145, 249, 0.2),
-    78vw 140vh rgba(185, 145, 249, 0.3),
-    81vw 130vh rgba(185, 145, 249, 0.4),
-    84vw 120vh rgba(185, 145, 249, 0.2),
-    87vw 160vh rgba(185, 145, 249, 0.3),
-    90vw 180vh rgba(185, 145, 249, 0.4),
-    93vw 150vh rgba(185, 145, 249, 0.2),
-    96vw 170vh rgba(185, 145, 249, 0.3),
-    99vw 200vh rgba(185, 145, 249, 0.4);
+  animation: riseUp 10s linear infinite, shimmer 4s ease-in-out infinite;
 }
 
-@keyframes flyUp {
+@keyframes riseUp {
   0% {
-    transform: translateY(0);
+    transform: translateY(100vh) scale(1);
     opacity: 0;
   }
-  30% {
+  10% {
     opacity: 1;
   }
   100% {
-    transform: translateY(-220vh);
+    transform: translateY(-200vh) scale(0.2);
     opacity: 0;
   }
 }
 
 @keyframes shimmer {
-  0%, 100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.6);
-  }
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.7); }
 }
 
 #helper-container {
@@ -908,6 +869,16 @@
 });
 </script>
 
+<script>
+  const container = document.querySelector('.flying-particles');
+  for (let i = 0; i < 80; i++) {
+    const p = document.createElement('span');
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    p.style.animationDuration = (8 + Math.random() * 6) + 's';
+    container.appendChild(p);
+  }
+</script>
 
 </body>
 </html>
