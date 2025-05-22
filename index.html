@@ -345,38 +345,42 @@
       .side-img { display: none; }
     }
   </style>
-  <script>
-    function initSlider() {
-      let current = 0, slides = document.querySelectorAll('.slide');
-      function show(i) {
-        slides.forEach(s => s.classList.remove('active'));
-        slides[i].classList.add('active');
-      }
-      window.prevSlide = () => {
-        current = (current - 1 + slides.length) % slides.length;
-        show(current);
-      };
-      window.nextSlide = () => {
-        current = (current + 1) % slides.length;
-        show(current);
-      };
-      show(0);
-
-      const panels = document.querySelectorAll(
-        '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
-      );
-
-      window.addEventListener('scroll', () => {
-        panels.forEach(panel => {
-          const r = panel.getBoundingClientRect();
-          panel.classList.toggle('visible',
-            r.top < window.innerHeight && r.bottom > 0
-          );
-        });
-      });
+<script>
+  function initSlider() {
+    let current = 0, slides = document.querySelectorAll('.slide');
+    function show(i) {
+      slides.forEach(s => s.classList.remove('active'));
+      slides[i].classList.add('active');
     }
+    window.prevSlide = () => {
+      current = (current - 1 + slides.length) % slides.length;
+      show(current);
+    };
+    window.nextSlide = () => {
+      current = (current + 1) % slides.length;
+      show(current);
+    };
+    show(0);
 
+    const panels = document.querySelectorAll(
+      '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel'
+    );
+
+    // Сразу проверим на загрузке
+    const revealPanels = () => {
+      panels.forEach(panel => {
+        const r = panel.getBoundingClientRect();
+        panel.classList.toggle('visible',
+          r.top < window.innerHeight && r.bottom > 0
+        );
+      });
+    };
+
+    revealPanels(); // Показать, если они уже в зоне видимости
+    window.addEventListener('scroll', revealPanels);
+  }
 </script>
+
 </head>
 <body>
 
@@ -485,7 +489,8 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => {
+    initSlider();
   const container = document.getElementById("helper-container");
   const img = document.getElementById("helper-img");
   const dialog = document.getElementById("helper-dialog");
