@@ -376,6 +376,7 @@
       });
     }
 
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById("helper-container");
   const img = document.getElementById("helper-img");
@@ -393,16 +394,18 @@ document.addEventListener('DOMContentLoaded', () => {
     "Если потеряешься — просто кликни на меня снова!"
   ];
 
-  // Появление Швепсика
+  // Показываем Швепсика через 2 сек
   setTimeout(() => {
     container.style.display = "flex";
     container.style.opacity = "1";
     container.style.pointerEvents = "auto";
   }, 2000);
 
-  // Двойной клик по Швепсику — открывает/закрывает диалог
-  img.addEventListener("dblclick", () => {
-    dialog.style.display = dialog.style.display === "none" ? "block" : "none";
+  // Клик по Швепсику открывает диалог, если он закрыт
+  img.addEventListener("click", () => {
+    if (dialog.style.display === "none") {
+      dialog.style.display = "block";
+    }
   });
 
   // Крестик закрывает диалог
@@ -410,13 +413,13 @@ document.addEventListener('DOMContentLoaded', () => {
     dialog.style.display = "none";
   });
 
-  // Стрелочка ➤ листает фразы
+  // Стрелка ➤ листает подсказки
   nextBtn.addEventListener("click", () => {
     phraseIndex = (phraseIndex + 1) % phrases.length;
     textBox.textContent = phrases[phraseIndex];
   });
 
-  // Автоматическая смена фраз
+ // Автосмена фраз
   setInterval(() => {
     if (dialog.style.display !== "none") {
       phraseIndex = (phraseIndex + 1) % phrases.length;
@@ -425,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 7000);
 });
 
+</script>
   </script>
 </head>
 <body>
