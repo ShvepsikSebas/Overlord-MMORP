@@ -13,6 +13,49 @@
       color: #fff;
       overflow-x: hidden;
     }
+.flying-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.flying-particles::before {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(185, 145, 249, 0.5); /* фиолетовая прозрачная */
+  box-shadow:
+    10vw 100vh 0 0 rgba(185, 145, 249, 0.2),
+    20vw 110vh 0 0 rgba(185, 145, 249, 0.3),
+    30vw 105vh 0 0 rgba(185, 145, 249, 0.4),
+    40vw 120vh 0 0 rgba(185, 145, 249, 0.3),
+    50vw 130vh 0 0 rgba(185, 145, 249, 0.2),
+    60vw 115vh 0 0 rgba(185, 145, 249, 0.3),
+    70vw 125vh 0 0 rgba(185, 145, 249, 0.4),
+    80vw 110vh 0 0 rgba(185, 145, 249, 0.3),
+    90vw 100vh 0 0 rgba(185, 145, 249, 0.2);
+  animation: flyUp 12s linear infinite;
+}
+
+@keyframes flyUp {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-120vh);
+    opacity: 0;
+  }
+}
 
 #helper-container {
   position: fixed;
@@ -592,6 +635,8 @@
 </head>
 <body>
 
+<div class="flying-particles"></div>
+
   <div class="slider">
     <div class="overlay-title-wrapper">
       <div class="overlay-emblem-wrapper">
@@ -753,7 +798,7 @@
   let phraseIndex = 0;
   const phrases = [
     "Нажми на слайды — это переходы по разделам.",
-    "Господин Эклер меня убьёт, я должен идти убираться",
+    "Господин Эклер меня убьёт, я должен идти убираться.",
     "Не забудь зайти на наш Discord сервер, там вы сможете найти новых друзей!",
     "Поддержать проект можно нажав на панель с донатом.",
     "Если есть вопросы или заметил неисправность, обратись ко мне в дискорде!"
