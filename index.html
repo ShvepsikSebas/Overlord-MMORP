@@ -651,28 +651,6 @@
       .side-img { display: none; }
     }
 
-#report-discord {
-  position: fixed;
-  top: 40%;
-  left: 0;
-  transform: translateY(-50%);
-  background: #5865F2;
-  color: white;
-  font-weight: bold;
-  font-size: 13px;
-  line-height: 1.4;
-  padding: 10px 12px;
-  border-radius: 0 8px 8px 0;
-  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  z-index: 9999;
-  white-space: nowrap;
-  transition: left 0.3s ease;
-}
-
-#report-discord:hover {
-  left: 5px;
-}
 
   </style>
 <script>
@@ -874,9 +852,6 @@
     <span id="next-phrase" title="Следующая фраза">➤</span>
 </div>
 
-<div id="report-discord" onclick="window.open('https://discord.com/users/ВАШ_ID', '_blank')">
-  🛠 Сообщить о проблеме<br>в Discord
-</div>
 <script>
  document.addEventListener('DOMContentLoaded', () => {
     initSlider();
