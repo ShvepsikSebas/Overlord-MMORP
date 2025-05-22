@@ -16,29 +16,36 @@
       position: relative;
       padding: 40px;
     }
-    .nav {
+  .nav {
   position: fixed;
   top: 20px;
   left: 20px;
   display: flex;
-  flex-direction: column; /* <-- вертикально */
-  gap: 10px;               /* промежутки между кнопками */
+  flex-direction: column;
+  gap: 10px;
   z-index: 20;
 }
 
 .nav a {
+  display: inline-block;              /* Не даёт растягиваться */
   color: #fff;
-  text-decoration: none;
   background: #222;
+  text-decoration: none;
   padding: 10px 15px;
   border-radius: 8px;
   font-weight: bold;
+  font-size: 14px;                    /* Установи фикс. размер шрифта */
+  white-space: nowrap;               /* Чтобы не переносились */
+  width: auto;                       /* Убирает 100% ширины если было */
+  max-width: 200px;                  /* Можно ограничить */
+  box-sizing: border-box;
   transition: background 0.3s;
 }
 
 .nav a:hover {
   background: #444;
 }
+
 
     h1 {
       font-size: 2.5em;
