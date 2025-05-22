@@ -401,14 +401,12 @@ document.addEventListener('DOMContentLoaded', () => {
     container.style.pointerEvents = "auto";
   }, 2000);
 
-  // Клик по Швепсику — показывает диалог, если скрыт
+  // Клик по Швепсику открывает диалог, если он скрыт
   img.addEventListener("click", () => {
-    if (dialog.style.display === "none") {
-      dialog.style.display = "block";
-    }
+    dialog.style.display = "block";
   });
 
-  // Крестик закрывает диалог
+  // Крестик закрывает только диалог
   closeBtn.addEventListener("click", () => {
     dialog.style.display = "none";
   });
@@ -419,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
     textBox.textContent = phrases[phraseIndex];
   });
 
-  // Автоматическая смена фраз
+  // Автосмена фраз
   setInterval(() => {
     if (dialog.style.display !== "none") {
       phraseIndex = (phraseIndex + 1) % phrases.length;
@@ -427,9 +425,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 7000);
 });
-
 </script>
-  </script>
+
 </head>
 <body>
 
