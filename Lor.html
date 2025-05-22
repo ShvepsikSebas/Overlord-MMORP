@@ -17,26 +17,29 @@
             position: relative;
         }
 
-        .nav {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 20;
-        }
-        .nav a {
-            color: #fff;
-            text-decoration: none;
-            background: #222;
-            padding: 10px 15px;
-            border-radius: 8px;
-            transition: background 0.3s, box-shadow 0.3s;
-        }
-        .nav a:hover {
-            background: #444;
-            box-shadow: 0 0 10px #fca311;
-        }
+      .nav {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column; /* <-- вертикально */
+  gap: 10px;               /* промежутки между кнопками */
+  z-index: 20;
+}
+
+.nav a {
+  color: #fff;
+  text-decoration: none;
+  background: #222;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.nav a:hover {
+  background: #444;
+}
 
         .container {
             max-width: 1200px;
