@@ -114,12 +114,17 @@
       animation: fadeGlow 1.5s ease-out forwards;
     }
 
-    .overlay-title {
-      font-family: 'Cinzel Decorative', cursive;
-      font-size: 6em;
-      color: #b891f9;
-      text-shadow: 0 0 30px rgba(185, 145, 249, 0.9);
-    }
+   .overlay-title {
+  font-family: 'Cinzel Decorative', cursive;
+  font-size: 6em;
+  color: #b891f9;
+  -webkit-text-stroke: 1px black;
+  text-shadow:
+    0 0 5px #b891f9,
+    2px 2px 0 #000,
+    4px 4px 10px #000;
+}
+
 
     .overlay-emblem-wrapper {
       position: relative;
@@ -748,9 +753,8 @@
   let phraseIndex = 0;
   const phrases = [
     "Нажми на слайды — это переходы по разделам.",
-    "Мне за это не платят, ну и ладно",
-    "Господин Эклер меня убьёт",
-    "Не забудь зайти на наш Discord!",
+    "Господин Эклер меня убьёт, я должен идти убираться",
+    "Не забудь зайти на наш Discord сервер, там вы сможете найти новых друзей!",
     "Поддержать проект можно нажав на панель с донатом.",
     "Если есть вопросы или заметил неисправность, обратись ко мне в дискорде!"
   ];
