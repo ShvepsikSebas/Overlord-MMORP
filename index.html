@@ -377,6 +377,7 @@
     }
 
 <script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById("helper-container");
   const img = document.getElementById("helper-img");
@@ -401,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     container.style.pointerEvents = "auto";
   }, 2000);
 
-  // Клик по Швепсику открывает диалог, если он закрыт
+  // Клик по Швепсику — показывает диалог, если скрыт
   img.addEventListener("click", () => {
     if (dialog.style.display === "none") {
       dialog.style.display = "block";
@@ -419,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
     textBox.textContent = phrases[phraseIndex];
   });
 
- // Автосмена фраз
+  // Автоматическая смена фраз
   setInterval(() => {
     if (dialog.style.display !== "none") {
       phraseIndex = (phraseIndex + 1) % phrases.length;
