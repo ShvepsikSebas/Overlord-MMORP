@@ -32,47 +32,41 @@
   height: 4px;
   border-radius: 50%;
   background: rgba(185, 145, 249, 0.4);
+  animation: flyUp 20s linear infinite, shimmer 4s ease-in-out infinite;
   box-shadow:
-    5vw 100vh rgba(185, 145, 249, 0.2),
-    10vw 110vh rgba(185, 145, 249, 0.3),
-    15vw 130vh rgba(185, 145, 249, 0.25),
-    20vw 120vh rgba(185, 145, 249, 0.3),
-    25vw 150vh rgba(185, 145, 249, 0.15),
-    30vw 140vh rgba(185, 145, 249, 0.4),
-    35vw 110vh rgba(185, 145, 249, 0.3),
-    40vw 125vh rgba(185, 145, 249, 0.35),
-    45vw 135vh rgba(185, 145, 249, 0.2),
-    50vw 115vh rgba(185, 145, 249, 0.4),
-    55vw 145vh rgba(185, 145, 249, 0.3),
-    60vw 130vh rgba(185, 145, 249, 0.25),
-    65vw 120vh rgba(185, 145, 249, 0.35),
-    70vw 140vh rgba(185, 145, 249, 0.3),
-    75vw 150vh rgba(185, 145, 249, 0.2),
-    80vw 110vh rgba(185, 145, 249, 0.4),
-    85vw 125vh rgba(185, 145, 249, 0.3),
-    90vw 145vh rgba(185, 145, 249, 0.25),
-    95vw 135vh rgba(185, 145, 249, 0.35),
-    2vw 140vh rgba(185, 145, 249, 0.3),
-    7vw 155vh rgba(185, 145, 249, 0.2),
-    12vw 160vh rgba(185, 145, 249, 0.4),
-    17vw 145vh rgba(185, 145, 249, 0.3),
-    22vw 135vh rgba(185, 145, 249, 0.25),
-    27vw 125vh rgba(185, 145, 249, 0.35),
-    32vw 115vh rgba(185, 145, 249, 0.3),
-    37vw 105vh rgba(185, 145, 249, 0.2),
-    42vw 100vh rgba(185, 145, 249, 0.4),
-    47vw 110vh rgba(185, 145, 249, 0.3),
-    52vw 120vh rgba(185, 145, 249, 0.25),
-    57vw 130vh rgba(185, 145, 249, 0.35),
-    62vw 140vh rgba(185, 145, 249, 0.3),
-    67vw 150vh rgba(185, 145, 249, 0.2),
-    72vw 160vh rgba(185, 145, 249, 0.4),
-    77vw 170vh rgba(185, 145, 249, 0.3),
-    82vw 180vh rgba(185, 145, 249, 0.25),
-    87vw 190vh rgba(185, 145, 249, 0.35),
-    92vw 200vh rgba(185, 145, 249, 0.3),
-    97vw 210vh rgba(185, 145, 249, 0.2);
-  animation: flyUp 20s linear infinite;
+    3vw 100vh rgba(185, 145, 249, 0.2),
+    6vw 150vh rgba(185, 145, 249, 0.3),
+    9vw 180vh rgba(185, 145, 249, 0.4),
+    12vw 130vh rgba(185, 145, 249, 0.2),
+    15vw 170vh rgba(185, 145, 249, 0.3),
+    18vw 120vh rgba(185, 145, 249, 0.4),
+    21vw 160vh rgba(185, 145, 249, 0.2),
+    24vw 140vh rgba(185, 145, 249, 0.3),
+    27vw 180vh rgba(185, 145, 249, 0.4),
+    30vw 130vh rgba(185, 145, 249, 0.2),
+    33vw 150vh rgba(185, 145, 249, 0.3),
+    36vw 170vh rgba(185, 145, 249, 0.4),
+    39vw 120vh rgba(185, 145, 249, 0.2),
+    42vw 180vh rgba(185, 145, 249, 0.3),
+    45vw 110vh rgba(185, 145, 249, 0.4),
+    48vw 190vh rgba(185, 145, 249, 0.2),
+    51vw 150vh rgba(185, 145, 249, 0.3),
+    54vw 170vh rgba(185, 145, 249, 0.4),
+    57vw 140vh rgba(185, 145, 249, 0.2),
+    60vw 180vh rgba(185, 145, 249, 0.3),
+    63vw 130vh rgba(185, 145, 249, 0.4),
+    66vw 150vh rgba(185, 145, 249, 0.2),
+    69vw 190vh rgba(185, 145, 249, 0.3),
+    72vw 170vh rgba(185, 145, 249, 0.4),
+    75vw 160vh rgba(185, 145, 249, 0.2),
+    78vw 140vh rgba(185, 145, 249, 0.3),
+    81vw 130vh rgba(185, 145, 249, 0.4),
+    84vw 120vh rgba(185, 145, 249, 0.2),
+    87vw 160vh rgba(185, 145, 249, 0.3),
+    90vw 180vh rgba(185, 145, 249, 0.4),
+    93vw 150vh rgba(185, 145, 249, 0.2),
+    96vw 170vh rgba(185, 145, 249, 0.3),
+    99vw 200vh rgba(185, 145, 249, 0.4);
 }
 
 @keyframes flyUp {
@@ -89,18 +83,12 @@
   }
 }
 
-
-@keyframes flyUp {
-  0% {
-    transform: translateY(0);
-    opacity: 0;
+@keyframes shimmer {
+  0%, 100% {
+    filter: brightness(1);
   }
-  30% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-120vh);
-    opacity: 0;
+  50% {
+    filter: brightness(1.6);
   }
 }
 
