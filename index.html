@@ -376,57 +376,6 @@
       });
     }
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById("helper-container");
-  const img = document.getElementById("helper-img");
-  const dialog = document.getElementById("helper-dialog");
-  const closeBtn = document.getElementById("close-dialog");
-  const nextBtn = document.getElementById("next-phrase");
-  const textBox = dialog.querySelector(".dialog-text");
-
-  let phraseIndex = 0;
-  const phrases = [
-    "Нажми на слайды — это переходы по разделам.",
-    "В разделе «Фракции» описаны все стороны конфликта.",
-    "Не забудь зайти на наш Discord, он внизу!",
-    "Поддержать проект можно через вкладку Донат.",
-    "Если потеряешься — просто кликни на меня снова!"
-  ];
-
-  // Показываем Швепсика через 2 сек
-  setTimeout(() => {
-    container.style.display = "flex";
-    container.style.opacity = "1";
-    container.style.pointerEvents = "auto";
-  }, 2000);
-
-  // Клик по Швепсику открывает диалог, если он скрыт
-  img.addEventListener("click", () => {
-    dialog.style.display = "block";
-  });
-
-  // Крестик закрывает только диалог
-  closeBtn.addEventListener("click", () => {
-    dialog.style.display = "none";
-  });
-
-  // Стрелка ➤ листает подсказки
-  nextBtn.addEventListener("click", () => {
-    phraseIndex = (phraseIndex + 1) % phrases.length;
-    textBox.textContent = phrases[phraseIndex];
-  });
-
-  // Автосмена фраз
-  setInterval(() => {
-    if (dialog.style.display !== "none") {
-      phraseIndex = (phraseIndex + 1) % phrases.length;
-      textBox.textContent = phrases[phraseIndex];
-    }
-  }, 7000);
-});
-</script>
-
 </head>
 <body>
 
@@ -543,7 +492,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const nextBtn = document.getElementById("next-phrase");
   const textBox = dialog.querySelector(".dialog-text");
 
-  let clickCount = 0;
   let phraseIndex = 0;
   const phrases = [
     "Нажми на слайды — это переходы по разделам.",
@@ -562,29 +510,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000);
   }
 
-  // Клик по Швепсику
+  // Клик по Швепсику только открывает диалог, если скрыт
   img.addEventListener("click", () => {
-    clickCount++;
-    if (clickCount >= 2) {
-      container.remove();
-      localStorage.setItem("hideShvepsik", "true");
-    } else {
-      dialog.style.display = dialog.style.display === "none" ? "block" : "none";
+    if (dialog.style.display === "none") {
+      dialog.style.display = "block";
     }
   });
 
-  // Закрыть диалог крестиком
+  // Крестик закрывает диалог
   closeBtn.addEventListener("click", () => {
     dialog.style.display = "none";
   });
 
-  // Следующая подсказка
+  // Стрелка листает подсказки
   nextBtn.addEventListener("click", () => {
     phraseIndex = (phraseIndex + 1) % phrases.length;
     textBox.textContent = phrases[phraseIndex];
   });
 
-  // Автосмена
+  // Автосмена фраз
   setInterval(() => {
     if (dialog.style.display !== "none") {
       phraseIndex = (phraseIndex + 1) % phrases.length;
@@ -593,7 +537,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 7000);
 });
 </script>
-
 
 </body>
 </html>
