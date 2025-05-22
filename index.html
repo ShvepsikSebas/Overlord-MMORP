@@ -21,45 +21,37 @@
   <title>Battle For Yggdrasil | Главная</title>
   <link rel="icon" type="image/png" href="favicon.png">
 
-.flying-particles {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0; /* обязательно ниже всех остальных блоков */
-  overflow: hidden;
-}
+ /* контейнер для частиц */
+    .flying-particles {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0; /* позади всего */
+      overflow: hidden;
+    }
 
-.flying-particles span {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: rgba(185, 145, 249, 0.5);
-  border-radius: 50%;
-  animation: riseUp 10s linear infinite, shimmer 4s ease-in-out infinite;
-}
+    .flying-particles span {
+      position: absolute;
+      display: block;
+      width: 4px; height: 4px;
+      background: rgba(185, 145, 249, 0.5);
+      border-radius: 50%;
+      animation:
+        riseUp linear infinite,
+        shimmer ease-in-out infinite;
+    }
 
-@keyframes riseUp {
-  0% {
-    transform: translateY(100vh) scale(1);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-200vh) scale(0.2);
-    opacity: 0;
-  }
-}
+    @keyframes riseUp {
+      0%   { transform: translateY(100vh) scale(1); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translateY(-200vh) scale(0.2); opacity: 0; }
+    }
 
-@keyframes shimmer {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.7); }
-}
-
+    @keyframes shimmer {
+      0%,100% { filter: brightness(1); }
+      50%     { filter: brightness(1.7); }
+    }
 
 #helper-container {
   position: fixed;
@@ -872,14 +864,25 @@
 </script>
 
 <script>
-  const container = document.querySelector('.flying-particles');
-  for (let i = 0; i < 80; i++) {
-    const p = document.createElement('span');
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.animationDelay = (Math.random() * 10) + 's';
-    p.style.animationDuration = (8 + Math.random() * 6) + 's';
-    container.appendChild(p);
-  }
+ const container = document.querySelector('.flying-particles');
+    const PARTICLE_COUNT = 80;
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const p = document.createElement('span');
+
+      // случайная позиция по горизонтали
+      const x = Math.random() * 100; // в процентах
+      // задержка старта, чтобы не вылетали сразу все
+      const delay = Math.random() * 10; // в секундах
+      // длительность полёта (±20%)
+      const duration = 8 + Math.random() * 4; // сек
+
+      p.style.left = x + 'vw';
+      p.style.animationDuration = `${duration}s, ${4 + Math.random()*2}s`;
+      p.style.animationDelay = `${delay}s, ${delay}s`;
+
+      container.appendChild(p);
+    }
 </script>
 </body>
 </html>
