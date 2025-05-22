@@ -354,7 +354,21 @@
     .donate-panel-container:hover .hand {
       transform: translate(0, -50%); opacity: 1;
     }
+.hand-right {
+  position: absolute;
+  top: 50%;
+  right: -140px;
+  transform: translate(50%, -50%);
+  width: 100px;
+  opacity: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  z-index: 2;
+}
 
+.info-panel-container:hover .hand-right {
+  transform: translate(0, -50%);
+  opacity: 1;
+}
     @keyframes fadeInText { to { opacity: 1; } }
     .character-panel .cp-text {
       opacity: 0; animation: fadeInText 1s 0.3s forwards;
@@ -734,6 +748,17 @@
     </div>
     <img src="ainzhand_left.png" alt="Hand" class="hand">
   </div>
+
+<!-- Steam Collection Panel -->
+<div class="info-panel-container">
+  <div class="info-panel" onclick="window.open('https://steamcommunity.com/sharedfiles/filedetails/?id=ВАШ_ID','_blank')">
+    <img src="steamcollection.png" alt="Steam Collection">
+    <div class="text">
+      Коллекция стим аддонов нашего сервера — установи всё нужное одним кликом и не пропусти ни одного важного мода!
+    </div>
+  </div>
+  <img src="ainz_hand.png" alt="Hand" class="hand hand-right">
+</div>
 
   <!-- separator -->
   <div class="separator"></div>
