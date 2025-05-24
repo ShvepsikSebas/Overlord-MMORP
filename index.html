@@ -4,24 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Battle For Yggdrasil | Главная</title>
-<link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/png" href="favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #0d0d16;
-  color: #fff;
-  overflow-x: hidden;
-  user-select: none;
-}
-
- <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Battle For Yggdrasil | Главная</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-
- * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Roboto', sans-serif;
       background-color: #0d0d16;
@@ -30,7 +16,62 @@
       user-select: none;
       position: relative;
       z-index: 1;
-      min-height: 100vh;  /* чтобы фиксированным элементам был базовый контекст */
+      min-height: 100vh;
+    }
+
+    /* Common panel styles */
+    .info-panel,
+    .donate-panel,
+    .character-panel,
+    .sebas-panel-container .character-panel,
+    .albedo-panel-container .character-panel,
+    .demiurge-panel-container .character-panel,
+    .cocytus-panel-container .character-panel,
+    .shalltear-panel-container .character-panel,
+    .aura-mare-panel-container .character-panel {
+      background: rgba(28,28,46,0.5);
+      backdrop-filter: blur(10px);
+      border: none;
+      display: flex;
+      align-items: center;
+      padding: 60px;
+      border-radius: 12px;
+      transform: translateX(-100%);
+      opacity: 0;
+      transition: transform 1s ease, opacity 1s ease;
+      width: 80vw;
+      max-width: 900px;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .info-panel.visible,
+    .donate-panel.visible,
+    .character-panel.visible,
+    .sebas-panel-container .character-panel.visible,
+    .albedo-panel-container .character-panel.visible,
+    .demiurge-panel-container .character-panel.visible,
+    .cocytus-panel-container .character-panel.visible,
+    .shalltear-panel-container .character-panel.visible,
+    .aura-mare-panel-container .character-panel.visible {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    /* Common container styles */
+    .info-panel-container,
+    .donate-panel-container,
+    .character-panel-container,
+    .sebas-panel-container,
+    .albedo-panel-container,
+    .demiurge-panel-container,
+    .cocytus-panel-container,
+    .shalltear-panel-container,
+    .aura-mare-panel-container {
+      position: relative;
+      width: fit-content;
+      margin: 50px auto;
+      overflow: visible;
     }
 
     .flying-particles {
@@ -249,41 +290,6 @@
     .prev { left: 10px; } .next { right: 10px; }
     .nav-button:hover { background: rgba(255,255,255,0.2); }
 
-    .info-panel-container,
-    .donate-panel-container,
-    .character-panel-container,
-    .sebas-panel-container,
-    .albedo-panel-container {
-      position: relative;
-      width: fit-content;
-      margin: 50px auto;
-      overflow: visible;
-    }
-
-    .info-panel,
-    .donate-panel,
-    .character-panel,
-    .sebas-panel-container .character-panel,
-    .albedo-panel-container .character-panel {
-      background: rgba(28,28,46,0.5);
-      backdrop-filter: blur(10px);
-      border: none;
-      display: flex; align-items: center;
-      padding: 60px; border-radius: 12px;
-      transform: translateX(-100%); opacity: 0;
-      transition: transform 1s ease, opacity 1s ease;
-      width: 80vw; max-width: 900px;
-      cursor: pointer; z-index: 1;
-    }
-
-    .info-panel.visible,
-    .donate-panel.visible,
-    .character-panel.visible,
-    .sebas-panel-container .character-panel.visible,
-    .albedo-panel-container .character-panel.visible {
-      transform: translateX(0); opacity: 1;
-    }
-
     .info-panel .text,
     .donate-panel .text,
     .character-panel .cp-text {
@@ -374,207 +380,6 @@
       width: auto;
       z-index: 5;
     }
-.demiurge-panel-container {
-  position: relative;
-  width: fit-content;
-  margin: 50px auto;
-  overflow: visible;
-}
-
-.demiurge-panel-container .character-panel {
-  background: rgba(28,28,46,0.5);
-  backdrop-filter: blur(10px);
-  border: none;
-  display: flex;
-  align-items: center;
-  padding: 60px;
-  border-radius: 12px;
-  transform: translateX(-100%);
-  opacity: 0;
-  transition: transform 1s ease, opacity 1s ease;
-  width: 80vw;
-  max-width: 900px;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.demiurge-panel-container .character-panel.visible {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.demiurge-panel-container .side-img.left {
-  position: absolute;
-  left: -260px;
-  top: 50%;
-  transform: translate(-50px, -50%);
-  width: auto;
-  height: auto;
-  max-height: 360px;
-  opacity: 0;
-  transition: transform 1s ease, opacity 1s ease;
-  z-index: 5;
-}
-
-.demiurge-panel-container .character-panel.visible ~ .side-img.left {
-  transform: translate(0, -50%);
-  opacity: 1;
-}
-
-.cocytus-panel-container {
-  position: relative;
-  width: fit-content;
-  margin: 50px auto;
-  overflow: visible;
-}
-
-.cocytus-panel-container .character-panel {
-  background: rgba(28,28,46,0.5);
-  backdrop-filter: blur(10px);
-  border: none;
-  display: flex;
-  align-items: center;
-  padding: 60px;
-  border-radius: 12px;
-  transform: translateX(-100%);
-  opacity: 0;
-  transition: transform 1s ease, opacity 1s ease;
-  width: 80vw;
-  max-width: 900px;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.cocytus-panel-container .character-panel.visible {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.cocytus-panel-container .side-img.right {
-  position: absolute;
-  right: -280px;
-  top: 50%;
-  transform: translate(50px, -50%);
-  width: auto;
-  height: auto;
-  max-height: 360px;
-  opacity: 0;
-  transition: transform 1s ease, opacity 1s ease;
-  z-index: 5;
-}
-
-.cocytus-panel-container .character-panel.visible ~ .side-img.right {
-  transform: translate(0, -50%);
-  opacity: 1;
-}
-
-.shalltear-panel-container {
-  position: relative;
-  width: fit-content;
-  margin: 50px auto;
-  overflow: visible;
-}
-
-.shalltear-panel-container .character-panel {
-  background: rgba(28,28,46,0.5);
-  backdrop-filter: blur(10px);
-  border: none;
-  display: flex;
-  align-items: center;
-  padding: 60px;
-  border-radius: 12px;
-  transform: translateX(-100%);
-  opacity: 0;
-  transition: transform 1s ease, opacity 1s ease;
-  width: 80vw;
-  max-width: 900px;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.shalltear-panel-container .character-panel.visible {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.shalltear-panel-container .side-img.left {
-  position: absolute;
-  left: -260px;
-  top: 50%;
-  transform: translate(-50px, -50%);
-  width: auto;
-  height: auto;
-  max-height: 360px;
-  opacity: 0;
-  transition: transform 1s ease, opacity 1s ease;
-  z-index: 5;
-}
-
-.shalltear-panel-container .character-panel.visible ~ .side-img.left {
-  transform: translate(0, -50%);
-  opacity: 1;
-}
-
-.aura-mare-panel-container {
-  position: relative;
-  width: fit-content;
-  margin: 50px auto;
-  overflow: visible;
-}
-
-.aura-mare-panel-container .character-panel {
-  background: rgba(28,28,46,0.5);
-  backdrop-filter: blur(10px);
-  border: none;
-  display: flex;
-  align-items: center;
-  padding: 60px;
-  border-radius: 12px;
-  transform: translateX(-100%);
-  opacity: 0;
-  transition: transform 1s ease, opacity 1s ease;
-  width: 80vw;
-  max-width: 900px;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.aura-mare-panel-container .character-panel.visible {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.aura-mare-panel-container .side-img.left {
-  position: absolute;
-  left: -100px;
-  top: 50%;
-  transform: translate(-50px, -50%);
-  width: auto;
-  height: auto;
-  max-height: 360px;
-  opacity: 0;
-  transition: transform 1s ease, opacity 1s ease;
-  z-index: 5;
-}
-
-.aura-mare-panel-container .side-img.right {
-  position: absolute;
-  right: -180px;
-  top: 50%;
-  transform: translate(50px, -50%);
-  width: auto;
-  height: auto;
-  max-height: 360px;
-  opacity: 0;
-  transition: transform 1s ease, opacity 1s ease;
-  z-index: 5;
-}
-
-.aura-mare-panel-container .character-panel.visible ~ .side-img.left,
-.aura-mare-panel-container .character-panel.visible ~ .side-img.right {
-  transform: translate(0, -50%);
-  opacity: 1;
-}
 
     .separator {
       width: 90vw; max-width: 1200px;
@@ -614,38 +419,57 @@
   </style>
 <script>
   function initSlider() {
-    let current = 0, slides = document.querySelectorAll('.slide');
-    function show(i) {
-      slides.forEach(s => s.classList.remove('active'));
-      slides[i].classList.add('active');
-    }
-    window.prevSlide = () => {
-      current = (current - 1 + slides.length) % slides.length;
-      show(current);
-    };
-    window.nextSlide = () => {
-      current = (current + 1) % slides.length;
-      show(current);
-    };
-    show(0);
-
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
     const panels = document.querySelectorAll(
       '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel, .demiurge-panel-container .character-panel, .cocytus-panel-container .character-panel, .shalltear-panel-container .character-panel, .aura-mare-panel-container .character-panel'
     );
 
-    // Сразу проверим на загрузке
+    function show(i) {
+      slides.forEach(s => s.classList.remove('active'));
+      slides[i].classList.add('active');
+    }
+
+    window.prevSlide = () => {
+      current = (current - 1 + slides.length) % slides.length;
+      show(current);
+    };
+
+    window.nextSlide = () => {
+      current = (current + 1) % slides.length;
+      show(current);
+    };
+
+    // Оптимизированная функция проверки видимости панелей
     const revealPanels = () => {
+      const viewportHeight = window.innerHeight;
       panels.forEach(panel => {
-        const r = panel.getBoundingClientRect();
+        const rect = panel.getBoundingClientRect();
         panel.classList.toggle('visible',
-          r.top < window.innerHeight && r.bottom > 0
+          rect.top < viewportHeight && rect.bottom > 0
         );
       });
     };
 
-    revealPanels(); // Показать, если они уже в зоне видимости
-    window.addEventListener('scroll', revealPanels);
+    // Инициализация
+    show(0);
+    revealPanels();
+
+    // Используем requestAnimationFrame для оптимизации скролла
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          revealPanels();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
   }
+
+  // Инициализация при загрузке страницы
+  document.addEventListener('DOMContentLoaded', initSlider);
 </script>
 
 </head>
@@ -690,7 +514,7 @@
   <!-- discord -->
   <div class="info-panel-container">
     <div class="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
-      <img src="discord_logo.jpg" alt="Discord">
+      <img src="discord_logo.jpg" alt="Discord" loading="lazy" decoding="async">
       <div class="text">
         Присоединяйся к нашему официальному Discord-серверу Battle For Yggdrasil:<br>
         общайся с командой, участвуй в ивентах и получай последние новости!
@@ -702,7 +526,7 @@
   <!-- donate -->
 <div class="donate-panel-container">
   <div class="donate-panel" onclick="location.href='donate.html'">
-    <img src="donat.jpg" alt="Donate">
+    <img src="donat.jpg" alt="Donate" loading="lazy" decoding="async">
     <div class="text">
       Поддержи проект Battle For Yggdrasil: перейди на страницу доната и получи бонусы!
     </div>
@@ -714,7 +538,7 @@
 <!-- Steam Collection Panel -->
 <div class="info-panel-container">
   <div class="info-panel" onclick="window.open('https://steamcommunity.com/sharedfiles/filedetails/?id=ВАШ_ID','_blank')">
-    <img src="steamcollection.png" alt="Steam Collection">
+    <img src="steamcollection.png" alt="Steam Collection" loading="lazy" decoding="async">
     <div class="text">
       Коллекция стим аддонов нашего сервера — установи всё нужное одним кликом и не пропусти ни одного важного мода!
     </div>
@@ -733,8 +557,8 @@
         Аинз Оул Гоун (псевдо «Момон») — могущественный Лич-король нежити, правитель великой гробницы Назарик, скрывающийся под маской благородного авантюриста-героя.
       </div>
     </div>
-    <img src="ainz.png" alt="Ainz" class="side-img left">
-    <img src="momonga.png" alt="Momon" class="side-img right">
+    <img src="ainz.png" alt="Ainz" class="side-img left" loading="lazy" decoding="async">
+    <img src="momonga.png" alt="Momon" class="side-img right" loading="lazy" decoding="async">
   </div>
 
   <!-- Sebas -->
@@ -744,7 +568,7 @@
         Себас Тиан — верный дворецкий и телохранитель семьи Шарктоп, мастер ближнего боя и искусный стратег, преданный своему господину без малейшего сомнения.
       </div>
     </div>
-    <img src="sebas.png" alt="Sebas" class="side-img left">
+    <img src="sebas.png" alt="Sebas" class="side-img left" loading="lazy" decoding="async">
   </div>
 
   <!-- Albedo -->
@@ -754,7 +578,7 @@
         Альбедо — начальница Стражей Великой Гробницы Назарик. Обладает безупречным интеллектом, стратегическим мышлением и абсолютной преданностью Аинзу. За холодной внешностью скрывает пылающую любовь к своему господину.
       </div>
     </div>
-    <img src="albedo.png" alt="Albedo" class="side-img right">
+    <img src="albedo.png" alt="Albedo" class="side-img right" loading="lazy" decoding="async">
   </div>
 
 <!-- Demiurge -->
@@ -764,7 +588,7 @@
       Демиург — один из Стражей Этажей Великой Гробницы Назарик. Исключительно умен, расчетлив и безжалостен к врагам. Является главным стратегом и специалистом по пыткам. Верен Аинзу до последнего дыхания.
     </div>
   </div>
-  <img src="demon.png" alt="Demiurge" class="side-img left">
+  <img src="demon.png" alt="Demiurge" class="side-img left" loading="lazy" decoding="async">
 </div>
 
 <!-- Cocytus -->
@@ -774,7 +598,7 @@
       Коцит — Страж Пятого этажа Великой Гробницы Назарик. Воин чести, монстр с телом насекомого и душой самурая. Обладает непревзойдённой боевой мощью, безупречной дисциплиной и фанатичной преданностью Аинзу.
     </div>
   </div>
-  <img src="cocytus.png" alt="Cocytus" class="side-img right">
+  <img src="cocytus.png" alt="Cocytus" class="side-img right" loading="lazy" decoding="async">
 </div>
 
 <!-- Shalltear -->
@@ -784,7 +608,7 @@
       Шалтир  — Страж Третьего этажа Назарика. Вампир-аристократ, смертельно опасная, но внешне милая и женственная. Обладает невероятной силой и исступлённой любовью к Аинзу, ради которого готова на всё.
     </div>
   </div>
-  <img src="vampir.png" alt="Shalltear" class="side-img left">
+  <img src="vampir.png" alt="Shalltear" class="side-img left" loading="lazy" decoding="async">
 </div>
 
 <!-- Aura & Mare -->
@@ -797,8 +621,8 @@
       Они дополняют друг друга и всегда действуют вместе, проявляя безусловную преданность Аинзу.
     </div>
   </div>
-  <img src="aura.webp" alt="Aura" class="side-img left">
-  <img src="mare.png" alt="Mare" class="side-img right">
+  <img src="aura.webp" alt="Aura" class="side-img left" loading="lazy" decoding="async">
+  <img src="mare.png" alt="Mare" class="side-img right" loading="lazy" decoding="async">
 </div>
 
   <!-- footer -->
