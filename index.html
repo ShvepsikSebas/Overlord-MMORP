@@ -1270,14 +1270,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  function toggleSemicircles() {
+  function updateSemicircles() {
     const semicircleLeft = document.querySelector('.main-semicircle-left');
     const semicircleRight = document.querySelector('.main-semicircle-right');
-    const firstPanel = document.querySelector('.info-panel-container');
-    if (!semicircleLeft || !semicircleRight || !firstPanel) return;
-    const rect = firstPanel.getBoundingClientRect();
-    // Показываем полукруги только если верх панели ниже нижней границы слайдера (200px от верха)
-    if (rect.top < window.innerHeight && rect.bottom > 200) {
+    const slider = document.querySelector('.slider');
+    
+    if (!semicircleLeft || !semicircleRight || !slider) return;
+
+    const sliderRect = slider.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    
+    // Вычисляем, насколько слайдер ушел за пределы экрана
+    const sliderBottom = sliderRect.bottom;
+    const scrollProgress = Math.min(Math.max(1 - (sliderBottom / viewportHeight), 0), 1);
+    
+    // Устанавливаем прозрачность и позицию полукругов
+    const opacity = Math.min(scrollProgress * 2, 1); // Плавное появление
+    const translateY = Math.min(scrollProgress * 100, 50); // Плавное движение вниз
+    
+    semicircleLeft.style.opacity = opacity;
+    semicircleRight.style.opacity = opacity;
+    
+    semicircleLeft.style.transform = `translateY(calc(-50% + ${translateY}px))`;
+    semicircleRight.style.transform = `translateY(calc(-50% + ${translateY}px))`;
+    
+    // Показываем/скрываем полукруги
+    if (scrollProgress > 0) {
       semicircleLeft.classList.remove('hide');
       semicircleRight.classList.remove('hide');
     } else {
@@ -1285,9 +1303,13 @@ document.addEventListener('DOMContentLoaded', function() {
       semicircleRight.classList.add('hide');
     }
   }
-  window.addEventListener('scroll', toggleSemicircles);
-  window.addEventListener('resize', toggleSemicircles);
-  toggleSemicircles();
+
+  // Добавляем обработчики событий
+  window.addEventListener('scroll', updateSemicircles);
+  window.addEventListener('resize', updateSemicircles);
+  
+  // Инициализация при загрузке
+  updateSemicircles();
 });
 </script>
 </body>
