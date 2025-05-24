@@ -499,20 +499,6 @@
             document.querySelector('.to-top').addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
-
-            // Обработка кнопок "Подробнее"
-            document.querySelectorAll('.details-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const content = btn.nextElementSibling;
-                    if (content.style.display === 'block') {
-                        content.style.display = 'none';
-                        btn.textContent = 'Подробнее';
-                    } else {
-                        content.style.display = 'block';
-                        btn.textContent = 'Скрыть';
-                    }
-                });
-            });
         });
 
         // Modal functionality
