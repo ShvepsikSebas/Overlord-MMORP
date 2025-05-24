@@ -416,6 +416,536 @@
       .side-img { display: none; }
     }
 
+    /* Side Panels Styles */
+    .side-panel {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 200px;
+      background: rgba(28,28,46,0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(252,163,17,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .left-panel {
+      left: 20px;
+    }
+
+    .right-panel {
+      right: 20px;
+    }
+
+    .online-monitor {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .online-title {
+      color: #fca311;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+    }
+
+    .circle-progress {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 0 auto;
+    }
+
+    .circle-progress svg {
+      transform: rotate(-90deg);
+    }
+
+    .circle-progress circle {
+      fill: none;
+      stroke-width: 8;
+    }
+
+    .circle-progress .bg {
+      stroke: rgba(255,255,255,0.1);
+    }
+
+    .circle-progress .progress {
+      stroke: #fca311;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .online-count {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.5em;
+      color: #fff;
+    }
+
+    .play-button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      background: #fca311;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .play-button:hover {
+      background: #ffb733;
+    }
+
+    @media (max-width: 1400px) {
+      .side-panel {
+        display: none;
+      }
+    }
+
+    .side-semicircle {
+      position: absolute;
+      top: 50%;
+      width: 180px;
+      height: 360px;
+      background: radial-gradient(ellipse at center, rgba(28,28,46,0.7) 80%, rgba(28,28,46,0.2) 100%);
+      box-shadow: 0 0 60px 0 #000a, 0 0 0 8px rgba(252,163,17,0.07) inset;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .side-semicircle.left {
+      left: -90px;
+      border-top-left-radius: 180px 360px;
+      border-bottom-left-radius: 180px 360px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      flex-direction: column;
+    }
+    .side-semicircle.right {
+      right: -90px;
+      border-top-right-radius: 180px 360px;
+      border-bottom-right-radius: 180px 360px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      flex-direction: column;
+    }
+    .side-semicircle .online-monitor,
+    .side-semicircle .play-button {
+      pointer-events: auto;
+      z-index: 2;
+    }
+    .side-semicircle .circle-progress {
+      position: relative;
+      width: 120px;
+      height: 240px;
+      margin: 0 auto;
+    }
+    .side-semicircle .online-count {
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.3em;
+      color: #fff;
+      text-shadow: 0 0 8px #000a;
+    }
+    .side-semicircle .play-button {
+      display: block;
+      width: 120px;
+      margin: 80px auto 0 auto;
+      padding: 18px 0;
+      background: #fca311;
+      color: #000;
+      border: none;
+      border-radius: 40px;
+      font-size: 1.3em;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0006;
+      transition: background 0.3s;
+    }
+    .side-semicircle .play-button:hover {
+      background: #ffb733;
+    }
+    .side-semicircle .semicircle-bg {
+      stroke: #fff2;
+    }
+    .side-semicircle .semicircle-progress {
+      stroke: #fca311;
+      stroke-dasharray: 314;
+      stroke-dashoffset: 282;
+      transition: stroke-dashoffset 0.5s;
+    }
+    @media (max-width: 1200px) {
+      .side-semicircle { display: none; }
+    }
+
+    .semicircle-bg-container {
+      position: relative;
+      width: 100vw;
+      height: 0;
+      min-height: 0;
+      z-index: 0;
+    }
+    .semicircle-bg {
+      pointer-events: none;
+    }
+    .semicircle-bg.left {
+      left: 0;
+    }
+    .semicircle-bg.right {
+      right: 0;
+    }
+    @media (max-width: 1200px) {
+      .semicircle-bg-container { display: none; }
+    }
+
+    .semicircle-bg-left, .semicircle-bg-right {
+      position: fixed;
+      top: 15%;
+      width: 480px;
+      height: 960px;
+      background: radial-gradient(ellipse at center, rgba(28,28,46,0.7) 80%, rgba(28,28,46,0.2) 100%);
+      z-index: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .semicircle-bg-left {
+      left: 0;
+      border-top-right-radius: 480px 960px;
+      border-bottom-right-radius: 480px 960px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .semicircle-bg-right {
+      right: 0;
+      border-top-left-radius: 480px 960px;
+      border-bottom-left-radius: 480px 960px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    .semicircle-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      z-index: 2;
+    }
+    .online-title {
+      color: #fff;
+      font-size: 2.7em;
+      margin-bottom: 18px;
+      text-shadow: 0 0 8px #000a;
+      white-space: nowrap;
+    }
+    .online-count {
+      color: #fca311;
+      font-size: 3.2em;
+      font-weight: bold;
+      text-shadow: 0 0 8px #000a;
+      white-space: nowrap;
+    }
+    .play-button {
+      display: block;
+      width: 220px;
+      margin: 0 auto;
+      padding: 32px 0;
+      background: #fca311;
+      color: #000;
+      border: none;
+      border-radius: 60px;
+      font-size: 2.5em;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0006;
+      transition: background 0.3s;
+      z-index: 2;
+      white-space: nowrap;
+    }
+    .play-button:hover {
+      background: #ffb733;
+    }
+    @media (max-width: 1200px) {
+      .semicircle-bg-left, .semicircle-bg-right { display: none; }
+    }
+    .info-panel-container, .donate-panel-container {
+      margin-bottom: 32px;
+    }
+
+    .panels-with-bg {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto 40px auto;
+      min-height: 340px;
+      height: 340px;
+    }
+    .semicircle-bg-left, .semicircle-bg-right {
+      position: absolute;
+      top: 50%;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(ellipse at center, rgba(28,28,46,0.7) 80%, rgba(28,28,46,0.2) 100%);
+      z-index: 0;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .semicircle-bg-left {
+      left: -170px;
+      border-top-right-radius: 340px 340px;
+      border-bottom-right-radius: 340px 340px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .semicircle-bg-right {
+      right: -170px;
+      border-top-left-radius: 340px 340px;
+      border-bottom-left-radius: 340px 340px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    .semicircle-content-left, .semicircle-content-right {
+      position: absolute;
+      top: 50%;
+      width: 340px;
+      height: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      z-index: 2;
+      transform: translateY(-50%);
+    }
+    .semicircle-content-left {
+      left: -170px;
+    }
+    .semicircle-content-right {
+      right: -170px;
+    }
+    .online-title {
+      color: #fff;
+      font-size: 2.1em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 8px #000a;
+    }
+    .online-count {
+      color: #fca311;
+      font-size: 2.5em;
+      font-weight: bold;
+      text-shadow: 0 0 8px #000a;
+    }
+    .play-button {
+      display: block;
+      width: 160px;
+      margin: 0 auto;
+      padding: 22px 0;
+      background: #fca311;
+      color: #000;
+      border: none;
+      border-radius: 40px;
+      font-size: 2em;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0006;
+      transition: background 0.3s;
+      z-index: 2;
+    }
+    .play-button:hover {
+      background: #ffb733;
+    }
+    @media (max-width: 1200px) {
+      .semicircle-bg-left, .semicircle-bg-right, .semicircle-content-left, .semicircle-content-right { display: none; }
+    }
+
+    .panels-center {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto 60px auto;
+      min-height: 600px;
+    }
+    .semicircle-bg-left, .semicircle-bg-right {
+      position: absolute;
+      top: 50%;
+      width: 400px;
+      height: 800px;
+      background: radial-gradient(ellipse at center, rgba(28,28,46,0.7) 80%, rgba(28,28,46,0.2) 100%);
+      z-index: 0;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .semicircle-bg-left {
+      left: -200px;
+      border-top-right-radius: 400px 800px;
+      border-bottom-right-radius: 400px 800px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .semicircle-bg-right {
+      right: -200px;
+      border-top-left-radius: 400px 800px;
+      border-bottom-left-radius: 400px 800px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    .semicircle-content-left, .semicircle-content-right {
+      position: absolute;
+      top: 50%;
+      width: 400px;
+      height: 800px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      z-index: 2;
+      transform: translateY(-50%);
+    }
+    .semicircle-content-left {
+      left: -200px;
+    }
+    .semicircle-content-right {
+      right: -200px;
+    }
+    .online-title {
+      color: #fff;
+      font-size: 2em;
+      margin-bottom: 16px;
+      text-shadow: 0 0 8px #000a;
+      white-space: nowrap;
+    }
+    .online-count {
+      color: #fca311;
+      font-size: 2.5em;
+      font-weight: bold;
+      text-shadow: 0 0 8px #000a;
+      white-space: nowrap;
+    }
+    .play-button {
+      display: block;
+      width: 160px;
+      margin: 0 auto;
+      padding: 22px 0;
+      background: #fca311;
+      color: #000;
+      border: none;
+      border-radius: 40px;
+      font-size: 2em;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0006;
+      transition: background 0.3s;
+      z-index: 2;
+      white-space: nowrap;
+    }
+    .play-button:hover {
+      background: #ffb733;
+    }
+    @media (max-width: 1200px) {
+      .semicircle-bg-left, .semicircle-bg-right, .semicircle-content-left, .semicircle-content-right { display: none; }
+    }
+
+    .main-semicircle-left, .main-semicircle-right {
+      position: fixed;
+      top: 50%;
+      width: 320px;
+      height: 640px;
+      background: radial-gradient(ellipse at center, rgba(28,28,46,0.7) 80%, rgba(28,28,46,0.2) 100%);
+      z-index: 0;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .main-semicircle-left {
+      left: 0;
+      border-top-right-radius: 320px 640px;
+      border-bottom-right-radius: 320px 640px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .main-semicircle-right {
+      right: 0;
+      border-top-left-radius: 320px 640px;
+      border-bottom-left-radius: 320px 640px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    .main-semicircle-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      z-index: 2;
+    }
+    .main-online-title {
+      color: #fff;
+      font-size: 2.1em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 8px #000a;
+      white-space: nowrap;
+    }
+    .main-online-count {
+      color: #fca311;
+      font-size: 2.5em;
+      font-weight: bold;
+      text-shadow: 0 0 8px #000a;
+      white-space: nowrap;
+    }
+    .main-play-button {
+      display: block;
+      width: 160px;
+      margin: 0 auto;
+      padding: 22px 0;
+      background: #fca311;
+      color: #000;
+      border: none;
+      border-radius: 40px;
+      font-size: 2em;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0006;
+      transition: background 0.3s;
+      z-index: 2;
+      white-space: nowrap;
+    }
+    .main-play-button:hover {
+      background: #ffb733;
+    }
+    @media (max-width: 1200px) {
+      .main-semicircle-left, .main-semicircle-right { display: none; }
+    }
+
   </style>
 <script>
   function initSlider() {
@@ -511,7 +1041,20 @@
     <button class="nav-button prev" onclick="prevSlide()">❮</button>
     <button class="nav-button next" onclick="nextSlide()">❯</button>
   </div>
-  <!-- discord -->
+  <!-- Два полукруга по бокам страницы -->
+  <div class="main-semicircle-left">
+    <div class="main-semicircle-content">
+      <div class="main-online-title">Онлайн</div>
+      <div class="main-online-count">1/100</div>
+    </div>
+  </div>
+  <div class="main-semicircle-right">
+    <div class="main-semicircle-content">
+      <a href="steam://rungameid/4000" class="main-play-button">Играть</a>
+    </div>
+  </div>
+
+  <!-- Discord -->
   <div class="info-panel-container">
     <div class="info-panel" onclick="window.open('https://discord.gg/bmjBcBUg','_blank')">
       <img src="discord_logo.jpg" alt="Discord" loading="lazy" decoding="async">
@@ -522,29 +1065,26 @@
     </div>
     <img src="ainz_hand.png" alt="Hand" class="hand">
   </div>
-
-  <!-- donate -->
-<div class="donate-panel-container">
-  <div class="donate-panel" onclick="location.href='donate.html'">
-    <img src="donat.jpg" alt="Donate" loading="lazy" decoding="async">
-    <div class="text">
-      Поддержи проект Battle For Yggdrasil: перейди на страницу доната и получи бонусы!
+  <!-- Donate -->
+  <div class="donate-panel-container">
+    <div class="donate-panel" onclick="location.href='donate.html'">
+      <img src="donat.jpg" alt="Donate" loading="lazy" decoding="async">
+      <div class="text">
+        Поддержи проект Battle For Yggdrasil: перейди на страницу доната и получи бонусы!
+      </div>
     </div>
+    <img src="ainzhand_left.png" alt="Hand" class="hand">
   </div>
-  <img src="ainzhand_left.png" alt="Hand" class="hand">
-</div>
-
-
-<!-- Steam Collection Panel -->
-<div class="info-panel-container">
-  <div class="info-panel" onclick="window.open('https://steamcommunity.com/sharedfiles/filedetails/?id=ВАШ_ID','_blank')">
-    <img src="steamcollection.png" alt="Steam Collection" loading="lazy" decoding="async">
-    <div class="text">
-      Коллекция стим аддонов нашего сервера — установи всё нужное одним кликом и не пропусти ни одного важного мода!
+  <!-- Steam Collection -->
+  <div class="info-panel-container">
+    <div class="info-panel" onclick="window.open('https://steamcommunity.com/sharedfiles/filedetails/?id=ВАШ_ID','_blank')">
+      <img src="steamcollection.png" alt="Steam Collection" loading="lazy" decoding="async">
+      <div class="text">
+        Коллекция стим аддонов нашего сервера — установи всё нужное одним кликом и не пропусти ни одного важного мода!
+      </div>
     </div>
+    <img src="ainz_hand.png" alt="Hand" class="hand hand-right">
   </div>
-  <img src="ainz_hand.png" alt="Hand" class="hand hand-right">
-</div>
 
   <!-- separator -->
   <div class="separator"></div>
@@ -712,6 +1252,18 @@
 
       container.appendChild(p);
     }
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Анимация прогресса онлайн (1%)
+  const progress = 1;
+  const max = 100;
+  const path = document.querySelector('.semicircle-progress');
+  const length = 314; // длина дуги
+  const offset = length - (progress / max) * length;
+  if (path) path.style.strokeDashoffset = offset;
+});
 </script>
 </body>
 </html>
