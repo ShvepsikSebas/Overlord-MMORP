@@ -946,6 +946,8 @@
       .main-semicircle-left, .main-semicircle-right { display: none; }
     }
 
+    .main-semicircle-left.hide, .main-semicircle-right.hide { display: none !important; }
+
   </style>
 <script>
   function initSlider() {
@@ -1263,6 +1265,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const length = 314; // длина дуги
   const offset = length - (progress / max) * length;
   if (path) path.style.strokeDashoffset = offset;
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  function toggleSemicircles() {
+    const semicircleLeft = document.querySelector('.main-semicircle-left');
+    const semicircleRight = document.querySelector('.main-semicircle-right');
+    const firstPanel = document.querySelector('.info-panel-container');
+    if (!semicircleLeft || !semicircleRight || !firstPanel) return;
+    const rect = firstPanel.getBoundingClientRect();
+    // Показываем полукруги только если верх панели ниже нижней границы слайдера (200px от верха)
+    if (rect.top < window.innerHeight && rect.bottom > 200) {
+      semicircleLeft.classList.remove('hide');
+      semicircleRight.classList.remove('hide');
+    } else {
+      semicircleLeft.classList.add('hide');
+      semicircleRight.classList.add('hide');
+    }
+  }
+  window.addEventListener('scroll', toggleSemicircles);
+  window.addEventListener('resize', toggleSemicircles);
+  toggleSemicircles();
 });
 </script>
 </body>
