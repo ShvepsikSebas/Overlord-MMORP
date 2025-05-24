@@ -168,6 +168,97 @@
                 flex-direction: column;
             }
         }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            background: rgba(28,28,46,0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(252,163,17,0.3);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: #fca311;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #ffb733;
+        }
+
+        .modal-title {
+            color: #fca311;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-price {
+            font-size: 1.4em;
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-description {
+            color: #fff;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .modal-features li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+            color: #fff;
+        }
+
+        .modal-features li:before {
+            content: "•";
+            color: #fca311;
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+        }
     </style>
     <script src="animations/animations.js"></script>
 </head>
@@ -382,9 +473,9 @@
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2 class="modal-title"></h2>
+            <div class="modal-price"></div>
             <p class="modal-description"></p>
             <ul class="modal-features"></ul>
-            <div class="modal-price"></div>
         </div>
     </div>
 
@@ -422,6 +513,53 @@
                     }
                 });
             });
+        });
+
+        // Modal functionality
+        const modal = document.getElementById('detailsModal');
+        const modalTitle = modal.querySelector('.modal-title');
+        const modalPrice = modal.querySelector('.modal-price');
+        const modalDescription = modal.querySelector('.modal-description');
+        const modalFeatures = modal.querySelector('.modal-features');
+        const closeBtn = modal.querySelector('.modal-close');
+
+        // Update all detail buttons to open modal
+        document.querySelectorAll('.details-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const card = button.closest('.donate-card');
+                const title = card.querySelector('h3').textContent;
+                const price = card.querySelector('.price').textContent;
+                const description = card.querySelector('.hidden-content p').textContent;
+                const features = Array.from(card.querySelectorAll('.features li')).map(li => li.textContent);
+
+                modalTitle.textContent = title;
+                modalPrice.textContent = price;
+                modalDescription.textContent = description;
+                modalFeatures.innerHTML = features.map(feature => `<li>${feature}</li>`).join('');
+
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        // Close modal
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
         });
     </script>
 </body>
