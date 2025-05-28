@@ -26,23 +26,26 @@
 }
 
 .nav a {
-  display: inline-block;
   color: #fff;
-  background: #222;
   text-decoration: none;
+  background: rgba(40, 40, 60, 0.4);
   padding: 10px 15px;
   border-radius: 8px;
   font-weight: bold;
+  transition: all 0.3s;
+  border: 1px solid rgba(184, 145, 249, 0.3);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 0 20px rgba(184,145,249,0.1);
   font-size: 14px;
   white-space: nowrap;
   width: auto;
   max-width: 200px;
-  box-sizing: border-box;
-  transition: background 0.3s;
 }
 
 .nav a:hover {
-  background: #444;
+  background: rgba(184,145,249,0.2);
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(184,145,249,0.2);
 }
     h1 {
       font-size: 2.5em;
