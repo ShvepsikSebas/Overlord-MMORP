@@ -16,6 +16,7 @@
             color: #fff;
             overflow-x: hidden;
             position: relative;
+            min-height: 100vh;
         }
 
       .nav {
@@ -23,36 +24,52 @@
   top: 20px;
   left: 20px;
   display: flex;
-  flex-direction: column; /* <-- вертикально */
-  gap: 10px;               /* промежутки между кнопками */
+  flex-direction: column;
+  gap: 10px;
   z-index: 20;
 }
 
 .nav a {
   color: #fff;
   text-decoration: none;
-  background: #222;
+  background: rgba(40, 40, 60, 0.4);
   padding: 10px 15px;
   border-radius: 8px;
   font-weight: bold;
-  transition: background 0.3s;
+  transition: all 0.3s;
+  border: 1px solid rgba(184, 145, 249, 0.3);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 0 20px rgba(184,145,249,0.1);
 }
 
 .nav a:hover {
-  background: #444;
+  background: rgba(184, 145, 249, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(184,145,249,0.2);
 }
 
         .donate-section {
             padding: 40px;
             margin-top: 60px;
+            position: relative;
+            z-index: 1;
+            background: rgba(28,28,46,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(184,145,249,0.3);
+            border-radius: 12px;
+            margin: 60px auto;
+            max-width: 1200px;
+            box-shadow: 0 0 20px rgba(184,145,249,0.1);
         }
 
         h1 {
-            font-size: 2.5em;
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 3em;
             text-align: center;
             margin-bottom: 30px;
-            color: #fca311;
-            text-shadow: 0 0 15px #fca311;
+            color: #b891f9;
+            text-shadow: 0 0 15px #b891f9;
+            -webkit-text-stroke: 1px black;
         }
 
         .donate-grid {
@@ -65,18 +82,21 @@
         }
 
         .donate-card {
-            background: rgba(28,28,46,0.5);
+            background: rgba(40, 40, 60, 0.3);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(184,145,249,0.3);
             border-radius: 12px;
             padding: 20px;
             text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(184,145,249,0.1);
         }
 
         .donate-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(252,163,17,0.3);
+            box-shadow: 0 5px 15px rgba(184,145,249,0.3);
+            border-color: rgba(184,145,249,0.6);
+            background: rgba(45, 45, 65, 0.4);
         }
 
         .donate-card img {
@@ -88,30 +108,34 @@
         }
 
         .donate-card h3 {
-            color: #fca311;
+            color: #b891f9;
             margin-bottom: 10px;
             font-size: 1.4em;
+            text-shadow: 0 0 10px rgba(184,145,249,0.5);
         }
 
         .price {
             font-size: 1.2em;
             color: #fff;
             margin-bottom: 15px;
+            text-shadow: 0 0 5px rgba(184,145,249,0.3);
         }
 
         .details-btn {
-            background: #fca311;
-            color: #000;
-            border: none;
+            background: rgba(40, 40, 60, 0.4);
+            color: #fff;
+            border: 1px solid rgba(184,145,249,0.3);
             padding: 10px 20px;
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
         }
 
         .details-btn:hover {
-            background: #ffb733;
+            background: rgba(184,145,249,0.2);
+            transform: scale(1.05);
         }
 
         .hidden-content {
@@ -137,7 +161,7 @@
 
         .features li:before {
             content: "•";
-            color: #fca311;
+            color: #b891f9;
             position: absolute;
             left: 0;
         }
@@ -146,19 +170,24 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: #fca311;
-            color: #000;
+            background: rgba(40, 40, 60, 0.4);
+            color: #b891f9;
             padding: 10px 15px;
-            border: none;
+            border: 1px solid rgba(184,145,249,0.3);
             border-radius: 50px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 0 15px #fca311;
-            transition: opacity 0.3s ease-in-out;
+            transition: all 0.3s ease;
             z-index: 10;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px rgba(184,145,249,0.1);
         }
 
-        .to-top:hover { opacity: 0.8; }
+        .to-top:hover { 
+            background: rgba(184,145,249,0.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(184,145,249,0.2);
+        }
 
         @media (max-width: 768px) {
             .donate-grid {
@@ -190,9 +219,9 @@
 
         .modal-content {
             position: relative;
-            background: rgba(28,28,46,0.95);
+            background: rgba(40, 40, 60, 0.4);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(252,163,17,0.3);
+            border: 1px solid rgba(184,145,249,0.3);
             border-radius: 12px;
             padding: 30px;
             width: 90%;
@@ -200,6 +229,7 @@
             margin: auto;
             transform: translateY(-20px);
             transition: transform 0.3s ease;
+            box-shadow: 0 0 30px rgba(184,145,249,0.2);
         }
 
         .modal.active .modal-content {
@@ -211,20 +241,22 @@
             top: 15px;
             right: 15px;
             font-size: 24px;
-            color: #fca311;
+            color: #b891f9;
             cursor: pointer;
             transition: color 0.3s;
         }
 
         .modal-close:hover {
-            color: #ffb733;
+            color: #fff;
         }
 
         .modal-title {
-            color: #fca311;
+            color: #b891f9;
+            font-family: 'Cinzel Decorative', cursive;
             font-size: 1.8em;
             margin-bottom: 20px;
             text-align: center;
+            text-shadow: 0 0 10px rgba(184,145,249,0.5);
         }
 
         .modal-price {
@@ -254,10 +286,38 @@
 
         .modal-features li:before {
             content: "•";
-            color: #fca311;
+            color: #b891f9;
             position: absolute;
             left: 0;
             font-size: 1.2em;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #888;
+            background-color: #0b0b12;
+            position: relative;
+            z-index: 10;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .social-links a {
+            color: #b891f9;
+            margin: 0 10px;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #fff;
+            transform: scale(1.1);
         }
     </style>
     <script src="animations/animations.js"></script>
@@ -265,10 +325,6 @@
 <body>
    <div class="nav fade-in">
   <a href="index.html">Главная</a>
-  <a href="rules.html">Общие правила</a>
-  <a href="fractions.html">Правила фракций</a>
-  <a href="chatrules.html">Правила общения</a>
-  <a href="Lor.html">Лор</a>
 </div>
 
     <main>
@@ -481,7 +537,7 @@
 
     <footer>
         <div class="footer-content">
-            <p>&copy; 2024 Overlord Fan Site</p>
+            <p>&copy; 2025 Battle For Yggdrasil — Все права защищены</p>
             <div class="social-links">
                 <a href="https://discord.gg/your-server" target="_blank" class="discord-link">
                     <i class="fab fa-discord"></i>
