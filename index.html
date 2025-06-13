@@ -1332,6 +1332,248 @@
       }
     }
 
+    /* Стили для больших экранов (1440px и выше) */
+    @media (min-width: 1440px) {
+      .slider {
+        max-width: 1800px;
+        margin: 0 auto;
+      }
+
+      .overlay-title {
+        font-size: 7em;
+      }
+
+      .overlay-emblem {
+        height: 200px;
+        width: 200px;
+      }
+
+      .slide h2 {
+        font-size: 3.5em;
+        padding: 30px 60px;
+      }
+
+      .nav-button {
+        font-size: 6em;
+        padding: 40px 50px;
+      }
+    }
+
+    /* Стили для средних экранов (1024px - 1439px) */
+    @media (max-width: 1439px) {
+      .slider {
+        max-width: 1200px;
+      }
+
+      .overlay-title {
+        font-size: 5em;
+      }
+
+      .overlay-emblem {
+        height: 160px;
+        width: 160px;
+      }
+
+      .slide h2 {
+        font-size: 2.8em;
+        padding: 25px 45px;
+      }
+
+      .nav-button {
+        font-size: 4em;
+        padding: 30px 40px;
+      }
+
+      .info-panel, .donate-panel, .character-panel {
+        width: 85%;
+        padding: 40px;
+      }
+
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 140px;
+        height: 140px;
+      }
+
+      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
+        font-size: 1.2em;
+      }
+    }
+
+    /* Стили для маленьких ноутбуков (768px - 1023px) */
+    @media (max-width: 1023px) {
+      .slider {
+        max-width: 900px;
+      }
+
+      .overlay-title {
+        font-size: 4em;
+      }
+
+      .overlay-emblem {
+        height: 140px;
+        width: 140px;
+      }
+
+      .slide h2 {
+        font-size: 2.2em;
+        padding: 20px 35px;
+      }
+
+      .nav-button {
+        font-size: 3em;
+        padding: 25px 30px;
+      }
+
+      .info-panel, .donate-panel, .character-panel {
+        width: 90%;
+        padding: 30px;
+      }
+
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 130px;
+        height: 130px;
+      }
+
+      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
+        font-size: 1.1em;
+      }
+
+      .announcement-panel {
+        width: 40%;
+      }
+
+      .announcement-panel img {
+        width: 120px;
+        height: 120px;
+      }
+
+      .announcement-content h3 {
+        font-size: 1.3em;
+      }
+
+      .announcement-content p {
+        font-size: 1em;
+      }
+    }
+
+    /* Стили для планшетов (481px - 767px) */
+    @media (max-width: 767px) {
+      .slider {
+        max-width: 100%;
+        border-radius: 0;
+      }
+
+      .overlay-title {
+        font-size: 2.5em;
+      }
+
+      .overlay-emblem {
+        height: 120px;
+        width: 120px;
+      }
+
+      .slide h2 {
+        font-size: 1.8em;
+        padding: 15px 25px;
+        width: 85%;
+      }
+
+      .nav-button {
+        font-size: 2.5em;
+        padding: 20px 25px;
+      }
+
+      .info-panel, .donate-panel, .character-panel {
+        width: 95%;
+        padding: 25px;
+      }
+
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 110px;
+        height: 110px;
+      }
+
+      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
+        font-size: 1em;
+      }
+
+      .announcement-panel {
+        width: 45%;
+      }
+
+      .announcement-panel img {
+        width: 100px;
+        height: 100px;
+      }
+
+      .announcement-content h3 {
+        font-size: 1.2em;
+      }
+
+      .announcement-content p {
+        font-size: 0.9em;
+      }
+    }
+
+    /* Стили для мобильных устройств (до 480px) */
+    @media (max-width: 480px) {
+      .slider {
+        max-width: 100%;
+        border-radius: 0;
+      }
+
+      .overlay-title {
+        font-size: 1.8em;
+      }
+
+      .overlay-emblem {
+        height: 90px;
+        width: 90px;
+      }
+
+      .slide h2 {
+        font-size: 1.4em;
+        padding: 12px 20px;
+        width: 90%;
+      }
+
+      .nav-button {
+        font-size: 2em;
+        padding: 15px 20px;
+      }
+
+      .info-panel, .donate-panel, .character-panel {
+        width: 95%;
+        padding: 20px;
+      }
+
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 100px;
+        height: 100px;
+      }
+
+      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
+        font-size: 0.9em;
+      }
+
+      .announcement-panel {
+        width: 90%;
+      }
+
+      .announcement-panel img {
+        width: 80px;
+        height: 80px;
+      }
+
+      .announcement-content h3 {
+        font-size: 1.1em;
+      }
+
+      .announcement-content p {
+        font-size: 0.8em;
+      }
+    }
+
   </style>
 <script>
   function initSlider() {
