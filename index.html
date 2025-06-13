@@ -1311,16 +1311,16 @@
   </div>
   <div class="announcement-container">
     <div class="announcement-panel active" data-index="0">
+      <div class="announcement-content">
+        <h3>ТЕСТ</h3>
+        <p>Сайт постоянно обновляется и разрабатывается. Мы работаем над улучшением функционала и добавлением нового контента. Следите за обновлениями!</p>
+      </div>
+    </div>
+    <div class="announcement-panel" data-index="1">
       <img src="zbt.png" alt="Beta Test">
       <div class="announcement-content">
         <h3>Закрытый бета-тест</h3>
         <p>Открыт набор на закрытый бета-тест сервера! Присоединяйтесь к тестированию и получите награды по завершению.</p>
-      </div>
-    </div>
-    <div class="announcement-panel" data-index="1">
-      <div class="announcement-content">
-        <h3>ТЕСТ</h3>
-        <p>Сайт постоянно обновляется и разрабатывается. Мы работаем над улучшением функционала и добавлением нового контента. Следите за обновлениями!</p>
       </div>
     </div>
     <div class="announcement-panel" data-index="2">
@@ -1600,7 +1600,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
   const panels = document.querySelectorAll('.announcement-panel');
   let currentIndex = 0;
-  let isAutoPlaying = false; // Changed to false initially
+  let isAutoPlaying = false;
   let autoPlayTimeout;
 
   function updatePanels() {
@@ -1609,11 +1609,11 @@ document.addEventListener('DOMContentLoaded', function() {
       
       if (index === currentIndex) {
         panel.classList.add('active');
-      } else if (index === (currentIndex - 1 + panels.length) % panels.length) {
+      } else if (index === (currentIndex + 1) % panels.length) {
         panel.classList.add('prev');
-      } else if (index === (currentIndex - 2 + panels.length) % panels.length) {
+      } else if (index === (currentIndex + 2) % panels.length) {
         panel.classList.add('prev2');
-      } else if (index === (currentIndex - 3 + panels.length) % panels.length) {
+      } else if (index === (currentIndex + 3) % panels.length) {
         panel.classList.add('prev3');
       }
     });
@@ -1635,12 +1635,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 8000);
   }
 
-  // Function to show next announcement
-  function showNextAnnouncement() {
-    currentIndex = (currentIndex + 1) % panels.length;
-    updatePanels();
-  }
-
   panels.forEach(panel => {
     panel.addEventListener('click', () => {
       const clickedIndex = parseInt(panel.dataset.index);
@@ -1653,7 +1647,7 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         isAutoPlaying = true;
         startAutoPlay();
-      }, 10000); // 10 second delay before auto-rotation resumes
+      }, 10000);
     });
   });
 
@@ -1667,9 +1661,8 @@ document.addEventListener('DOMContentLoaded', function() {
       currentIndex = announcementIndex;
       updatePanels();
       announcementIndex++;
-      setTimeout(showEachAnnouncement, 10000); // Show each for 10 seconds
+      setTimeout(showEachAnnouncement, 10000);
     } else {
-      // Start auto-rotation after showing all announcements
       isAutoPlaying = true;
       startAutoPlay();
     }
