@@ -1595,116 +1595,33 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<script type="module">
-import { getAnnouncements } from './github-api.js';
-
+<script>
 // Announcement Board Animation
 document.addEventListener('DOMContentLoaded', function() {
-  const announcementContainer = document.querySelector('.announcement-container');
+  const panels = document.querySelectorAll('.announcement-panel');
   let currentIndex = 0;
   let isAutoPlaying = true;
   let autoPlayTimeout;
-  let announcements = [];
-
-  // Загрузка объявлений с сервера (теперь с GitHub API)
-  async function loadAnnouncements() {
-    try {
-      announcements = await getAnnouncements();
-      updateAnnouncementPanels();
-    } catch (error) {
-      console.error('Ошибка при загрузке объявлений с GitHub:', error);
-      // Отобразить сообщение об ошибке на доске объявлений
-      announcementContainer.innerHTML = `
-        <div class="announcement-panel active" data-index="0">
-          <div class="announcement-content">
-            <h3>Ошибка загрузки</h3>
-            <p>Не удалось загрузить объявления. Попробуйте обновить страницу.</p>
-          </div>
-        </div>
-      `;
-    }
-  }
-
-  // Обновление панелей объявлений
-  function updateAnnouncementPanels() {
-    announcementContainer.innerHTML = '';
-    
-    if (announcements.length === 0) {
-      // Если нет объявлений, показываем заглушку
-      const emptyPanel = document.createElement('div');
-      emptyPanel.className = 'announcement-panel active';
-      emptyPanel.innerHTML = `
-        <div class="announcement-content">
-          <h3>Нет объявлений</h3>
-          <p>Будьте первым, кто добавит объявление!</p>
-        </div>
-      `;
-      announcementContainer.appendChild(emptyPanel);
-      return;
-    }
-
-    // Создаем панели для каждого объявления
-    announcements.forEach((announcement, index) => {
-      const panel = document.createElement('div');
-      panel.className = 'announcement-panel';
-      panel.dataset.index = index;
-      
-      // Применяем классы для позиционирования
-      if (index === currentIndex) panel.classList.add('active');
-      else if (index === (currentIndex - 1 + announcements.length) % announcements.length) panel.classList.add('prev');
-      else if (index === (currentIndex - 2 + announcements.length) % announcements.length) panel.classList.add('prev2');
-      else if (index === (currentIndex - 3 + announcements.length) % announcements.length) panel.classList.add('prev3');
-
-      panel.innerHTML = `
-        ${announcement.image ? `<img src="${announcement.image}" alt="${announcement.title}">` : ''}
-        <div class="announcement-content">
-          <h3>${announcement.title}</h3>
-          <p>${announcement.content}</p>
-        </div>
-      `;
-
-      announcementContainer.appendChild(panel);
-    });
-
-    // Добавляем обработчики событий для панелей
-    const panels = document.querySelectorAll('.announcement-panel');
-    panels.forEach(panel => {
-      panel.addEventListener('click', () => {
-        const clickedIndex = parseInt(panel.dataset.index);
-        if (clickedIndex !== currentIndex) {
-          currentIndex = clickedIndex;
-          updatePanels();
-        }
-        isAutoPlaying = false;
-        if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
-        setTimeout(() => {
-          isAutoPlaying = true;
-          startAutoPlay();
-        }, 10000); // 10 секунд задержки после ручного клика
-      });
-    });
-  }
 
   function updatePanels() {
-    const panels = document.querySelectorAll('.announcement-panel');
     panels.forEach((panel, index) => {
       panel.classList.remove('active', 'prev', 'prev2', 'prev3');
       
       if (index === currentIndex) {
         panel.classList.add('active');
-      } else if (index === (currentIndex - 1 + announcements.length) % announcements.length) {
+      } else if (index === (currentIndex - 1 + panels.length) % panels.length) {
         panel.classList.add('prev');
-      } else if (index === (currentIndex - 2 + announcements.length) % announcements.length) {
+      } else if (index === (currentIndex - 2 + panels.length) % panels.length) {
         panel.classList.add('prev2');
-      } else if (index === (currentIndex - 3 + announcements.length) % announcements.length) {
+      } else if (index === (currentIndex - 3 + panels.length) % panels.length) {
         panel.classList.add('prev3');
       }
     });
   }
 
   function nextPanel() {
-    if (isAutoPlaying && announcements.length > 1) {
-      currentIndex = (currentIndex + 1) % announcements.length;
+    if (isAutoPlaying) {
+      currentIndex = (currentIndex + 1) % panels.length;
       updatePanels();
     }
   }
@@ -1715,15 +1632,28 @@ document.addEventListener('DOMContentLoaded', function() {
       isAutoPlaying = true;
       nextPanel();
       startAutoPlay();
-    }, 8000); // Автоматическая смена каждые 8 секунд
+    }, 8000); // Увеличил интервал с 5000 до 8000 мс
   }
 
-  // Инициализация
-  loadAnnouncements();
-  startAutoPlay();
+  panels.forEach(panel => {
+    panel.addEventListener('click', () => {
+      const clickedIndex = parseInt(panel.dataset.index);
+      if (clickedIndex !== currentIndex) {
+        currentIndex = clickedIndex;
+        updatePanels();
+      }
+      isAutoPlaying = false;
+      if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
+      setTimeout(() => {
+        isAutoPlaying = true;
+        startAutoPlay();
+      }, 10000);
+    });
+  });
 
-  // Обновление объявлений каждые 30 секунд
-  setInterval(loadAnnouncements, 30000);
+  // Initial setup
+  updatePanels();
+  startAutoPlay();
 });
 </script>
 
