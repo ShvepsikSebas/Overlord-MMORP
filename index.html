@@ -1215,6 +1215,123 @@
       }
     }
 
+    /* Мобильные стили */
+    @media (max-width: 768px) {
+      .overlay-title {
+        font-size: 2em !important;
+        margin-top: 20px;
+      }
+
+      .overlay-emblem {
+        height: 100px !important;
+        width: 100px !important;
+      }
+
+      .slide h2 {
+        font-size: 1.5em !important;
+        padding: 15px 25px !important;
+        width: 90%;
+        text-align: center;
+      }
+
+      .nav-button {
+        font-size: 2em !important;
+        padding: 15px 20px !important;
+      }
+
+      .info-panel, .donate-panel, .character-panel {
+        width: 95% !important;
+        padding: 20px !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+      }
+
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 120px !important;
+        height: 120px !important;
+        margin: 0 0 15px 0 !important;
+      }
+
+      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
+        font-size: 1em !important;
+        line-height: 1.4 !important;
+      }
+
+      .announcement-panel {
+        width: 90% !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+      }
+
+      .announcement-panel img {
+        width: 80px !important;
+        height: 80px !important;
+      }
+
+      .announcement-content h3 {
+        font-size: 1.2em !important;
+      }
+
+      .announcement-content p {
+        font-size: 0.9em !important;
+      }
+
+      .separator-title {
+        font-size: 1.4em !important;
+        margin: 20px 0 !important;
+      }
+
+      .side-img {
+        display: none !important;
+      }
+
+      .hand {
+        display: none !important;
+      }
+
+      footer {
+        font-size: 0.8em !important;
+        padding: 15px !important;
+      }
+
+      #helper-container {
+        bottom: 10px !important;
+        right: 10px !important;
+      }
+
+      #helper-img {
+        width: 60px !important;
+      }
+
+      #helper-dialog {
+        max-width: 200px !important;
+        font-size: 0.8em !important;
+      }
+    }
+
+    /* Дополнительные стили для очень маленьких экранов */
+    @media (max-width: 480px) {
+      .overlay-title {
+        font-size: 1.5em !important;
+      }
+
+      .overlay-emblem {
+        height: 80px !important;
+        width: 80px !important;
+      }
+
+      .slide h2 {
+        font-size: 1.2em !important;
+        padding: 10px 15px !important;
+      }
+
+      .nav-button {
+        font-size: 1.5em !important;
+        padding: 10px 15px !important;
+      }
+    }
+
   </style>
 <script>
   function initSlider() {
@@ -1223,6 +1340,9 @@
     const panels = document.querySelectorAll(
       '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel, .demiurge-panel-container .character-panel, .cocytus-panel-container .character-panel, .shalltear-panel-container .character-panel, .aura-mare-panel-container .character-panel'
     );
+
+    let touchStartX = 0;
+    let touchEndX = 0;
 
     function show(i) {
       slides.forEach(s => s.classList.remove('active'));
@@ -1238,6 +1358,32 @@
       current = (current + 1) % slides.length;
       show(current);
     };
+
+    // Добавляем обработчики свайпов
+    const slider = document.querySelector('.slider');
+    slider.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    slider.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    });
+
+    function handleSwipe() {
+      const swipeThreshold = 50; // минимальное расстояние для свайпа
+      const diff = touchStartX - touchEndX;
+
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+          // Свайп влево
+          nextSlide();
+        } else {
+          // Свайп вправо
+          prevSlide();
+        }
+      }
+    }
 
     // Оптимизированная функция проверки видимости панелей
     const revealPanels = () => {
