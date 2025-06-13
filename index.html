@@ -1600,7 +1600,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
   const panels = document.querySelectorAll('.announcement-panel');
   let currentIndex = 0;
-  let isAutoPlaying = true;
+  let isAutoPlaying = false; // Changed to false initially
   let autoPlayTimeout;
 
   function updatePanels() {
@@ -1632,7 +1632,13 @@ document.addEventListener('DOMContentLoaded', function() {
       isAutoPlaying = true;
       nextPanel();
       startAutoPlay();
-    }, 8000); // Увеличил интервал с 5000 до 8000 мс
+    }, 8000);
+  }
+
+  // Function to show next announcement
+  function showNextAnnouncement() {
+    currentIndex = (currentIndex + 1) % panels.length;
+    updatePanels();
   }
 
   panels.forEach(panel => {
@@ -1647,13 +1653,30 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         isAutoPlaying = true;
         startAutoPlay();
-      }, 10000);
+      }, 10000); // 10 second delay before auto-rotation resumes
     });
   });
 
   // Initial setup
   updatePanels();
-  startAutoPlay();
+  
+  // Show each announcement for 10 seconds before starting auto-rotation
+  let announcementIndex = 0;
+  const showEachAnnouncement = () => {
+    if (announcementIndex < panels.length) {
+      currentIndex = announcementIndex;
+      updatePanels();
+      announcementIndex++;
+      setTimeout(showEachAnnouncement, 10000); // Show each for 10 seconds
+    } else {
+      // Start auto-rotation after showing all announcements
+      isAutoPlaying = true;
+      startAutoPlay();
+    }
+  };
+
+  // Start showing announcements
+  showEachAnnouncement();
 });
 </script>
 
