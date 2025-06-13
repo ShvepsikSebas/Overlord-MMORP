@@ -1043,6 +1043,169 @@
       right: -245px;
     }
 
+    /* Announcement Board Styles */
+    .announcement-board {
+      position: relative;
+      width: 100%;
+      margin: 20px 0;
+      padding: 20px 0;
+      background: rgba(28,28,46,0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 0;
+      border: 1px solid rgba(184,145,249,0.3);
+      overflow: hidden;
+      transition: all 0.5s ease;
+    }
+
+    .announcement-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    .announcement-title {
+      text-align: center;
+      color: #b891f9;
+      font-size: 2.5em;
+      margin: 0;
+      text-shadow: 0 0 10px rgba(184,145,249,0.5);
+    }
+
+    .toggle-button {
+      width: 40px;
+      height: 40px;
+      background: rgba(184,145,249,0.2);
+      border: 1px solid rgba(184,145,249,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b891f9;
+      font-size: 1.5em;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-button:hover {
+      background: rgba(184,145,249,0.3);
+      transform: scale(1.1);
+    }
+
+    .announcement-container {
+      position: relative;
+      height: 0;
+      overflow: hidden;
+      width: 100%;
+      max-width: 1800px;
+      margin: 0 auto;
+      transition: height 0.5s ease;
+    }
+
+    .announcement-board.expanded .announcement-container {
+      height: 200px;
+    }
+
+    .announcement-board.expanded .toggle-button {
+      transform: rotate(180deg);
+    }
+
+    .announcement-panel {
+      position: absolute;
+      width: 35%;
+      max-width: 600px;
+      height: 100%;
+      background: rgba(28,28,46,0.9);
+      border: 1px solid rgba(184,145,249,0.3);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      cursor: pointer;
+      transition: all 0.5s ease;
+      transform: translateX(150%);
+      opacity: 0;
+      z-index: 1;
+      left: 25%;
+    }
+
+    .announcement-panel:hover {
+      transform: translateX(-50%) scale(1.05);
+      box-shadow: 0 0 20px rgba(184,145,249,0.3);
+      border-color: rgba(184,145,249,0.6);
+      z-index: 5;
+    }
+
+    .announcement-panel.active {
+      transform: translateX(-50%);
+      opacity: 1;
+      z-index: 4;
+      box-shadow: 0 0 30px rgba(184,145,249,0.4);
+      border-color: rgba(184,145,249,0.8);
+    }
+
+    .announcement-panel.prev {
+      transform: translateX(calc(-50% + 30%));
+      opacity: 0.7;
+      z-index: 3;
+    }
+
+    .announcement-panel.prev2 {
+      transform: translateX(calc(-50% + 60%));
+      opacity: 0.4;
+      z-index: 2;
+    }
+
+    .announcement-panel.prev3 {
+      transform: translateX(calc(-50% + 90%));
+      opacity: 0.1;
+      z-index: 1;
+    }
+
+    .announcement-panel img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .announcement-content {
+      flex: 1;
+    }
+
+    .announcement-content h3 {
+      color: #b891f9;
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    .announcement-content p {
+      color: #fff;
+      font-size: 1.1em;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 768px) {
+      .announcement-panel {
+        width: 45%;
+      }
+      
+      .announcement-panel img {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .announcement-content h3 {
+        font-size: 1.2em;
+      }
+      
+      .announcement-content p {
+        font-size: 0.9em;
+      }
+    }
+
   </style>
 <script>
   function initSlider() {
@@ -1104,120 +1267,124 @@
 
 <div class="flying-particles"></div>
 
-  <div class="slider">
-    <div class="overlay-title-wrapper">
-      <div class="overlay-emblem-wrapper">
-        <img src="gerb.png" alt="Герб" class="overlay-emblem">
-        <div class="particles">
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-        </div>
-      </div>
-      <div class="overlay-title">
-        Battle for Yggdrasil
+<div class="slider">
+  <div class="overlay-title-wrapper">
+    <div class="overlay-emblem-wrapper">
+      <img src="gerb.png" alt="Герб" class="overlay-emblem">
+      <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
       </div>
     </div>
-
-    <div class="slide active" style="background-image:url('kingrules213.png')" onclick="location.href='rules.html'"><h2>Основные правила сервера</h2></div>
-    <div class="slide" style="background-image:url('fractions1.png')" onclick="location.href='fractions.html'"><h2>Правила фракций</h2></div>
-    <div class="slide" style="background-image:url('chatrules1.png')" onclick="location.href='chatrules.html'"><h2>Правила общения</h2></div>
-    <div class="slide" style="background-image:url('guilds.png')" onclick="location.href='Guilds.html'"><h2>Правила гильдий</h2></div>
-    <div class="slide" style="background-image:url('lor.png')" onclick="location.href='Lor.html'"><h2>Лор (История)</h2></div>
-    <button class="nav-button prev" onclick="prevSlide()">❮</button>
-    <button class="nav-button next" onclick="nextSlide()">❯</button>
-  </div>
-  <!-- Два полукруга по бокам страницы -->
-  <div class="main-semicircle-left">
-    <div class="main-semicircle-content">
-      <div class="main-online-title">Онлайн</div>
-      <div class="main-online-count">1/100</div>
-    </div>
-  </div>
-  <div class="main-semicircle-right">
-    <div class="main-semicircle-content">
-      <a href="steam://rungameid/4000" class="main-play-button">Играть</a>
+    <div class="overlay-title">
+      Battle for Yggdrasil
     </div>
   </div>
 
-  <!-- Discord -->
-  <div class="info-panel-container">
-    <div class="info-panel" onclick="window.open('https://discord.gg/kFSrV7TxMT','_blank')">
-      <img src="discord_logo.jpg" alt="Discord" loading="lazy" decoding="async">
-      <div class="text">
-        Присоединяйся к нашему официальному Discord-серверу Battle For Yggdrasil:<br>
-        общайся с командой, участвуй в ивентах и получай последние новости!
-      </div>
-    </div>
-    <img src="ainz_hand.png" alt="Hand" class="hand">
-  </div>
-  <!-- Donate -->
-  <div class="donate-panel-container">
-    <div class="donate-panel" onclick="location.href='donate.html'">
-      <img src="donat.jpg" alt="Donate" loading="lazy" decoding="async">
-      <div class="text">
-        Поддержи проект Battle For Yggdrasil: перейди на страницу доната и получи бонусы!
-      </div>
-    </div>
-    <img src="ainzhand_left.png" alt="Hand" class="hand">
-  </div>
-  <!-- Steam Collection -->
-  <div class="info-panel-container">
-    <div class="info-panel" onclick="window.open('https://steamcommunity.com/sharedfiles/filedetails/?id=ВАШ_ID','_blank')">
-      <img src="steamcollection.png" alt="Steam Collection" loading="lazy" decoding="async">
-      <div class="text">
-        Коллекция стим аддонов нашего сервера — установи всё нужное одним кликом и не пропусти ни одного важного мода!
-      </div>
-    </div>
-    <img src="ainz_hand.png" alt="Hand" class="hand hand-right">
-  </div>
+  <div class="slide active" style="background-image:url('kingrules213.png')" onclick="location.href='rules.html'"><h2>Основные правила сервера</h2></div>
+  <div class="slide" style="background-image:url('fractions1.png')" onclick="location.href='fractions.html'"><h2>Правила фракций</h2></div>
+  <div class="slide" style="background-image:url('chatrules1.png')" onclick="location.href='chatrules.html'"><h2>Правила общения</h2></div>
+  <div class="slide" style="background-image:url('guilds.png')" onclick="location.href='Guilds.html'"><h2>Правила гильдий</h2></div>
+  <div class="slide" style="background-image:url('lor.png')" onclick="location.href='Lor.html'"><h2>Лор (История)</h2></div>
+  <button class="nav-button prev" onclick="prevSlide()">❮</button>
+  <button class="nav-button next" onclick="nextSlide()">❯</button>
+</div>
 
-  <!-- separator -->
-  <div class="separator"></div>
-  <h2 class="separator-title">Краткое описание Лорных персонажей</h2>
-
-  <!-- Ainz + Momon -->
-  <div class="character-panel-container">
-    <div class="character-panel">
-      <div class="cp-text">
-        Аинз Оул Гоун (псевдо «Момон») — могущественный Лич-король нежити, правитель великой гробницы Назарик, скрывающийся под маской благородного авантюриста-героя.
+<!-- Announcement Board -->
+<div class="announcement-board">
+  <div class="announcement-header">
+    <h2 class="announcement-title">Доска объявлений</h2>
+    <div class="toggle-button">▼</div>
+  </div>
+  <div class="announcement-container">
+    <div class="announcement-panel active" data-index="0">
+      <div class="announcement-content">
+        <h3>Загрузка объявлений...</h3>
+        <p>Пожалуйста, подождите</p>
       </div>
     </div>
-    <img src="ainz.png" alt="Ainz" class="side-img left" loading="lazy" decoding="async">
-    <img src="momonga.png" alt="Momon" class="side-img right" loading="lazy" decoding="async">
   </div>
+</div>
 
-  <!-- Sebas -->
-  <div class="sebas-panel-container">
-    <div class="character-panel">
-      <div class="cp-text">
-        Себас Тиан — верный дворецкий и телохранитель семьи Шарктоп, мастер ближнего боя и искусный стратег, преданный своему господину без малейшего сомнения.
-      </div>
+<!-- Discord -->
+<div class="info-panel-container">
+  <div class="info-panel" onclick="window.open('https://discord.gg/kFSrV7TxMT','_blank')">
+    <img src="discord_logo.jpg" alt="Discord" loading="lazy" decoding="async">
+    <div class="text">
+      Присоединяйся к нашему официальному Discord-серверу Battle For Yggdrasil:<br>
+      общайся с командой, участвуй в ивентах и получай последние новости!
     </div>
-    <img src="sebas.png" alt="Sebas" class="side-img left" loading="lazy" decoding="async">
   </div>
+  <img src="ainz_hand.png" alt="Hand" class="hand">
+</div>
+<!-- Donate -->
+<div class="donate-panel-container">
+  <div class="donate-panel" onclick="location.href='donate.html'">
+    <img src="donat.jpg" alt="Donate" loading="lazy" decoding="async">
+    <div class="text">
+      Поддержи проект Battle For Yggdrasil: перейди на страницу доната и получи бонусы!
+    </div>
+  </div>
+  <img src="ainzhand_left.png" alt="Hand" class="hand">
+</div>
+<!-- Steam Collection -->
+<div class="info-panel-container">
+  <div class="info-panel" onclick="window.open('https://steamcommunity.com/sharedfiles/filedetails/?id=ВАШ_ID','_blank')">
+    <img src="steamcollection.png" alt="Steam Collection" loading="lazy" decoding="async">
+    <div class="text">
+      Коллекция стим аддонов нашего сервера — установи всё нужное одним кликом и не пропусти ни одного важного мода!
+    </div>
+  </div>
+  <img src="ainz_hand.png" alt="Hand" class="hand hand-right">
+</div>
 
-  <!-- Albedo -->
-  <div class="albedo-panel-container">
-    <div class="character-panel">
-      <div class="cp-text">
-        Альбедо — начальница Стражей Великой Гробницы Назарик. Обладает безупречным интеллектом, стратегическим мышлением и абсолютной преданностью Аинзу. За холодной внешностью скрывает пылающую любовь к своему господину.
-      </div>
+<!-- separator -->
+<div class="separator"></div>
+<h2 class="separator-title">Краткое описание Лорных персонажей</h2>
+
+<!-- Ainz + Momon -->
+<div class="character-panel-container">
+  <div class="character-panel">
+    <div class="cp-text">
+      Аинз Оул Гоун (псевдо «Момон») — могущественный Лич-король нежити, правитель великой гробницы Назарик, скрывающийся под маской благородного авантюриста-героя.
     </div>
-    <img src="albedo.png" alt="Albedo" class="side-img right" loading="lazy" decoding="async">
   </div>
+  <img src="ainz.png" alt="Ainz" class="side-img left" loading="lazy" decoding="async">
+  <img src="momonga.png" alt="Momon" class="side-img right" loading="lazy" decoding="async">
+</div>
+
+<!-- Sebas -->
+<div class="sebas-panel-container">
+  <div class="character-panel">
+    <div class="cp-text">
+      Себас Тиан — верный дворецкий и телохранитель семьи Шарктоп, мастер ближнего боя и искусный стратег, преданный своему господину без малейшего сомнения.
+    </div>
+  </div>
+  <img src="sebas.png" alt="Sebas" class="side-img left" loading="lazy" decoding="async">
+</div>
+
+<!-- Albedo -->
+<div class="albedo-panel-container">
+  <div class="character-panel">
+    <div class="cp-text">
+      Альбедо — начальница Стражей Великой Гробницы Назарик. Обладает безупречным интеллектом, стратегическим мышлением и абсолютной преданностью Аинзу. За холодной внешностью скрывает пылающую любовь к своему господину.
+    </div>
+  </div>
+  <img src="albedo.png" alt="Albedo" class="side-img right" loading="lazy" decoding="async">
+</div>
 
 <!-- Demiurge -->
 <div class="demiurge-panel-container">
@@ -1406,6 +1573,152 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Инициализация при загрузке
   updateSemicircles();
+});
+</script>
+
+<script type="module">
+import { getAnnouncements } from './github-api.js';
+
+// Announcement Board Animation
+document.addEventListener('DOMContentLoaded', function() {
+  const announcementContainer = document.querySelector('.announcement-container');
+  let currentIndex = 0;
+  let isAutoPlaying = true;
+  let autoPlayTimeout;
+  let announcements = [];
+
+  // Загрузка объявлений с сервера (теперь с GitHub API)
+  async function loadAnnouncements() {
+    try {
+      announcements = await getAnnouncements();
+      updateAnnouncementPanels();
+    } catch (error) {
+      console.error('Ошибка при загрузке объявлений с GitHub:', error);
+      // Отобразить сообщение об ошибке на доске объявлений
+      announcementContainer.innerHTML = `
+        <div class="announcement-panel active" data-index="0">
+          <div class="announcement-content">
+            <h3>Ошибка загрузки</h3>
+            <p>Не удалось загрузить объявления. Попробуйте обновить страницу.</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Обновление панелей объявлений
+  function updateAnnouncementPanels() {
+    announcementContainer.innerHTML = '';
+    
+    if (announcements.length === 0) {
+      // Если нет объявлений, показываем заглушку
+      const emptyPanel = document.createElement('div');
+      emptyPanel.className = 'announcement-panel active';
+      emptyPanel.innerHTML = `
+        <div class="announcement-content">
+          <h3>Нет объявлений</h3>
+          <p>Будьте первым, кто добавит объявление!</p>
+        </div>
+      `;
+      announcementContainer.appendChild(emptyPanel);
+      return;
+    }
+
+    // Создаем панели для каждого объявления
+    announcements.forEach((announcement, index) => {
+      const panel = document.createElement('div');
+      panel.className = 'announcement-panel';
+      panel.dataset.index = index;
+      
+      // Применяем классы для позиционирования
+      if (index === currentIndex) panel.classList.add('active');
+      else if (index === (currentIndex - 1 + announcements.length) % announcements.length) panel.classList.add('prev');
+      else if (index === (currentIndex - 2 + announcements.length) % announcements.length) panel.classList.add('prev2');
+      else if (index === (currentIndex - 3 + announcements.length) % announcements.length) panel.classList.add('prev3');
+
+      panel.innerHTML = `
+        ${announcement.image ? `<img src="${announcement.image}" alt="${announcement.title}">` : ''}
+        <div class="announcement-content">
+          <h3>${announcement.title}</h3>
+          <p>${announcement.content}</p>
+        </div>
+      `;
+
+      announcementContainer.appendChild(panel);
+    });
+
+    // Добавляем обработчики событий для панелей
+    const panels = document.querySelectorAll('.announcement-panel');
+    panels.forEach(panel => {
+      panel.addEventListener('click', () => {
+        const clickedIndex = parseInt(panel.dataset.index);
+        if (clickedIndex !== currentIndex) {
+          currentIndex = clickedIndex;
+          updatePanels();
+        }
+        isAutoPlaying = false;
+        if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
+        setTimeout(() => {
+          isAutoPlaying = true;
+          startAutoPlay();
+        }, 10000); // 10 секунд задержки после ручного клика
+      });
+    });
+  }
+
+  function updatePanels() {
+    const panels = document.querySelectorAll('.announcement-panel');
+    panels.forEach((panel, index) => {
+      panel.classList.remove('active', 'prev', 'prev2', 'prev3');
+      
+      if (index === currentIndex) {
+        panel.classList.add('active');
+      } else if (index === (currentIndex - 1 + announcements.length) % announcements.length) {
+        panel.classList.add('prev');
+      } else if (index === (currentIndex - 2 + announcements.length) % announcements.length) {
+        panel.classList.add('prev2');
+      } else if (index === (currentIndex - 3 + announcements.length) % announcements.length) {
+        panel.classList.add('prev3');
+      }
+    });
+  }
+
+  function nextPanel() {
+    if (isAutoPlaying && announcements.length > 1) {
+      currentIndex = (currentIndex + 1) % announcements.length;
+      updatePanels();
+    }
+  }
+
+  function startAutoPlay() {
+    if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
+    autoPlayTimeout = setTimeout(() => {
+      isAutoPlaying = true;
+      nextPanel();
+      startAutoPlay();
+    }, 8000); // Автоматическая смена каждые 8 секунд
+  }
+
+  // Инициализация
+  loadAnnouncements();
+  startAutoPlay();
+
+  // Обновление объявлений каждые 30 секунд
+  setInterval(loadAnnouncements, 30000);
+});
+</script>
+
+<script>
+// Announcement Board Toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const board = document.querySelector('.announcement-board');
+  const header = document.querySelector('.announcement-header');
+  
+  header.addEventListener('click', () => {
+    board.classList.toggle('expanded');
+  });
+  
+  // Остальной код для анимации панелей...
 });
 </script>
 </body>
