@@ -1335,179 +1335,177 @@
     /* Стили для больших экранов (1440px и выше) */
     @media (min-width: 1440px) {
       .slider {
-        max-width: 1800px;
+        width: 90vw; /* Keep this to ensure it takes relative width */
+        max-width: 2800px; /* Significantly increased max-width */
         margin: 0 auto;
       }
 
       .overlay-title {
-        font-size: 7em;
+        font-size: 8em; /* Further increased */
       }
 
       .overlay-emblem {
-        height: 200px;
-        width: 200px;
+        height: 250px; /* Further increased */
+        width: 250px;
       }
 
       .slide h2 {
-        font-size: 3.5em;
-        padding: 30px 60px;
+        font-size: 4.2em; /* Further increased */
+        padding: 40px 80px; /* Increased padding */
       }
 
       .nav-button {
-        font-size: 6em;
-        padding: 40px 50px;
-      }
-    }
-
-    /* Стили для средних экранов (1024px - 1439px) */
-    @media (max-width: 1439px) {
-      .slider {
-        max-width: 1200px;
+        font-size: 7em; /* Further increased */
+        padding: 50px 60px; /* Increased padding */
       }
 
-      .overlay-title {
-        font-size: 5em;
+      .info-panel, .donate-panel, .character-panel,
+      .sebas-panel-container .character-panel,
+      .albedo-panel-container .character-panel,
+      .demiurge-panel-container .character-panel,
+      .cocytus-panel-container .character-panel,
+      .shalltear-panel-container .character-panel,
+      .aura-mare-panel-container .character-panel {
+        max-width: 1400px; /* Increased from 1200px */
+        padding: 100px; /* Increased padding */
       }
 
-      .overlay-emblem {
-        height: 160px;
-        width: 160px;
+      .info-panel img,
+      .donate-panel img,
+      .character-panel img,
+      .sebas-panel-container .side-img {
+        width: 250px; /* Increased image size */
+        height: 250px;
+        margin-right: 50px; /* Increased margin */
       }
 
-      .slide h2 {
-        font-size: 2.8em;
-        padding: 25px 45px;
+      .info-panel .text,
+      .donate-panel .text,
+      .character-panel .cp-text {
+        font-size: 1.8em; /* Further increased font size */
+        line-height: 2.2;
       }
 
-      .nav-button {
-        font-size: 4em;
-        padding: 30px 40px;
+      .separator {
+        max-width: 2000px; /* Increased from 1600px */
+        margin: 100px auto 40px; /* Adjusted margins */
       }
 
-      .info-panel, .donate-panel, .character-panel {
-        width: 85%;
-        padding: 40px;
+      .separator-title {
+        font-size: 2.5em; /* Further increased font size */
+        margin-bottom: 60px;
       }
 
-      .info-panel img, .donate-panel img, .character-panel img {
-        width: 140px;
-        height: 140px;
+      .announcement-board {
+        max-width: 2800px; /* Increased from 2000px */
+        padding: 40px 0;
       }
 
-      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
-        font-size: 1.2em;
-      }
-    }
-
-    /* Стили для маленьких ноутбуков (768px - 1023px) */
-    @media (max-width: 1023px) {
-      .slider {
-        max-width: 900px;
-      }
-
-      .overlay-title {
-        font-size: 4em;
-      }
-
-      .overlay-emblem {
-        height: 140px;
-        width: 140px;
-      }
-
-      .slide h2 {
-        font-size: 2.2em;
-        padding: 20px 35px;
-      }
-
-      .nav-button {
-        font-size: 3em;
-        padding: 25px 30px;
-      }
-
-      .info-panel, .donate-panel, .character-panel {
-        width: 90%;
-        padding: 30px;
-      }
-
-      .info-panel img, .donate-panel img, .character-panel img {
-        width: 130px;
-        height: 130px;
-      }
-
-      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
-        font-size: 1.1em;
+      .announcement-container {
+        max-width: 2500px; /* Increased from 1800px */
       }
 
       .announcement-panel {
-        width: 40%;
+        max-width: 1100px; /* Increased from 900px */
       }
 
       .announcement-panel img {
-        width: 120px;
-        height: 120px;
+        width: 220px; /* Increased */
+        height: 220px;
       }
 
       .announcement-content h3 {
-        font-size: 1.3em;
+        font-size: 2.2em;
       }
 
       .announcement-content p {
-        font-size: 1em;
+        font-size: 1.5em;
       }
     }
 
-    /* Стили для планшетов (481px - 767px) */
-    @media (max-width: 767px) {
+    /* Стили для очень больших экранов (1920px и выше) */
+    @media (min-width: 1920px) {
       .slider {
-        max-width: 100%;
-        border-radius: 0;
+        width: 90vw;
+        max-width: 3200px; /* Significantly increased */
       }
 
       .overlay-title {
-        font-size: 2.5em;
+        font-size: 9em; /* Further increased */
       }
 
       .overlay-emblem {
-        height: 120px;
-        width: 120px;
+        height: 300px; /* Further increased */
+        width: 300px;
       }
 
       .slide h2 {
-        font-size: 1.8em;
-        padding: 15px 25px;
-        width: 85%;
+        font-size: 4.5em; /* Further increased */
+        padding: 50px 90px; /* Increased padding */
       }
 
       .nav-button {
-        font-size: 2.5em;
-        padding: 20px 25px;
+        font-size: 8em; /* Further increased */
+        padding: 60px 70px; /* Increased padding */
       }
 
-      .info-panel, .donate-panel, .character-panel {
-        width: 95%;
-        padding: 25px;
+      .info-panel, .donate-panel, .character-panel,
+      .sebas-panel-container .character-panel,
+      .albedo-panel-container .character-panel,
+      .demiurge-panel-container .character-panel,
+      .cocytus-panel-container .character-panel,
+      .shalltear-panel-container .character-panel,
+      .aura-mare-panel-container .character-panel {
+        max-width: 1700px; /* Increased from 1500px */
+        padding: 120px; /* Increased padding */
       }
 
-      .info-panel img, .donate-panel img, .character-panel img {
-        width: 110px;
-        height: 110px;
+      .info-panel img,
+      .donate-panel img,
+      .character-panel img,
+      .sebas-panel-container .side-img {
+        width: 300px; /* Increased image size */
+        height: 300px;
+        margin-right: 60px; /* Increased margin */
       }
 
-      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
-        font-size: 1em;
+      .info-panel .text,
+      .donate-panel .text,
+      .character-panel .cp-text {
+        font-size: 2em; /* Further increased font size */
+        line-height: 2.3;
+      }
+
+      .separator {
+        max-width: 2400px; /* Increased from 2000px */
+        margin: 120px auto 50px;
+      }
+
+      .separator-title {
+        font-size: 3em; /* Further increased font size */
+        margin-bottom: 70px;
+      }
+
+      .announcement-board {
+        max-width: 3200px; /* Increased from 2500px */
+        padding: 50px 0;
+      }
+
+      .announcement-container {
+        max-width: 2900px; /* Increased from 2300px */
       }
 
       .announcement-panel {
-        width: 45%;
+        max-width: 1200px; /* Increased from 1000px */
       }
 
       .announcement-panel img {
-        width: 100px;
-        height: 100px;
+        width: 280px; /* Increased */
+        height: 280px;
       }
 
       .announcement-content h3 {
-        font-size: 1.2em;
+        font-size: 2.5em;
       }
 
       .announcement-content p {
@@ -1574,6 +1572,206 @@
       }
     }
 
+    /* Обновленные медиа-запросы для лучшей адаптивности */
+    @media (max-width: 768px) {
+      .slider {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+      }
+
+      .nav-button {
+        display: none; /* Скрываем стрелки на мобильных */
+      }
+
+      .overlay-title {
+        font-size: 2.5em !important;
+        margin-top: 20px;
+      }
+
+      .overlay-emblem {
+        height: 120px !important;
+        width: 120px !important;
+      }
+
+      .slide h2 {
+        font-size: 1.8em !important;
+        padding: 15px 25px !important;
+        width: 90%;
+        text-align: center;
+      }
+
+      .info-panel, .donate-panel, .character-panel {
+        width: 90% !important;
+        padding: 20px !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        margin: 20px auto !important;
+      }
+
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 150px !important;
+        height: 150px !important;
+        margin: 0 0 15px 0 !important;
+      }
+
+      .info-panel .text, .donate-panel .text, .character-panel .cp-text {
+        font-size: 1.1em !important;
+        line-height: 1.4 !important;
+      }
+
+      .announcement-panel {
+        width: 95% !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+      }
+
+      .announcement-panel img {
+        width: 120px !important;
+        height: 120px !important;
+      }
+
+      .announcement-content h3 {
+        font-size: 1.4em !important;
+      }
+
+      .announcement-content p {
+        font-size: 1.1em !important;
+      }
+
+      .separator-title {
+        font-size: 1.6em !important;
+        margin: 20px 0 !important;
+      }
+
+      .side-img {
+        display: none !important;
+      }
+
+      .hand {
+        display: none !important;
+      }
+
+      footer {
+        font-size: 0.9em !important;
+        padding: 15px !important;
+      }
+
+      #helper-container {
+        bottom: 10px !important;
+        right: 10px !important;
+      }
+
+      #helper-img {
+        width: 70px !important;
+      }
+
+      #helper-dialog {
+        max-width: 250px !important;
+        font-size: 0.9em !important;
+      }
+    }
+
+    /* Обновленные стили для планшетов */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .slider {
+        width: 95vw;
+        height: 90vh;
+      }
+
+      .overlay-title {
+        font-size: 4em;
+      }
+
+      .overlay-emblem {
+        height: 180px;
+        width: 180px;
+      }
+
+      .slide h2 {
+        font-size: 2.5em;
+        padding: 25px 40px;
+      }
+
+      .info-panel, .donate-panel, .character-panel {
+        width: 85%;
+        padding: 40px;
+      }
+
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 180px;
+        height: 180px;
+      }
+    }
+
+    /* Обновленные стили для больших экранов */
+    @media (min-width: 1025px) {
+      .slider {
+        width: 90vw;
+        max-width: 2800px;
+        height: 90vh;
+      }
+
+      .overlay-title {
+        font-size: 6em;
+      }
+
+      .overlay-emblem {
+        height: 220px;
+        width: 220px;
+      }
+
+      .slide h2 {
+        font-size: 3.5em;
+        padding: 30px 60px;
+      }
+
+      .info-panel, .donate-panel, .character-panel {
+        width: 80%;
+        max-width: 1200px;
+        padding: 60px;
+      }
+
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 200px;
+        height: 200px;
+      }
+    }
+
+    /* Обновленные стили для очень больших экранов */
+    @media (min-width: 1920px) {
+      .slider {
+        width: 85vw;
+        max-width: 3200px;
+        height: 85vh;
+      }
+
+      .overlay-title {
+        font-size: 8em;
+      }
+
+      .overlay-emblem {
+        height: 280px;
+        width: 280px;
+      }
+
+      .slide h2 {
+        font-size: 4.5em;
+        padding: 40px 80px;
+      }
+
+      .info-panel, .donate-panel, .character-panel {
+        width: 75%;
+        max-width: 1600px;
+        padding: 80px;
+      }
+
+      .info-panel img, .donate-panel img, .character-panel img {
+        width: 250px;
+        height: 250px;
+      }
+    }
   </style>
 <script>
   function initSlider() {
@@ -1682,7 +1880,6 @@
     <div class="overlay-emblem-wrapper">
       <img src="gerb.png" alt="Герб" class="overlay-emblem">
       <div class="particles">
-        <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
@@ -2094,6 +2291,102 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Остальной код для анимации панелей...
+});
+</script>
+
+<script>
+// Обновленный JavaScript для улучшенной поддержки свайпов
+document.addEventListener('DOMContentLoaded', () => {
+  initSlider();
+  
+  // Улучшенная обработка свайпов для мобильных устройств
+  const slider = document.querySelector('.slider');
+  let touchStartX = 0;
+  let touchEndX = 0;
+  let isSwiping = false;
+
+  slider.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    isSwiping = true;
+  }, { passive: true });
+
+  slider.addEventListener('touchmove', (e) => {
+    if (!isSwiping) return;
+    touchEndX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  slider.addEventListener('touchend', () => {
+    if (!isSwiping) return;
+    
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+    
+    isSwiping = false;
+  }, { passive: true });
+
+  // Улучшенная обработка свайпов для доски объявлений
+  const announcementContainer = document.querySelector('.announcement-container');
+  let announcementTouchStartX = 0;
+  let announcementTouchEndX = 0;
+  let isAnnouncementSwiping = false;
+
+  announcementContainer.addEventListener('touchstart', (e) => {
+    announcementTouchStartX = e.changedTouches[0].screenX;
+    isAnnouncementSwiping = true;
+  }, { passive: true });
+
+  announcementContainer.addEventListener('touchmove', (e) => {
+    if (!isAnnouncementSwiping) return;
+    announcementTouchEndX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  announcementContainer.addEventListener('touchend', () => {
+    if (!isAnnouncementSwiping) return;
+    
+    const swipeThreshold = 50;
+    const diff = announcementTouchStartX - announcementTouchEndX;
+
+    if (Math.abs(diff) > swipeThreshold) {
+      const panels = document.querySelectorAll('.announcement-panel');
+      const currentIndex = Array.from(panels).findIndex(panel => panel.classList.contains('active'));
+      
+      if (diff > 0) {
+        // Свайп влево - следующее объявление
+        const nextIndex = (currentIndex + 1) % panels.length;
+        updateAnnouncementPanels(nextIndex);
+      } else {
+        // Свайп вправо - предыдущее объявление
+        const prevIndex = (currentIndex - 1 + panels.length) % panels.length;
+        updateAnnouncementPanels(prevIndex);
+      }
+    }
+    
+    isAnnouncementSwiping = false;
+  }, { passive: true });
+
+  function updateAnnouncementPanels(index) {
+    const panels = document.querySelectorAll('.announcement-panel');
+    panels.forEach((panel, i) => {
+      panel.classList.remove('active', 'prev', 'prev2', 'prev3');
+      if (i === index) {
+        panel.classList.add('active');
+      } else if (i === (index + 1) % panels.length) {
+        panel.classList.add('prev');
+      } else if (i === (index + 2) % panels.length) {
+        panel.classList.add('prev2');
+      } else if (i === (index + 3) % panels.length) {
+        panel.classList.add('prev3');
+      }
+    });
+  }
 });
 </script>
 </body>
