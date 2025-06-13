@@ -989,7 +989,10 @@
       align-items: center;
       justify-content: center;
       pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      will-change: opacity, transform;
     }
+
     .main-semicircle-left {
       left: 0;
       border-top-right-radius: 320px 640px;
@@ -997,6 +1000,7 @@
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
+
     .main-semicircle-right {
       right: 0;
       border-top-left-radius: 320px 640px;
@@ -1004,6 +1008,17 @@
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
     }
+
+    .main-semicircle-left.hide, .main-semicircle-right.hide {
+      opacity: 0;
+      transform: translateY(-50%) translateX(-50px);
+      pointer-events: none;
+    }
+
+    .main-semicircle-right.hide {
+      transform: translateY(-50%) translateX(50px);
+    }
+
     .main-semicircle-content {
       width: 100%;
       height: 100%;
@@ -1014,6 +1029,7 @@
       pointer-events: auto;
       z-index: 2;
     }
+
     .main-online-title {
       color: #fff;
       font-size: 2.1em;
@@ -1021,6 +1037,7 @@
       text-shadow: 0 0 8px #000a;
       white-space: nowrap;
     }
+
     .main-online-count {
       color: #fca311;
       font-size: 2.5em;
@@ -1028,6 +1045,7 @@
       text-shadow: 0 0 8px #000a;
       white-space: nowrap;
     }
+
     .main-play-button {
       display: block;
       width: 160px;
@@ -1047,14 +1065,14 @@
       z-index: 2;
       white-space: nowrap;
     }
+
     .main-play-button:hover {
       background: #ffb733;
     }
+
     @media (max-width: 1200px) {
       .main-semicircle-left, .main-semicircle-right { display: none; }
     }
-
-    .main-semicircle-left.hide, .main-semicircle-right.hide { display: none !important; }
 
     .aura-mare-panel-container .side-img.left {
       position: absolute;
@@ -1716,32 +1734,58 @@ document.addEventListener('DOMContentLoaded', function() {
   function updateSemicircles() {
     const semicircleLeft = document.querySelector('.main-semicircle-left');
     const semicircleRight = document.querySelector('.main-semicircle-right');
+    const announcementBoard = document.querySelector('.announcement-board');
+    const characterPanels = document.querySelector('.character-panel-container');
     const slider = document.querySelector('.slider');
     
-    if (!semicircleLeft || !semicircleRight || !slider) return;
+    if (!semicircleLeft || !semicircleRight || !announcementBoard || !characterPanels || !slider) return;
 
+    const boardRect = announcementBoard.getBoundingClientRect();
+    const characterRect = characterPanels.getBoundingClientRect();
     const sliderRect = slider.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
     
-    // Вычисляем, насколько слайдер ушел за пределы экрана
-    const sliderBottom = sliderRect.bottom;
-    const scrollProgress = Math.min(Math.max(1 - (sliderBottom / viewportHeight), 0), 1);
+    // Получаем позицию центра экрана
+    const centerY = viewportHeight / 2;
     
-    // Устанавливаем прозрачность и позицию полукругов
-    const opacity = Math.min(scrollProgress * 2, 1); // Плавное появление
-    const translateY = Math.min(scrollProgress * 100, 50); // Плавное движение вниз
+    // Определяем направление скролла
+    const scrollDirection = window.scrollY > (window.lastScrollY || 0) ? 'down' : 'up';
+    window.lastScrollY = window.scrollY;
     
-    semicircleLeft.style.opacity = opacity;
-    semicircleRight.style.opacity = opacity;
+    // Добавляем смещение для разных направлений скролла
+    const offset = scrollDirection === 'up' ? 300 : -150; // Увеличили смещение для обоих направлений
     
-    semicircleLeft.style.transform = `translateY(calc(-50% + ${translateY}px))`;
-    semicircleRight.style.transform = `translateY(calc(-50% + ${translateY}px))`;
+    // Проверяем, находится ли центр экрана между доской объявлений и описанием персонажей
+    const isInValidZone = centerY > (boardRect.bottom + offset) && centerY < (characterRect.top + offset);
+
+    // Вычисляем прогресс анимации для плавного появления/исчезновения
+    let progress = 0;
     
-    // Показываем/скрываем полукруги
-    if (scrollProgress > 0) {
+    if (isInValidZone) {
+      // Вычисляем, насколько близко мы к границам зоны
+      const distanceToBoard = centerY - (boardRect.bottom + offset);
+      const distanceToCharacters = (characterRect.top + offset) - centerY;
+      const minDistance = Math.min(distanceToBoard, distanceToCharacters);
+      const maxDistance = 200; // Максимальное расстояние для анимации
+      
+      // Если скроллим вниз и близко к концу, уменьшаем прогресс
+      if (scrollDirection === 'down' && distanceToCharacters < maxDistance) {
+        progress = Math.min(distanceToCharacters / maxDistance, 1);
+      } else {
+        progress = Math.min(minDistance / maxDistance, 1);
+      }
+    }
+
+    if (isInValidZone) {
+      // Если в допустимой зоне, показываем панели с плавной анимацией
       semicircleLeft.classList.remove('hide');
       semicircleRight.classList.remove('hide');
+      semicircleLeft.style.opacity = progress;
+      semicircleRight.style.opacity = progress;
+      semicircleLeft.style.transform = `translateY(-50%) translateX(${-50 * (1 - progress)}px)`;
+      semicircleRight.style.transform = `translateY(-50%) translateX(${50 * (1 - progress)}px)`;
     } else {
+      // Если вне допустимой зоны, скрываем панели
       semicircleLeft.classList.add('hide');
       semicircleRight.classList.add('hide');
     }
