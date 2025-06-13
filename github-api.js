@@ -5,7 +5,7 @@ const GITHUB_BRANCH = 'main';
 // ВНИМАНИЕ: Для локального тестирования вы можете вставить ваш Personal Access Token сюда.
 // Для публичного сайта на GitHub Pages, хранение токена в клиентском JavaScript НЕБЕЗОПАСНО!
 // Для продакшна используйте более безопасные методы, такие как GitHub Actions secrets
-const GITHUB_TOKEN = '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'; // Вставьте сюда ваш токен
+const GITHUB_TOKEN = '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'; // Вставьте сюда ваш токен
 
 const API_BASE_URL = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents`;
 
