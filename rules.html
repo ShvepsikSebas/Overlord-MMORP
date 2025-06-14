@@ -6,6 +6,7 @@
   <title>Основные правила сервера</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="animations/animations.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -95,8 +96,63 @@
       box-shadow: 0 4px 24px rgba(184,145,249,0.07);
       text-align: left;
     }
+
+    /* Audio Player Styles */
+    #audio-player {
+      display: none;
+    }
+    
+    #sound-control {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 9999;
+      background: rgba(30, 30, 60, 0.9);
+      border: 1px solid #b891f9;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    #sound-control:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(184, 145, 249, 0.5);
+    }
+    
+    #sound-control i {
+      color: #b891f9;
+      font-size: 20px;
+    }
+    
+    #sound-control.muted i::before {
+      content: "\f6a9"; /* Volume Mute icon */
+    }
+    
+    #sound-control:not(.muted) i::before {
+      content: "\f028"; /* Volume Up icon */
+    }
   </style>
   <script src="animations/animations.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    var player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('youtube-audio', {
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+    }
+    
+    function onPlayerReady(event) {
+      event.target.playVideo();
+    }
+  </script>
   <script>
     // Инициализация "Наверх"
     document.addEventListener('DOMContentLoaded', () => {
@@ -199,5 +255,65 @@
   </div>
 
   <button class="to-top pulse" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">⬆ Наверх</button>
+
+  <!-- Add YouTube iframe for audio -->
+  <iframe id="youtube-audio" 
+          style="display: none;"
+          width="0" 
+          height="0" 
+          src="https://www.youtube.com/embed/gfz4Z7vNxJ8?autoplay=1&loop=1&playlist=gfz4Z7vNxJ8&controls=0" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+  </iframe>
+
+  <!-- Add sound control button -->
+  <div id="sound-control">
+    <i class="fas fa-volume-up"></i>
+  </div>
+
+  <script>
+  // Audio player functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const youtubeFrame = document.getElementById('youtube-audio');
+    const soundControl = document.getElementById('sound-control');
+    let isMuted = localStorage.getItem('isMuted') === 'true';
+    
+    // Function to send message to iframe
+    function sendMessageToIframe(command) {
+      youtubeFrame.contentWindow.postMessage(JSON.stringify({
+        'event': 'command',
+        'func': command,
+        'args': []
+      }), '*');
+    }
+    
+    // Initialize mute state
+    if (isMuted) {
+      soundControl.classList.add('muted');
+      sendMessageToIframe('mute');
+    }
+    
+    // Toggle mute on sound control click
+    soundControl.addEventListener('click', function() {
+      isMuted = !isMuted;
+      soundControl.classList.toggle('muted');
+      localStorage.setItem('isMuted', isMuted);
+      
+      if (isMuted) {
+        sendMessageToIframe('mute');
+      } else {
+        sendMessageToIframe('unMute');
+      }
+    });
+    
+    // Save mute state
+    window.addEventListener('beforeunload', function() {
+      localStorage.setItem('isMuted', isMuted);
+    });
+  });
+  </script>
+  <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
+  <script src="common.js"></script>
 </body>
 </html>
