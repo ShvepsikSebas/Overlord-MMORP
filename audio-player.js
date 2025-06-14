@@ -1,6 +1,6 @@
 class AudioPlayer {
     constructor() {
-        this.audio = new Audio('phomusic');
+        this.audio = new Audio('phonmusic.mp3');
         this.isPlaying = localStorage.getItem('isPlaying') === 'true';
         this.currentTime = parseFloat(localStorage.getItem('currentTime')) || 0;
         this.volume = parseFloat(localStorage.getItem('volume')) || 0.5;
@@ -31,20 +31,20 @@ class AudioPlayer {
             </div>
         `;
 
-        // Добавляем стили
+        // Add styles
         const style = document.createElement('style');
         style.textContent = `
             .audio-player {
                 position: fixed;
                 left: 20px;
-                top: 50%;
-                transform: translateY(-50%);
+                bottom: 20px;
                 background: rgba(0, 0, 0, 0.8);
                 padding: 15px;
                 border-radius: 10px;
                 z-index: 1000;
                 color: white;
                 font-family: Arial, sans-serif;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             }
 
             .player-controls {
@@ -59,6 +59,17 @@ class AudioPlayer {
                 color: white;
                 cursor: pointer;
                 font-size: 20px;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background-color 0.3s;
+            }
+
+            .play-pause:hover {
+                background-color: rgba(255, 255, 255, 0.1);
             }
 
             .progress-container {
@@ -79,11 +90,13 @@ class AudioPlayer {
                 height: 100%;
                 border-radius: 3px;
                 width: 0%;
+                transition: width 0.1s linear;
             }
 
             .time {
                 font-size: 12px;
                 margin-top: 5px;
+                color: rgba(255, 255, 255, 0.7);
             }
 
             .volume-control {
@@ -94,6 +107,11 @@ class AudioPlayer {
 
             .volume-control input {
                 width: 80px;
+                cursor: pointer;
+            }
+
+            .volume-control i {
+                cursor: pointer;
             }
         `;
 
@@ -115,8 +133,9 @@ class AudioPlayer {
         
         this.audio.addEventListener('timeupdate', () => this.updateProgress());
         this.audio.addEventListener('ended', () => this.handleEnded());
+        this.audio.addEventListener('loadedmetadata', () => this.updateProgress());
         
-        // Сохраняем состояние при изменении
+        // Save state on changes
         this.audio.addEventListener('play', () => {
             this.isPlaying = true;
             localStorage.setItem('isPlaying', 'true');
@@ -132,13 +151,27 @@ class AudioPlayer {
         this.audio.addEventListener('timeupdate', () => {
             localStorage.setItem('currentTime', this.audio.currentTime);
         });
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.audio.pause();
+            } else if (this.isPlaying) {
+                this.audio.play();
+            }
+        });
     }
 
     restoreState() {
         this.audio.volume = this.volume;
         this.audio.currentTime = this.currentTime;
         if (this.isPlaying) {
-            this.audio.play();
+            this.audio.play().catch(() => {
+                // Handle autoplay restrictions
+                this.isPlaying = false;
+                localStorage.setItem('isPlaying', 'false');
+                this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            });
         }
     }
 
@@ -146,7 +179,12 @@ class AudioPlayer {
         if (this.isPlaying) {
             this.audio.pause();
         } else {
-            this.audio.play();
+            this.audio.play().catch(() => {
+                // Handle autoplay restrictions
+                this.isPlaying = false;
+                localStorage.setItem('isPlaying', 'false');
+                this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            });
         }
     }
 
@@ -159,6 +197,8 @@ class AudioPlayer {
 
     updateProgress() {
         const { currentTime, duration } = this.audio;
+        if (isNaN(duration)) return;
+        
         const progressPercent = (currentTime / duration) * 100;
         this.progress.style.width = `${progressPercent}%`;
         
@@ -180,10 +220,11 @@ class AudioPlayer {
         this.isPlaying = false;
         localStorage.setItem('isPlaying', 'false');
         this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        this.audio.currentTime = 0;
     }
 }
 
-// Инициализация плеера
+// Initialize player when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new AudioPlayer();
 }); 
