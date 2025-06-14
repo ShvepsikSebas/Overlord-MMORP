@@ -130,6 +130,12 @@
   font-size: 0.9em;
   position: relative;
   pointer-events: auto;
+  transition: max-width 0.4s ease, max-height 0.4s ease, padding 0.4s ease;
+}
+
+#helper-dialog.expanded-chat {
+  max-width: 450px;
+  padding: 15px 20px;
 }
 
 #close-dialog,
@@ -1369,6 +1375,84 @@
       }
     }
 
+    .chat-container {
+      margin-top: 10px;
+      border-top: 1px solid rgba(184,145,249,0.3);
+      padding-top: 10px;
+    }
+
+    .chat-messages {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding: 5px;
+      transition: max-height 0.4s ease;
+    }
+
+    #helper-dialog.expanded-chat .chat-messages {
+      max-height: 350px;
+    }
+
+    .chat-message {
+      background: rgba(28,28,46,0.7);
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 5px;
+      font-size: 0.9em;
+    }
+
+    .chat-message.user {
+      background: rgba(184,145,249,0.2);
+      margin-left: 20px;
+    }
+
+    .chat-message.bot {
+      background: rgba(252,163,17,0.2);
+      margin-right: 20px;
+    }
+
+    .chat-input-container {
+      display: flex;
+      gap: 5px;
+    }
+
+    #chat-input {
+      flex: 1;
+      background: rgba(28,28,46,0.7);
+      border: 1px solid rgba(184,145,249,0.3);
+      border-radius: 5px;
+      padding: 5px;
+      color: #fff;
+    }
+
+    #send-message {
+      background: #b891f9;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #send-message:hover {
+      background: #9b7ad6;
+    }
+
+    #toggle-chat {
+      position: absolute;
+      bottom: 5px;
+      right: 40px;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #ccc;
+    }
+
+    #toggle-chat:hover {
+      color: #fff;
+      transform: scale(1.2);
+    }
+
   </style>
 <script>
   function initSlider() {
@@ -1491,7 +1575,6 @@
         <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
-        <div class="particle"></div>
       </div>
     </div>
     <div class="overlay-title">
@@ -1515,31 +1598,7 @@
     <div class="toggle-button">▼</div>
   </div>
   <div class="announcement-container">
-    <div class="announcement-panel active" data-index="0">
-      <div class="announcement-content">
-        <h3>ТЕСТ</h3>
-        <p>Сайт постоянно обновляется и разрабатывается. Мы работаем над улучшением функционала и добавлением нового контента. Следите за обновлениями!</p>
-      </div>
-    </div>
-    <div class="announcement-panel" data-index="1">
-      <img src="zbt.png" alt="Beta Test">
-      <div class="announcement-content">
-        <h3>Закрытый бета-тест</h3>
-        <p>Открыт набор на закрытый бета-тест сервера! Присоединяйтесь к тестированию и получите награды по завершению.</p>
-      </div>
-    </div>
-    <div class="announcement-panel" data-index="2">
-      <div class="announcement-content">
-        <h3>Пока пусто</h3>
-        <p>Скоро здесь появятся новые объявления</p>
-      </div>
-    </div>
-    <div class="announcement-panel" data-index="3">
-      <div class="announcement-content">
-        <h3>Пока пусто</h3>
-        <p>Скоро здесь появятся новые объявления</p>
-      </div>
-    </div>
+    <!-- Объявления будут загружаться здесь динамически -->
   </div>
 </div>
 
@@ -1661,19 +1720,32 @@
   <img id="helper-img" src="ecler.png" alt="Швепсик" title="Я Швепсик!" />
   <div id="helper-dialog" style="display: block;">
     <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!</div>
+    <div class="chat-container" style="display: none;">
+      <div class="chat-messages"></div>
+      <div class="chat-input-container">
+        <input type="text" id="chat-input" placeholder="Введите сообщение...">
+        <button id="send-message">Отправить</button>
+      </div>
+    </div>
     <span id="close-dialog" title="Закрыть">✖</span>
     <span id="next-phrase" title="Следующая фраза">➤</span>
+    <span id="toggle-chat" title="Открыть чат">💬</span>
+  </div>
 </div>
 
 <script>
- document.addEventListener('DOMContentLoaded', () => {
-    initSlider();
+document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById("helper-container");
   const img = document.getElementById("helper-img");
   const dialog = document.getElementById("helper-dialog");
   const closeBtn = document.getElementById("close-dialog");
   const nextBtn = document.getElementById("next-phrase");
+  const toggleChatBtn = document.getElementById("toggle-chat");
   const textBox = dialog.querySelector(".dialog-text");
+  const chatContainer = dialog.querySelector(".chat-container");
+  const chatMessages = dialog.querySelector(".chat-messages");
+  const chatInput = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("send-message");
 
   let phraseIndex = 0;
   const phrases = [
@@ -1681,9 +1753,59 @@
     "Господин Эклер меня убьёт, я должен идти убираться.",
     "Не забудь зайти на наш Discord сервер, там вы сможете найти новых друзей!",
     "Поддержать проект можно нажав на панель с донатом.",
-    "Если есть вопросы или заметил неисправность, обратись ко мне в дискорде!"
+    "Если есть вопросы или заметил неисправность, напиши мне в чате!"
   ];
 
+  // Generate or retrieve unique client ID
+  let clientId = localStorage.getItem('clientId');
+  if (!clientId) {
+      clientId = 'user-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('clientId', clientId);
+  }
+  console.log(`Client ID: ${clientId}`);
+
+  // WebSocket connection
+  let ws;
+
+  function connectWebSocket() {
+      ws = new WebSocket('ws://localhost:3000');
+
+      ws.onopen = () => {
+          console.log('WebSocket connected.');
+          // Send initial message with client ID
+          ws.send(JSON.stringify({ type: 'init', clientId: clientId }));
+      };
+
+      ws.onmessage = event => {
+          const data = JSON.parse(event.data);
+          if (data.type === 'message') {
+              // Если отправитель - поддержка (support), используем 'Администратор' как автора
+              const displayAuthor = data.sender === 'support' ? 'Администратор' : data.author;
+              addMessage(data.message, data.sender === 'support' ? 'bot' : data.sender, displayAuthor);
+          } else if (data.type === 'status') {
+              addMessage(data.message, 'bot');
+          } else if (data.type === 'error') {
+              addMessage(data.message, 'bot');
+              console.error('WebSocket error from server:', data.message);
+          }
+      };
+
+      ws.onclose = () => {
+          console.log('WebSocket disconnected. Attempting to reconnect in 5 seconds...');
+          setTimeout(connectWebSocket, 5000); // Reconnect on close
+      };
+
+      ws.onerror = error => {
+          console.error('WebSocket error:', error);
+          // Error handling, will usually trigger onclose
+      };
+  }
+
+  // Connect WebSocket when chat is toggled or page loads if chat was open
+  // For now, let's connect it on DOMContentLoaded, or when the chat is opened.
+  // It's better to connect when the chat is actually used to save resources.
+  // Let's connect when the user opens the chat for the first time.
+  
   // Показываем Швепсика через 2 сек
   if (!localStorage.getItem("hideShvepsik")) {
     setTimeout(() => {
@@ -1711,9 +1833,59 @@
     textBox.textContent = phrases[phraseIndex];
   });
 
+  // Переключение чата
+  toggleChatBtn.addEventListener("click", () => {
+    const isChatVisible = chatContainer.style.display !== "none";
+    if (!isChatVisible && !ws) { // Connect WebSocket only when opening chat for the first time
+        connectWebSocket();
+    }
+    chatContainer.style.display = isChatVisible ? "none" : "block";
+    textBox.style.display = isChatVisible ? "block" : "none";
+    toggleChatBtn.textContent = isChatVisible ? "💬" : "📝";
+  });
+
+  // Отправка сообщения
+  function sendMessage() {
+    const message = chatInput.value.trim();
+    if (message && ws && ws.readyState === WebSocket.OPEN) {
+      addMessage(message, 'user');
+      ws.send(JSON.stringify({ type: 'chatMessage', clientId: clientId, message: message }));
+      chatInput.value = '';
+
+      // Expand the dialog after sending the first message
+      if (!dialog.classList.contains('expanded-chat')) {
+          dialog.classList.add('expanded-chat');
+      }
+
+    } else if (!ws || ws.readyState !== WebSocket.OPEN) {
+        addMessage('Соединение с чатом не установлено. Пожалуйста, попробуйте позже.', 'bot');
+        console.error('WebSocket is not connected or not open.');
+    }
+  }
+
+  // Добавление сообщения в чат
+  function addMessage(text, type, author = null) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${type}`;
+    let displayMessage = text;
+    if (author) {
+        displayMessage = `[${author}] ${text}`;
+    }
+    messageDiv.textContent = displayMessage;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  chatInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
+
   // Автосмена фраз
   setInterval(() => {
-    if (dialog.style.display !== "none") {
+    if (dialog.style.display !== "none" && chatContainer.style.display === "none") {
       phraseIndex = (phraseIndex + 1) % phrases.length;
       textBox.textContent = phrases[phraseIndex];
     }
@@ -1827,95 +1999,157 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-// Announcement Board Animation
+// Announcement Board Animation & Loading
 document.addEventListener('DOMContentLoaded', function() {
-  const panels = document.querySelectorAll('.announcement-panel');
+  const board = document.querySelector('.announcement-board');
+  const header = document.querySelector('.announcement-header');
+  const announcementContainer = document.querySelector('.announcement-container');
+  let announcementsData = [];
   let currentIndex = 0;
   let isAutoPlaying = false;
   let autoPlayTimeout;
+  let transitionTimeout;
+
+  // Function to fetch announcements from the server
+  async function fetchAnnouncements() {
+    try {
+      const response = await fetch('http://localhost:3000/api/announcements');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      announcementsData = await response.json();
+      console.log('Fetched announcements:', announcementsData);
+      renderAnnouncements();
+      // Reset and start autoplay if announcements are loaded
+      if (announcementsData.length > 0) {
+        isAutoPlaying = true;
+        startAutoPlay();
+      } else {
+        // If no announcements, show a default message or hide the board
+        announcementContainer.innerHTML = '<div class="announcement-panel active"><div class="announcement-content"><h3>Нет текущих объявлений</h3><p>Скоро здесь появятся новые объявления!</p></div></div>';
+      }
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
+      announcementContainer.innerHTML = '<div class="announcement-panel active"><div class="announcement-content"><h3>Ошибка загрузки объявлений</h3><p>Пожалуйста, попробуйте обновить страницу.</p></div></div>';
+    }
+  }
+
+  // Function to render announcements dynamically
+  function renderAnnouncements() {
+    announcementContainer.innerHTML = ''; // Clear existing content
+    if (announcementsData.length === 0) return;
+
+    announcementsData.forEach((announcement, index) => {
+      const panel = document.createElement('div');
+      panel.className = 'announcement-panel';
+      panel.dataset.index = index;
+
+      let imageHtml = '';
+      if (announcement.imageUrl) {
+        imageHtml = `<img src="${announcement.imageUrl}" alt="${announcement.title}">`;
+      }
+
+      panel.innerHTML = `
+        ${imageHtml}
+        <div class="announcement-content">
+          <h3>${announcement.title}</h3>
+          <p>${announcement.content}</p>
+        </div>
+      `;
+      announcementContainer.appendChild(panel);
+    });
+    updatePanels(); // Apply initial active/prev classes
+  }
 
   function updatePanels() {
+    const panels = announcementContainer.querySelectorAll('.announcement-panel');
+    if (panels.length === 0) return;
+
     panels.forEach((panel, index) => {
       panel.classList.remove('active', 'prev', 'prev2', 'prev3');
-      
+      panel.style.zIndex = 1; // Reset z-index
+      panel.style.opacity = 0;
+      panel.style.transform = 'translateX(150%)';
+
       if (index === currentIndex) {
         panel.classList.add('active');
+        panel.style.zIndex = 4;
+        panel.style.opacity = 1;
+        panel.style.transform = 'translateX(-50%)';
       } else if (index === (currentIndex + 1) % panels.length) {
         panel.classList.add('prev');
+        panel.style.zIndex = 3;
+        panel.style.opacity = 0.7;
+        panel.style.transform = 'translateX(calc(-50% + 30%))';
       } else if (index === (currentIndex + 2) % panels.length) {
         panel.classList.add('prev2');
+        panel.style.zIndex = 2;
+        panel.style.opacity = 0.4;
+        panel.style.transform = 'translateX(calc(-50% + 60%))';
       } else if (index === (currentIndex + 3) % panels.length) {
         panel.classList.add('prev3');
+        panel.style.zIndex = 1;
+        panel.style.opacity = 0.1;
+        panel.style.transform = 'translateX(calc(-50% + 90%))';
       }
     });
+
+    // Remove old announcements (more than 4 panels)
+    // This ensures that only MAX_ANNOUNCEMENTS are displayed, even if more are fetched (server should already handle this)
+    // for (let i = MAX_ANNOUNCEMENTS; i < panels.length; i++) {
+    //   panels[i].remove();
+    // }
   }
 
   function nextPanel() {
-    if (isAutoPlaying) {
-      currentIndex = (currentIndex + 1) % panels.length;
-      updatePanels();
-    }
+    if (announcementsData.length === 0) return;
+    currentIndex = (currentIndex + 1) % announcementsData.length;
+    updatePanels();
   }
 
   function startAutoPlay() {
     if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
-    autoPlayTimeout = setTimeout(() => {
-      isAutoPlaying = true;
-      nextPanel();
-      startAutoPlay();
-    }, 8000);
+    if (announcementsData.length > 1) { // Only auto-play if there's more than one announcement
+        autoPlayTimeout = setTimeout(() => {
+            nextPanel();
+            startAutoPlay();
+        }, 8000);
+    }
   }
 
-  panels.forEach(panel => {
-    panel.addEventListener('click', () => {
-      const clickedIndex = parseInt(panel.dataset.index);
-      if (clickedIndex !== currentIndex) {
-        currentIndex = clickedIndex;
-        updatePanels();
-      }
-      isAutoPlaying = false;
+  header.addEventListener('click', () => {
+    board.classList.toggle('expanded');
+    // Stop autoplay when expanded, restart when collapsed
+    if (board.classList.contains('expanded')) {
       if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
-      setTimeout(() => {
-        isAutoPlaying = true;
-        startAutoPlay();
-      }, 10000);
-    });
-  });
-
-  // Initial setup
-  updatePanels();
-  
-  // Show each announcement for 10 seconds before starting auto-rotation
-  let announcementIndex = 0;
-  const showEachAnnouncement = () => {
-    if (announcementIndex < panels.length) {
-      currentIndex = announcementIndex;
-      updatePanels();
-      announcementIndex++;
-      setTimeout(showEachAnnouncement, 10000);
+      isAutoPlaying = false;
     } else {
       isAutoPlaying = true;
       startAutoPlay();
     }
-  };
-
-  // Start showing announcements
-  showEachAnnouncement();
-});
-</script>
-
-<script>
-// Announcement Board Toggle
-document.addEventListener('DOMContentLoaded', function() {
-  const board = document.querySelector('.announcement-board');
-  const header = document.querySelector('.announcement-header');
-  
-  header.addEventListener('click', () => {
-    board.classList.toggle('expanded');
   });
-  
-  // Остальной код для анимации панелей...
+
+  // Add click listener to the container to handle clicks on panels themselves
+  announcementContainer.addEventListener('click', (e) => {
+    const clickedPanel = e.target.closest('.announcement-panel');
+    if (clickedPanel) {
+      const clickedIndex = parseInt(clickedPanel.dataset.index);
+      if (clickedIndex !== currentIndex) {
+        currentIndex = clickedIndex;
+        updatePanels();
+        // Reset autoplay on manual interaction
+        isAutoPlaying = true; // Set to true to allow restart
+        if (autoPlayTimeout) clearTimeout(autoPlayTimeout); // Clear existing
+        startAutoPlay(); // Restart with new timer
+      }
+    }
+  });
+
+  // Initial fetch and render
+  fetchAnnouncements();
+  // Remove old static initialization of showEachAnnouncement as we handle it dynamically
 });
+
 </script>
 </body>
 </html>
