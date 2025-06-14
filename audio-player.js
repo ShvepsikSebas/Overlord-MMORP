@@ -1,9 +1,19 @@
 class AudioPlayer {
     constructor() {
-        this.audio = new Audio('phonmusic.mp3');
+        console.log('Initializing AudioPlayer');
+        this.audio = new Audio('https://overlord-mmorp.onrender.com/phonmusic.mp3');
         this.isPlaying = localStorage.getItem('isPlaying') === 'true';
         this.currentTime = parseFloat(localStorage.getItem('currentTime')) || 0;
         this.volume = parseFloat(localStorage.getItem('volume')) || 0.5;
+        
+        // Проверяем загрузку аудио
+        this.audio.addEventListener('error', (e) => {
+            console.error('Error loading audio:', e);
+        });
+        
+        this.audio.addEventListener('loadeddata', () => {
+            console.log('Audio loaded successfully');
+        });
         
         this.createPlayer();
         this.setupEventListeners();
@@ -11,6 +21,7 @@ class AudioPlayer {
     }
 
     createPlayer() {
+        console.log('Creating audio player UI');
         const player = document.createElement('div');
         player.className = 'audio-player';
         player.innerHTML = `
@@ -45,6 +56,8 @@ class AudioPlayer {
                 color: white;
                 font-family: Arial, sans-serif;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
             }
 
             .player-controls {
@@ -124,9 +137,12 @@ class AudioPlayer {
         this.progress = player.querySelector('.progress');
         this.timeDisplay = player.querySelector('.time');
         this.volumeControl = player.querySelector('.volume-control input');
+        
+        console.log('Audio player UI created successfully');
     }
 
     setupEventListeners() {
+        console.log('Setting up event listeners');
         this.playPauseBtn.addEventListener('click', () => this.togglePlay());
         this.progressBar.addEventListener('click', (e) => this.setProgress(e));
         this.volumeControl.addEventListener('input', (e) => this.setVolume(e));
@@ -160,13 +176,17 @@ class AudioPlayer {
                 this.audio.play();
             }
         });
+        
+        console.log('Event listeners set up successfully');
     }
 
     restoreState() {
+        console.log('Restoring player state');
         this.audio.volume = this.volume;
         this.audio.currentTime = this.currentTime;
         if (this.isPlaying) {
-            this.audio.play().catch(() => {
+            this.audio.play().catch((error) => {
+                console.error('Error playing audio:', error);
                 // Handle autoplay restrictions
                 this.isPlaying = false;
                 localStorage.setItem('isPlaying', 'false');
@@ -179,7 +199,8 @@ class AudioPlayer {
         if (this.isPlaying) {
             this.audio.pause();
         } else {
-            this.audio.play().catch(() => {
+            this.audio.play().catch((error) => {
+                console.error('Error playing audio:', error);
                 // Handle autoplay restrictions
                 this.isPlaying = false;
                 localStorage.setItem('isPlaying', 'false');
@@ -226,5 +247,6 @@ class AudioPlayer {
 
 // Initialize player when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, creating audio player');
     new AudioPlayer();
 }); 
