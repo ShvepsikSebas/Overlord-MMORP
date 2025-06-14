@@ -246,7 +246,7 @@ class AudioPlayer {
 }
 
 // Initialize player when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, creating audio player');
-    new AudioPlayer();
-}); 
+// document.addEventListener('DOMContentLoaded', () => {
+//     console.log('DOM loaded, creating audio player');
+//     new AudioPlayer();
+// }); 
