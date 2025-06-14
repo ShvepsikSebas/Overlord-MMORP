@@ -1768,7 +1768,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let ws;
 
   function connectWebSocket() {
-      ws = new WebSocket('ws://localhost:3000');
+      ws = new WebSocket('wss://overlord-mmorp.onrender.com');
 
       ws.onopen = () => {
           console.log('WebSocket connected.');
@@ -2013,7 +2013,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Function to fetch announcements from the server
   async function fetchAnnouncements() {
     try {
-      const response = await fetch('http://localhost:3000/api/announcements');
+      const response = await fetch('https://overlord-mmorp.onrender.com/api/announcements');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
