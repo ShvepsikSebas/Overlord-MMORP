@@ -208,7 +208,7 @@
 
    .overlay-title {
   font-family: 'Cinzel Decorative', cursive;
-  font-size: 6em;
+  font-size: min(6em, 8vw);
   color: #b891f9;
   -webkit-text-stroke: 1px black;
   text-shadow:
@@ -225,8 +225,8 @@
     }
 
     .overlay-emblem {
-      height: 180px;
-      width: 180px;
+      height: min(180px, 12vw);
+      width: min(180px, 12vw);
       filter: drop-shadow(0 0 20px #b891f9);
       opacity: 1;
       animation: fadeGlow 1.5s ease-out 0.3s forwards, rotate 12s linear infinite, shimmer 3s ease-in-out infinite;
@@ -383,17 +383,19 @@
     .side-img {
       position: absolute;
       width: auto;
-      height: 300px;
+      height: min(300px, 15vw);
       object-fit: unset;
       opacity: 0;
       transition: transform 1s ease, opacity 1s ease;
     }
     .side-img.left {
-      left: -260px; top: 50%;
+      left: min(-260px, -10vw);
+      top: 50%;
       transform: translate(-50px, -50%);
     }
     .side-img.right {
-      right: -260px; top: 50%;
+      right: min(-260px, -10vw);
+      top: 50%;
       transform: translate(50px, -50%);
     }
     .character-panel.visible ~ .side-img.left,
@@ -439,7 +441,7 @@
 
     @media (max-width: 768px) {
       .overlay-title { 
-        font-size: 2em; 
+        font-size: min(4em, 10vw); 
         top: 10px; 
       }
       .slide h2 { 
@@ -479,8 +481,8 @@
         margin: 30px 0;
       }
       .announcement-panel {
-        width: 90%;
-        padding: 15px;
+        width: 85%;
+        left: 50%;
       }
       .announcement-panel img {
         width: 80px;
@@ -492,13 +494,20 @@
       .announcement-content p {
         font-size: 0.9em;
       }
-      .announcement-title {
-        font-size: 1.8em;
+      .announcement-panel.prev {
+        transform: translateX(calc(-50% + 20%));
       }
-      .toggle-button {
-        width: 30px;
-        height: 30px;
-        font-size: 1.2em;
+
+      .announcement-panel.prev2 {
+        transform: translateX(calc(-50% + 40%));
+      }
+
+      .announcement-panel.prev3 {
+        transform: translateX(calc(-50% + 60%));
+      }
+
+      .announcement-board.expanded .announcement-container {
+        height: 160px;
       }
     }
 
@@ -980,8 +989,8 @@
     .main-semicircle-left, .main-semicircle-right {
       position: fixed;
       top: 50%;
-      width: 320px;
-      height: 640px;
+      width: min(320px, 12.5vw);
+      height: min(640px, 25vw);
       background: radial-gradient(ellipse at center, rgba(28,28,46,0.7) 80%, rgba(28,28,46,0.2) 100%);
       z-index: 0;
       transform: translateY(-50%);
@@ -995,16 +1004,16 @@
 
     .main-semicircle-left {
       left: 0;
-      border-top-right-radius: 320px 640px;
-      border-bottom-right-radius: 320px 640px;
+      border-top-right-radius: min(320px, 12.5vw) min(640px, 25vw);
+      border-bottom-right-radius: min(320px, 12.5vw) min(640px, 25vw);
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
 
     .main-semicircle-right {
       right: 0;
-      border-top-left-radius: 320px 640px;
-      border-bottom-left-radius: 320px 640px;
+      border-top-left-radius: min(320px, 12.5vw) min(640px, 25vw);
+      border-bottom-left-radius: min(320px, 12.5vw) min(640px, 25vw);
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
     }
@@ -1071,7 +1080,32 @@
     }
 
     @media (max-width: 1200px) {
-      .main-semicircle-left, .main-semicircle-right { display: none; }
+      .main-semicircle-left, .main-semicircle-right {
+        width: min(280px, 15vw);
+        height: min(560px, 30vw);
+      }
+      
+      .main-semicircle-left {
+        border-top-right-radius: min(280px, 15vw) min(560px, 30vw);
+        border-bottom-right-radius: min(280px, 15vw) min(560px, 30vw);
+      }
+      
+      .main-semicircle-right {
+        border-top-left-radius: min(280px, 15vw) min(560px, 30vw);
+        border-bottom-left-radius: min(280px, 15vw) min(560px, 30vw);
+      }
+      
+      .side-img {
+        height: min(250px, 20vw);
+      }
+      
+      .side-img.left {
+        left: min(-200px, -8vw);
+      }
+      
+      .side-img.right {
+        right: min(-200px, -8vw);
+      }
     }
 
     .aura-mare-panel-container .side-img.left {
@@ -1199,7 +1233,7 @@
 
     .announcement-panel {
       position: absolute;
-      width: 35%;
+      width: min(35%, 600px);
       max-width: 600px;
       height: 100%;
       background: rgba(28,28,46,0.95);
@@ -1282,64 +1316,56 @@
       word-wrap: break-word;
     }
 
-    @media (max-width: 768px) {
-      .announcement-panel {
-        width: 85%;
-        left: 50%;
-        padding: 15px;
-        height: auto;
-        min-height: 120px;
+    @media (max-width: 1200px) {
+      .main-semicircle-left, .main-semicircle-right {
+        width: min(280px, 15vw);
+        height: min(560px, 30vw);
       }
       
-      .announcement-panel img {
-        width: 80px;
-        height: 80px;
+      .main-semicircle-left {
+        border-top-right-radius: min(280px, 15vw) min(560px, 30vw);
+        border-bottom-right-radius: min(280px, 15vw) min(560px, 30vw);
       }
       
-      .announcement-content h3 {
-        font-size: 1.2em;
-        margin-bottom: 8px;
+      .main-semicircle-right {
+        border-top-left-radius: min(280px, 15vw) min(560px, 30vw);
+        border-bottom-left-radius: min(280px, 15vw) min(560px, 30vw);
       }
       
-      .announcement-content p {
-        font-size: 0.9em;
-        line-height: 1.3;
+      .side-img {
+        height: min(250px, 20vw);
       }
-
-      .announcement-panel.prev {
-        transform: translateX(calc(-50% + 20%));
+      
+      .side-img.left {
+        left: min(-200px, -8vw);
       }
-
-      .announcement-panel.prev2 {
-        transform: translateX(calc(-50% + 40%));
-      }
-
-      .announcement-panel.prev3 {
-        transform: translateX(calc(-50% + 60%));
-      }
-
-      .announcement-board.expanded .announcement-container {
-        height: 160px;
+      
+      .side-img.right {
+        right: min(-200px, -8vw);
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
+      .main-semicircle-left, .main-semicircle-right {
+        display: none;
+      }
+      
+      .side-img {
+        display: none;
+      }
+      
+      .overlay-title {
+        font-size: min(4em, 10vw);
+      }
+      
+      .overlay-emblem {
+        height: min(120px, 15vw);
+        width: min(120px, 15vw);
+      }
+      
       .announcement-panel {
-        width: 90%;
-        padding: 12px;
-      }
-      
-      .announcement-panel img {
-        width: 60px;
-        height: 60px;
-      }
-      
-      .announcement-content h3 {
-        font-size: 1.1em;
-      }
-      
-      .announcement-content p {
-        font-size: 0.85em;
+        width: 85%;
+        left: 50%;
       }
     }
 
