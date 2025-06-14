@@ -111,19 +111,22 @@ wss.on('connection', ws => {
                     let supportChannel;
                     if (discordChannelId) {
                         try {
+                            console.log(`Attempting to fetch mapped Discord channel: ${discordChannelId}`);
                             supportChannel = await client.channels.fetch(discordChannelId);
+                            console.log(`Successfully fetched mapped Discord channel: ${supportChannel.name}`);
                         } catch (fetchError) {
                             if (fetchError.code === 10003) { // DiscordAPIError[10003]: Unknown Channel
-                                console.warn(`Mapped Discord channel ${discordChannelId} is unknown/deleted. Clearing mapping.`);
+                                console.warn(`Mapped Discord channel ${discordChannelId} is unknown/deleted. Clearing mapping and attempting new channel creation.`);
                                 clientToDiscordChannel.delete(clientId);
                                 discordChannelToClient.delete(discordChannelId);
                                 discordChannelId = null; // Force new channel creation
                             } else {
+                                console.error(`Unexpected error fetching mapped Discord channel ${discordChannelId}:`, fetchError);
                                 throw fetchError; // Re-throw other errors
                             }
                         }
-                        if (!supportChannel) {
-                            console.error(`Mapped Discord channel ${discordChannelId} not found after fetch attempt.`);
+                        if (!supportChannel && discordChannelId !== null) {
+                            console.error(`Mapped Discord channel ${discordChannelId} not found after fetch attempt (should be null now if deleted).`);
                             // Fallback: clear mapping and create new channel (already handled by catch block now, but good fallback)
                             clientToDiscordChannel.delete(clientId);
                             discordChannelToClient.delete(discordChannelId);
@@ -132,6 +135,7 @@ wss.on('connection', ws => {
                     }
 
                     if (!discordChannelId) {
+                        console.log(`No existing Discord channel for client ${clientId}. Attempting to create a new one.`);
                         // Create a new Discord channel for this user
                         const guild = client.guilds.cache.get(config.guildId);
                         if (!guild) {
@@ -139,17 +143,20 @@ wss.on('connection', ws => {
                             ws.send(JSON.stringify({ type: 'error', message: 'Ошибка сервера: не удалось найти сервер Discord.' }));
                             return;
                         }
+                        console.log(`Guild found: ${guild.name}`);
 
                         // Create a new channel in a specific category (e.g., 'Support Tickets')
                         const category = await guild.channels.fetch(config.supportCategoryId);
                         if (!category || category.type !== ChannelType.GuildCategory) {
-                            console.error('Support category not found or is not a category.');
+                            console.error('Support category not found or is not a category. ID:', config.supportCategoryId);
                             ws.send(JSON.stringify({ type: 'error', message: 'Ошибка сервера: не удалось найти категорию поддержки Discord.' }));
                             return;
                         }
+                        console.log(`Support category found: ${category.name}`);
 
                         // Create a unique channel name (e.g., 'support-user-clientId_short')
                         const channelName = `support-${clientId.substring(0, 8)}`;
+                        console.log(`Attempting to create Discord channel with name: ${channelName} in category ${category.name} (${category.id})`);
                         supportChannel = await guild.channels.create({
                             name: channelName,
                             type: ChannelType.GuildText,
@@ -161,7 +168,7 @@ wss.on('connection', ws => {
                                 },
                                 {
                                     id: client.user.id, // Bot itself
-                                    allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory']
+                                    allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory', 'ManageChannels']
                                 }
                                 // You might want to add specific roles for support staff here
                             ]
