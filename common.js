@@ -6,7 +6,7 @@ document.head.appendChild(fontAwesome);
 
 // Load audio player
 const audioPlayerScript = document.createElement('script');
-audioPlayerScript.src = 'audio-player.js';
+audioPlayerScript.src = 'https://overlord-mmorp.onrender.com/audio-player.js';
 audioPlayerScript.onload = () => {
     console.log('Audio player script loaded successfully');
 };
