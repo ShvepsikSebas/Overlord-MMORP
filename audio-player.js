@@ -2,9 +2,9 @@ class AudioPlayer {
     constructor() {
         console.log('Initializing AudioPlayer');
         this.audio = new Audio('https://overlord-mmorp.onrender.com/phonmusic.mp3');
-        this.isPlaying = localStorage.getItem('isPlaying') === 'true';
+        this.isPlaying = localStorage.getItem('isPlaying') === 'true' || false;
         this.currentTime = parseFloat(localStorage.getItem('currentTime')) || 0;
-        this.volume = parseFloat(localStorage.getItem('volume')) || 0.5;
+        this.volume = parseFloat(localStorage.getItem('volume')) || 0.25;
         
         // Проверяем загрузку аудио
         this.audio.addEventListener('error', (e) => {
@@ -29,6 +29,9 @@ class AudioPlayer {
                 <button class="play-pause">
                     <i class="fas ${this.isPlaying ? 'fa-pause' : 'fa-play'}"></i>
                 </button>
+                <button class="rewind">
+                    <i class="fas fa-backward"></i>
+                </button>
                 <div class="progress-container">
                     <div class="progress-bar">
                         <div class="progress"></div>
@@ -37,7 +40,7 @@ class AudioPlayer {
                 </div>
                 <div class="volume-control">
                     <i class="fas fa-volume-up"></i>
-                    <input type="range" min="0" max="1" step="0.1" value="${this.volume}">
+                    <input type="range" min="0" max="1" step="0.05" value="${this.volume}">
                 </div>
             </div>
         `;
@@ -66,7 +69,7 @@ class AudioPlayer {
                 gap: 10px;
             }
 
-            .play-pause {
+            .play-pause, .rewind {
                 background: none;
                 border: none;
                 color: white;
@@ -81,7 +84,7 @@ class AudioPlayer {
                 transition: background-color 0.3s;
             }
 
-            .play-pause:hover {
+            .play-pause:hover, .rewind:hover {
                 background-color: rgba(255, 255, 255, 0.1);
             }
 
@@ -133,6 +136,7 @@ class AudioPlayer {
 
         this.player = player;
         this.playPauseBtn = player.querySelector('.play-pause');
+        this.rewindBtn = player.querySelector('.rewind');
         this.progressBar = player.querySelector('.progress-bar');
         this.progress = player.querySelector('.progress');
         this.timeDisplay = player.querySelector('.time');
@@ -144,6 +148,7 @@ class AudioPlayer {
     setupEventListeners() {
         console.log('Setting up event listeners');
         this.playPauseBtn.addEventListener('click', () => this.togglePlay());
+        this.rewindBtn.addEventListener('click', () => this.rewind());
         this.progressBar.addEventListener('click', (e) => this.setProgress(e));
         this.volumeControl.addEventListener('input', (e) => this.setVolume(e));
         
@@ -192,6 +197,8 @@ class AudioPlayer {
                 localStorage.setItem('isPlaying', 'false');
                 this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             });
+        } else {
+            this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
     }
 
@@ -235,6 +242,13 @@ class AudioPlayer {
         const volume = e.target.value;
         this.audio.volume = volume;
         localStorage.setItem('volume', volume);
+    }
+
+    rewind() {
+        this.audio.currentTime = 0;
+        this.audio.play().catch((error) => {
+            console.error('Error rewinding and playing audio:', error);
+        });
     }
 
     handleEnded() {
