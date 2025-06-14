@@ -110,10 +110,21 @@ wss.on('connection', ws => {
                 try {
                     let supportChannel;
                     if (discordChannelId) {
-                        supportChannel = await client.channels.fetch(discordChannelId);
+                        try {
+                            supportChannel = await client.channels.fetch(discordChannelId);
+                        } catch (fetchError) {
+                            if (fetchError.code === 10003) { // DiscordAPIError[10003]: Unknown Channel
+                                console.warn(`Mapped Discord channel ${discordChannelId} is unknown/deleted. Clearing mapping.`);
+                                clientToDiscordChannel.delete(clientId);
+                                discordChannelToClient.delete(discordChannelId);
+                                discordChannelId = null; // Force new channel creation
+                            } else {
+                                throw fetchError; // Re-throw other errors
+                            }
+                        }
                         if (!supportChannel) {
-                            console.error(`Mapped Discord channel ${discordChannelId} not found.`);
-                            // Fallback: clear mapping and create new channel
+                            console.error(`Mapped Discord channel ${discordChannelId} not found after fetch attempt.`);
+                            // Fallback: clear mapping and create new channel (already handled by catch block now, but good fallback)
                             clientToDiscordChannel.delete(clientId);
                             discordChannelToClient.delete(discordChannelId);
                             discordChannelId = null;
@@ -224,6 +235,38 @@ client.on('messageCreate', async message => {
 
     // Обработка ответов поддержки
     if (discordChannelToClient.has(message.channel.id)) {
+        // If message is in a support channel, check for commands
+        if (message.content.toLowerCase() === '/ticketclose') {
+            const clientId = discordChannelToClient.get(message.channel.id);
+            const targetWs = clients.get(clientId);
+
+            try {
+                // Send a final message to the website user if they are still connected
+                if (targetWs && targetWs.readyState === WebSocket.OPEN) {
+                    targetWs.send(JSON.stringify({ type: 'status', message: 'Чат завершен администратором. Если у вас есть другие вопросы, откройте новый чат.' }));
+                    // Give client a moment to receive message before closing WS
+                    setTimeout(() => {
+                        targetWs.close();
+                    }, 1000);
+                }
+
+                // Remove mappings
+                clientToDiscordChannel.delete(clientId);
+                discordChannelToClient.delete(message.channel.id);
+                console.log(`Chat for client ${clientId} closed. Mapping removed.`);
+
+                // Delete the Discord channel
+                await message.channel.delete('Ticket closed by command.');
+                console.log(`Discord channel ${message.channel.name} (${message.channel.id}) deleted.`);
+
+            } catch (deleteError) {
+                console.error(`Failed to delete Discord channel ${message.channel.id}:`, deleteError);
+                message.reply('Не удалось удалить канал. Проверьте права бота.').catch(console.error);
+            }
+            return; // Stop processing further if it was a command
+        }
+
+        // Original logic for sending support messages to website
         const clientId = discordChannelToClient.get(message.channel.id);
         const targetWs = clients.get(clientId);
 
