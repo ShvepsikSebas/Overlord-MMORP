@@ -7,10 +7,18 @@ document.head.appendChild(fontAwesome);
 // Load audio player
 const audioPlayerScript = document.createElement('script');
 audioPlayerScript.src = 'audio-player.js';
+audioPlayerScript.onload = () => {
+    console.log('Audio player script loaded successfully');
+};
+audioPlayerScript.onerror = (error) => {
+    console.error('Error loading audio player script:', error);
+};
 document.body.appendChild(audioPlayerScript);
 
 // Common functionality
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing common functionality');
+    
     // Add "To Top" button functionality
     const toTopButtons = document.querySelectorAll('.to-top');
     toTopButtons.forEach(button => {
