@@ -169,13 +169,13 @@ class AudioPlayer {
         });
 
         // Handle page visibility changes
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                this.audio.pause();
-            } else if (this.isPlaying) {
-                this.audio.play();
-            }
-        });
+        // document.addEventListener('visibilitychange', () => {
+        //     if (document.hidden) {
+        //         this.audio.pause();
+        //     } else if (this.isPlaying) {
+        //         this.audio.play();
+        //     }
+        // });
         
         console.log('Event listeners set up successfully');
     }
