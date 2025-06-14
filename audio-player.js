@@ -4,7 +4,7 @@ class AudioPlayer {
         this.audio = new Audio('https://overlord-mmorp.onrender.com/phonmusic.mp3');
         this.isPlaying = localStorage.getItem('isPlaying') === 'true' || false;
         this.currentTime = parseFloat(localStorage.getItem('currentTime')) || 0;
-        this.volume = parseFloat(localStorage.getItem('volume')) || 0.25;
+        this.volume = parseFloat(localStorage.getItem('volume')) || 0.1;
         
         // Проверяем загрузку аудио
         this.audio.addEventListener('error', (e) => {
@@ -40,7 +40,7 @@ class AudioPlayer {
                 </div>
                 <div class="volume-control">
                     <i class="fas fa-volume-up"></i>
-                    <input type="range" min="0" max="1" step="0.05" value="${this.volume}">
+                    <input type="range" min="0" max="1" step="0.01" value="${this.volume}">
                 </div>
             </div>
         `;
