@@ -10,7 +10,7 @@ const serviceAccount = {
   "type": "service_account",
   "project_id": "bfysup",
   "private_key_id": "25607f30c9",
-  "private_key": Buffer.from(process.env.FIREBASE_PRIVATE_KEY, 'base64').toString('utf8').replace(/\\n/g, '\n'),
+  "private_key": Buffer.from(process.env.FIREBASE_PRIVATE_KEY, 'base64').toString('utf8'),
   "client_email": "firebase-adminsdk-fbsvc@bfysup.iam.gserviceaccount.com",
   "client_id": "115735123456789012345",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
