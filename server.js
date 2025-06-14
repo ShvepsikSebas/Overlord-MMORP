@@ -1,14 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const { Client, GatewayIntentBits, Partials, ChannelType } = require('discord.js');
 const { WebSocketServer } = require('ws');
 const http = require('http');
-const fs = require('fs'); // Import file system module
+const admin = require('firebase-admin');
+const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS); // Путь к файлу ключа
 
 const app = express();
 // Use process.env.PORT for Render, fallback to 3000 locally
 const port = process.env.PORT || 3000;
-
-const ANNOUNCEMENTS_FILE = './announcements.json'; // Path to store announcements
 
 // Create HTTP server
 const server = http.createServer(app);
@@ -28,35 +28,23 @@ const clientToDiscordChannel = new Map();
 let announcements = []; // { title: string, content: string, imageUrl: string | null }
 const MAX_ANNOUNCEMENTS = 4; // Max number of announcements to keep
 
-// Function to load announcements from file
-function loadAnnouncements() {
-    try {
-        if (fs.existsSync(ANNOUNCEMENTS_FILE)) {
-            const data = fs.readFileSync(ANNOUNCEMENTS_FILE, 'utf8');
-            announcements = JSON.parse(data);
-            console.log(`Loaded ${announcements.length} announcements from ${ANNOUNCEMENTS_FILE}`);
-        } else {
-            console.log(`Announcements file ${ANNOUNCEMENTS_FILE} not found. Starting with empty announcements.`);
-            announcements = [];
-        }
-    } catch (error) {
-        console.error('Error loading announcements:', error);
-        announcements = []; // Fallback to empty array on error
-    }
-}
+// Initialize Firebase
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: process.env.DATABASE_URL // URL вашей базы данных
+});
 
-// Function to save announcements to file
-function saveAnnouncements() {
-    try {
-        fs.writeFileSync(ANNOUNCEMENTS_FILE, JSON.stringify(announcements, null, 2), 'utf8');
-        console.log(`Saved ${announcements.length} announcements to ${ANNOUNCEMENTS_FILE}`);
-    } catch (error) {
-        console.error('Error saving announcements:', error);
-    }
-}
+const db = admin.database();
+const announcementsRef = db.ref('announcements');
 
-// Load announcements when the server starts
-loadAnnouncements();
+// Load announcements from Firebase on startup
+announcementsRef.once('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        announcements = Object.values(data).slice(0, MAX_ANNOUNCEMENTS);
+        console.log('Loaded announcements from Firebase:', announcements);
+    }
+});
 
 // Load configuration from environment variables or local config.json
 // Using environment variables is crucial for production deployments
@@ -363,22 +351,26 @@ client.on('messageCreate', async message => {
             const newAnnouncement = {
                 title: title,
                 content: content,
-                imageUrl: imageUrl
+                imageUrl: imageUrl,
+                timestamp: Date.now() // Add timestamp for ordering
             };
 
-            // Add new announcement and maintain MAX_ANNOUNCEMENTS
-            announcements.unshift(newAnnouncement); // Add to the beginning
-            if (announcements.length > MAX_ANNOUNCEMENTS) {
-                announcements.pop(); // Remove the oldest if over limit
-            }
-            console.log('New announcement added:', newAnnouncement);
-            console.log('Current announcements:', announcements);
-
-            // Save announcements to file after modification
-            saveAnnouncements();
-
-            // Optionally, send a confirmation to the Discord channel
-            message.reply('Объявление успешно добавлено на доску объявлений сайта!').catch(console.error);
+            // Save to Firebase
+            const newAnnouncementRef = announcementsRef.push();
+            newAnnouncementRef.set(newAnnouncement)
+                .then(() => {
+                    // Update local array
+                    announcements.unshift(newAnnouncement);
+                    if (announcements.length > MAX_ANNOUNCEMENTS) {
+                        announcements.pop();
+                    }
+                    console.log('New announcement saved to Firebase:', newAnnouncement);
+                    message.reply('Объявление успешно добавлено на доску объявлений сайта!').catch(console.error);
+                })
+                .catch(error => {
+                    console.error('Error saving announcement to Firebase:', error);
+                    message.reply('Произошла ошибка при сохранении объявления.').catch(console.error);
+                });
         } else {
             message.reply('Неверный формат объявления. Используйте: #Заголовок\nТекст\n[ссылка на фото]').catch(console.error);
         }
