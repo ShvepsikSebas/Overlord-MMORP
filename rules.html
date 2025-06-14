@@ -256,63 +256,6 @@
 
   <button class="to-top pulse" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">⬆ Наверх</button>
 
-  <!-- Add YouTube iframe for audio -->
-  <iframe id="youtube-audio" 
-          style="display: none;"
-          width="0" 
-          height="0" 
-          src="https://www.youtube.com/embed/gfz4Z7vNxJ8?autoplay=1&loop=1&playlist=gfz4Z7vNxJ8&controls=0" 
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowfullscreen>
-  </iframe>
-
-  <!-- Add sound control button -->
-  <div id="sound-control">
-    <i class="fas fa-volume-up"></i>
-  </div>
-
-  <script>
-  // Audio player functionality
-  document.addEventListener('DOMContentLoaded', function() {
-    const youtubeFrame = document.getElementById('youtube-audio');
-    const soundControl = document.getElementById('sound-control');
-    let isMuted = localStorage.getItem('isMuted') === 'true';
-    
-    // Function to send message to iframe
-    function sendMessageToIframe(command) {
-      youtubeFrame.contentWindow.postMessage(JSON.stringify({
-        'event': 'command',
-        'func': command,
-        'args': []
-      }), '*');
-    }
-    
-    // Initialize mute state
-    if (isMuted) {
-      soundControl.classList.add('muted');
-      sendMessageToIframe('mute');
-    }
-    
-    // Toggle mute on sound control click
-    soundControl.addEventListener('click', function() {
-      isMuted = !isMuted;
-      soundControl.classList.toggle('muted');
-      localStorage.setItem('isMuted', isMuted);
-      
-      if (isMuted) {
-        sendMessageToIframe('mute');
-      } else {
-        sendMessageToIframe('unMute');
-      }
-    });
-    
-    // Save mute state
-    window.addEventListener('beforeunload', function() {
-      localStorage.setItem('isMuted', isMuted);
-    });
-  });
-  </script>
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
   <script src="common.js"></script>
 </body>
