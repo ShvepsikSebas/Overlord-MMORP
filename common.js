@@ -9,6 +9,7 @@ const audioPlayerScript = document.createElement('script');
 audioPlayerScript.src = 'https://overlord-mmorp.onrender.com/audio-player.js';
 audioPlayerScript.onload = () => {
     console.log('Audio player script loaded successfully');
+    new AudioPlayer(); // Initialize the player after the script loads
 };
 audioPlayerScript.onerror = (error) => {
     console.error('Error loading audio player script:', error);
