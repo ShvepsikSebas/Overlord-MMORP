@@ -2,6 +2,7 @@ class AudioPlayer {
     constructor() {
         console.log('Initializing AudioPlayer');
         this.audio = new Audio('https://overlord-mmorp.onrender.com/phonmusic.mp3');
+        this.audio.loop = true;
         this.isPlaying = localStorage.getItem('isPlaying') === 'true' || false;
         this.currentTime = parseFloat(localStorage.getItem('currentTime')) || 0;
         this.volume = parseFloat(localStorage.getItem('volume')) || 0.1;
