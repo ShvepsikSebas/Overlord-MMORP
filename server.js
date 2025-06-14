@@ -4,7 +4,25 @@ const { Client, GatewayIntentBits, Partials, ChannelType } = require('discord.js
 const { WebSocketServer } = require('ws');
 const http = require('http');
 const admin = require('firebase-admin');
-const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS); // Путь к файлу ключа
+
+// Initialize Firebase
+const serviceAccount = {
+  "type": "service_account",
+  "project_id": "bfysup",
+  "private_key_id": "25607f30c9",
+  "private_key": process.env.FIREBASE_PRIVATE_KEY,
+  "client_email": "firebase-adminsdk-fbsvc@bfysup.iam.gserviceaccount.com",
+  "client_id": "115735123456789012345",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40bfysup.iam.gserviceaccount.com"
+};
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: process.env.DATABASE_URL
+});
 
 const app = express();
 // Use process.env.PORT for Render, fallback to 3000 locally
@@ -27,12 +45,6 @@ const clientToDiscordChannel = new Map();
 // In-memory storage for announcements
 let announcements = []; // { title: string, content: string, imageUrl: string | null }
 const MAX_ANNOUNCEMENTS = 4; // Max number of announcements to keep
-
-// Initialize Firebase
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: process.env.DATABASE_URL // URL вашей базы данных
-});
 
 const db = admin.database();
 const announcementsRef = db.ref('announcements');
