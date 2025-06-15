@@ -80,10 +80,41 @@ router.get('/discord/callback', async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
         });
 
-        res.redirect('/');
+        // Вместо редиректа, отправляем скрипт для закрытия окна
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head><title>Авторизация успешна</title></head>
+            <body>
+                <script>
+                    if (window.opener) {
+                        window.opener.postMessage('authSuccess', '*');
+                        window.close();
+                    } else {
+                        window.location.href = '/';
+                    }
+                </script>
+            </body>
+            </html>
+        `);
     } catch (error) {
         console.error('Ошибка при авторизации:', error);
-        res.redirect('/?error=auth_failed');
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head><title>Ошибка авторизации</title></head>
+            <body>
+                <script>
+                    if (window.opener) {
+                        window.opener.postMessage('authError', '*');
+                        window.close();
+                    } else {
+                        window.location.href = '/?error=auth_failed';
+                    }
+                </script>
+            </body>
+            </html>
+        `);
     }
 });
 
