@@ -105,6 +105,7 @@ router.get('/discord/callback', async (req, res) => {
             secure: true,
             sameSite: 'lax',
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+            path: '/', // Важно: указываем путь
             domain: '.onrender.com'
         });
 
@@ -117,7 +118,16 @@ router.get('/discord/callback', async (req, res) => {
                 <script>
                     function closeAndNotify() {
                         if (window.opener) {
-                            window.opener.postMessage({ type: 'authSuccess', sessionId: '${sessionId}' }, '*');
+                            window.opener.postMessage({ 
+                                type: 'authSuccess', 
+                                sessionId: '${sessionId}',
+                                user: ${JSON.stringify({
+                                    id: user.id,
+                                    username: user.username,
+                                    discriminator: user.discriminator,
+                                    avatar: sessionData.avatar
+                                })}
+                            }, '*');
                             window.close();
                         } else {
                             window.location.href = '/';
@@ -177,7 +187,8 @@ router.get('/session', (req, res) => {
             res.clearCookie('sessionId', {
                 domain: '.onrender.com',
                 secure: true,
-                httpOnly: true
+                httpOnly: true,
+                path: '/'
             });
             return res.json({ authenticated: false });
         }
