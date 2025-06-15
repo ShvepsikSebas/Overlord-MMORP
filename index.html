@@ -1762,6 +1762,12 @@
       background: rgba(28,28,46,0.7);
       border-radius: 5px;
       margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .auth-message p {
+      margin-bottom: 15px;
+      font-size: 14px;
     }
 
     .discord-login-btn {
@@ -1777,10 +1783,18 @@
       cursor: pointer;
       font-size: 14px;
       transition: background-color 0.3s;
+      width: 100%;
+      max-width: 250px;
     }
 
     .discord-login-btn:hover {
       background: #4752C4;
+    }
+
+    .discord-login-btn img {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
     }
 
     .chat-input-container.disabled {
@@ -2050,9 +2064,18 @@
 <!-- Швепсик — помощник -->
 <div id="helper-container">
   <img id="helper-img" src="ecler.png" alt="Швепсик" title="Я Швепсик!" />
-  <div id="helper-dialog" style="display: block;">
-    <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!</div>
+  <div id="helper-dialog">
+    <div class="dialog-text">
+      Нажми на слайды — это переходы по разделам.
+    </div>
     <div class="chat-container" style="display: none;">
+      <div class="auth-message" style="display: block;">
+        <p>Для использования чата необходимо авторизоваться через Discord</p>
+        <button class="discord-login-btn">
+          <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_white_RGB.png" alt="Discord" style="width: 20px; height: 20px; margin-right: 8px;">
+          Войти через Discord
+        </button>
+      </div>
       <div class="chat-messages"></div>
       <div class="chat-input-container disabled">
         <input type="text" id="chat-input" placeholder="Введите сообщение..." disabled>
@@ -2081,14 +2104,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const authMessage = chatContainer.querySelector(".auth-message");
   const loginBtn = chatContainer.querySelector(".discord-login-btn");
 
-  let phraseIndex = 0;
-  const phrases = [
-    "Нажми на слайды — это переходы по разделам.",
-    "Господин Эклер меня убьёт, я должен идти убираться.",
-    "Не забудь зайти на наш Discord сервер, там вы сможете найти новых друзей!",
-    "Поддержать проект можно нажав на панель с донатом.",
-    "Если есть вопросы или заметил неисправность, напиши мне в чате!"
-  ];
+  console.log('[index.html] Elements found:', {
+    container: !!container,
+    img: !!img,
+    dialog: !!dialog,
+    chatContainer: !!chatContainer,
+    authMessage: !!authMessage,
+    loginBtn: !!loginBtn
+  });
 
   // Проверяем сессию при загрузке
   async function checkSession() {
@@ -2120,9 +2143,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Инициализация кнопки входа через Discord
   if (loginBtn) {
+    console.log('[index.html] Adding click handler to login button');
     loginBtn.addEventListener('click', () => {
+      console.log('[index.html] Login button clicked');
       window.location.href = '/auth/discord';
     });
+  } else {
+    console.error('[index.html] Login button not found!');
   }
 
   // Показываем Швепсика через 2 сек
