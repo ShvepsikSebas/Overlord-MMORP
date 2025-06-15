@@ -191,6 +191,13 @@ wss.on('connection', (ws, req) => {
             clients.set(clientId, ws);
             console.log(`[server.js] Client ${clientId} initialized WebSocket connection.`);
 
+            // Отправляем клиенту подтверждение об успешной инициализации WebSocket и авторизации
+            ws.send(JSON.stringify({
+                type: 'status',
+                message: 'Авторизация и подключение к чату успешно завершены.',
+                authenticated: true // Индикатор успешной инициализации
+            }));
+
             // Если есть существующий Discord канал для этого клиента, отправляем подтверждение
             if (clientToDiscordChannel.has(clientId)) {
                 ws.send(JSON.stringify({ 
