@@ -136,10 +136,9 @@ wss.on('connection', (ws, req) => {
         }
     }
     console.log(`[server.js] Session ID extracted from cookie in handshake: ${sessionIdFromCookie}`);
-    ws.sessionId = sessionIdFromCookie;
-
-    // Проверяем сессию сразу при подключении
-    if (!ws.sessionId || !sessions.has(ws.sessionId)) {
+    
+    // Проверяем сессию
+    if (!sessionIdFromCookie || !sessions.has(sessionIdFromCookie)) {
         console.warn(`[server.js] Invalid or missing session for WebSocket connection`);
         ws.send(JSON.stringify({
             type: 'error',
@@ -149,11 +148,14 @@ wss.on('connection', (ws, req) => {
         return;
     }
 
+    // Получаем данные сессии
+    const session = sessions.get(sessionIdFromCookie);
+    console.log(`[server.js] Session data found:`, session);
+
     // Проверяем срок действия сессии
-    const session = sessions.get(ws.sessionId);
     if (session.expiresAt && Date.now() > session.expiresAt) {
         console.warn(`[server.js] Session expired for WebSocket connection`);
-        sessions.delete(ws.sessionId);
+        sessions.delete(sessionIdFromCookie);
         ws.send(JSON.stringify({
             type: 'error',
             message: 'Сессия истекла. Пожалуйста, авторизуйтесь снова.'
@@ -162,7 +164,8 @@ wss.on('connection', (ws, req) => {
         return;
     }
 
-    // Сохраняем данные пользователя в WebSocket объекте
+    // Сохраняем данные в WebSocket объекте
+    ws.sessionId = sessionIdFromCookie;
     ws.userData = {
         id: session.userId,
         username: session.username,
