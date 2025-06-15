@@ -1611,6 +1611,34 @@
       background: #9b7ad6;
     }
 
+    #close-dialog {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #ccc;
+      transition: color 0.3s;
+    }
+
+    #close-dialog:hover {
+      color: #fff;
+    }
+
+    #next-phrase {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #ccc;
+      transition: color 0.3s;
+    }
+
+    #next-phrase:hover {
+      color: #fff;
+    }
+
     #toggle-chat {
       position: absolute;
       bottom: 10px;
@@ -1749,91 +1777,199 @@
         max-height: 100px;
       }
     }
+
+    /* ... existing styles ... */
+    
+    .auth-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        z-index: 1000;
+    }
+
+    .auth-container h2 {
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+
+    .discord-login-btn {
+        background: #7289DA;
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.3s;
+    }
+
+    .discord-login-btn:hover {
+        background: #5b6eae;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .user-details {
+        color: #fff;
+    }
+
+    .user-name {
+        font-weight: bold;
+    }
+
+    .user-discriminator {
+        color: #999;
+    }
+
+    .logout-btn {
+        background: #ed4245;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+        background: #c03537;
+    }
   </style>
-<script>
-  function initSlider() {
-    let current = 0;
-    const slides = document.querySelectorAll('.slide');
-    const panels = document.querySelectorAll(
-      '.info-panel, .donate-panel, .character-panel, .sebas-panel-container .character-panel, .albedo-panel-container .character-panel, .demiurge-panel-container .character-panel, .cocytus-panel-container .character-panel, .shalltear-panel-container .character-panel, .aura-mare-panel-container .character-panel'
-    );
 
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const slider = document.querySelector('.slider');
+  <div id="auth-container" class="auth-container" style="display: none;">
+      <h2>Авторизация через Discord</h2>
+      <button id="discord-login" class="discord-login-btn">
+          <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_white_RGB.png" alt="Discord" style="width: 24px; height: 24px;">
+          Войти через Discord
+      </button>
+  </div>
 
-    function show(i) {
-      slides.forEach(s => s.classList.remove('active'));
-      slides[i].classList.add('active');
-    }
+  <div id="user-info" class="user-info" style="display: none;">
+      <img id="user-avatar" class="user-avatar" src="" alt="Avatar">
+      <div class="user-details">
+          <div id="user-name" class="user-name"></div>
+          <div id="user-discriminator" class="user-discriminator"></div>
+      </div>
+      <button id="logout-btn" class="logout-btn">Выйти</button>
+  </div>
 
-    window.prevSlide = () => {
-      current = (current - 1 + slides.length) % slides.length;
-      show(current);
-    };
+  <script>
+      // ... existing code ...
 
-    window.nextSlide = () => {
-      current = (current + 1) % slides.length;
-      show(current);
-    };
+      let session = localStorage.getItem('discord_session');
+      const authContainer = document.getElementById('auth-container');
+      const userInfo = document.getElementById('user-info');
+      const userAvatar = document.getElementById('user-avatar');
+      const userName = document.getElementById('user-name');
+      const userDiscriminator = document.getElementById('user-discriminator');
+      const logoutBtn = document.getElementById('logout-btn');
+      const discordLoginBtn = document.getElementById('discord-login');
 
-    // Добавляем обработчики свайпа
-    slider.addEventListener('touchstart', e => {
-      touchStartX = e.changedTouches[0].screenX;
-    }, false);
+      // Проверяем авторизацию при загрузке
+      async function checkAuth() {
+          if (!session) {
+              showAuth();
+              return;
+          }
 
-    slider.addEventListener('touchend', e => {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    }, false);
+          try {
+              const response = await fetch('/auth/check', {
+                  headers: {
+                      'Authorization': `Bearer ${session}`
+                  }
+              });
 
-    function handleSwipe() {
-      const swipeThreshold = 50; // минимальное расстояние для свайпа
-      const diff = touchStartX - touchEndX;
+              if (!response.ok) {
+                  throw new Error('Session invalid');
+              }
 
-      if (Math.abs(diff) > swipeThreshold) {
-        if (diff > 0) {
-          // Свайп влево
-          window.nextSlide();
-        } else {
-          // Свайп вправо
-          window.prevSlide();
-        }
+              const data = await response.json();
+              showUserInfo(data);
+              initWebSocket();
+          } catch (error) {
+              console.error('Auth check failed:', error);
+              showAuth();
+          }
       }
-    }
 
-    // Оптимизированная функция проверки видимости панелей
-    const revealPanels = () => {
-      const viewportHeight = window.innerHeight;
-      panels.forEach(panel => {
-        const rect = panel.getBoundingClientRect();
-        panel.classList.toggle('visible',
-          rect.top < viewportHeight && rect.bottom > 0
-        );
+      function showAuth() {
+          authContainer.style.display = 'block';
+          userInfo.style.display = 'none';
+          chatContainer.style.display = 'none';
+      }
+
+      function showUserInfo(user) {
+          authContainer.style.display = 'none';
+          userInfo.style.display = 'flex';
+          chatContainer.style.display = 'block';
+
+          userAvatar.src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+          userName.textContent = user.username;
+          userDiscriminator.textContent = `#${user.discriminator}`;
+      }
+
+      discordLoginBtn.addEventListener('click', () => {
+          window.location.href = '/auth/discord';
       });
-    };
 
-    // Инициализация
-    show(0);
-    revealPanels();
+      logoutBtn.addEventListener('click', async () => {
+          try {
+              await fetch('/auth/logout', {
+                  method: 'POST',
+                  headers: {
+                      'Authorization': `Bearer ${session}`
+                  }
+              });
+          } catch (error) {
+              console.error('Logout failed:', error);
+          } finally {
+              localStorage.removeItem('discord_session');
+              session = null;
+              showAuth();
+          }
+      });
 
-    // Используем requestAnimationFrame для оптимизации скролла
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          revealPanels();
-          ticking = false;
-        });
-        ticking = true;
+      // Обновляем инициализацию WebSocket
+      function initWebSocket() {
+          if (!session) return;
+
+          const ws = new WebSocket(`ws://${window.location.host}`);
+          
+          ws.onopen = () => {
+              console.log('WebSocket connection established');
+              ws.send(JSON.stringify({
+                  type: 'init',
+                  clientId: clientId,
+                  session: session
+              }));
+          };
+
+          // ... rest of the WebSocket code ...
       }
-    });
-  }
 
-  // Инициализация при загрузке страницы
-  document.addEventListener('DOMContentLoaded', initSlider);
-</script>
-
+      // Проверяем авторизацию при загрузке страницы
+      checkAuth();
+  </script>
 </head>
 <body>
 
