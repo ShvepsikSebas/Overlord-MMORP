@@ -69,7 +69,8 @@ const config = {
     guildId: process.env.DISCORD_GUILD_ID || require('./config.json').guildId,
     supportCategoryId: process.env.DISCORD_SUPPORT_CATEGORY_ID || require('./config.json').supportCategoryId,
     announcementCategoryId: process.env.DISCORD_ANNOUNCEMENT_CATEGORY_ID || require('./config.json').announcementCategoryId,
-    announcementChannelId: process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID || require('./config.json').announcementChannelId
+    announcementChannelId: process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID || require('./config.json').announcementChannelId,
+    deleteAnnouncementChannelId: process.env.DISCORD_DELETE_ANNOUNCEMENT_CHANNEL_ID || require('./config.json').deleteAnnouncementChannelId
 };
 
 // Basic check for required environment variables if not running locally
@@ -387,6 +388,59 @@ client.on('messageCreate', async message => {
                 });
         } else {
             message.reply('Неверный формат объявления. Используйте: #Заголовок\nТекст\n[ссылка на фото]').catch(console.error);
+        }
+    }
+
+    // Обработка удаления объявлений
+    if (message.channel.id === config.deleteAnnouncementChannelId) {
+        if (message.content.startsWith('/deleteannouns')) {
+            const title = message.content.replace('/deleteannouns', '').trim();
+            
+            if (!title) {
+                message.reply('Пожалуйста, укажите заголовок объявления для удаления. Пример: /deleteannouns Заголовок объявления').catch(console.error);
+                return;
+            }
+
+            try {
+                // Получаем все объявления из Firebase
+                const snapshot = await announcementsRef.once('value');
+                const announcementsData = snapshot.val();
+                
+                if (!announcementsData) {
+                    message.reply('Нет доступных объявлений для удаления.').catch(console.error);
+                    return;
+                }
+
+                // Ищем объявление по заголовку
+                let foundAnnouncement = null;
+                let announcementKey = null;
+
+                for (const [key, announcement] of Object.entries(announcementsData)) {
+                    if (announcement.title.toLowerCase() === title.toLowerCase()) {
+                        foundAnnouncement = announcement;
+                        announcementKey = key;
+                        break;
+                    }
+                }
+
+                if (!foundAnnouncement) {
+                    message.reply(`Объявление с заголовком "${title}" не найдено.`).catch(console.error);
+                    return;
+                }
+
+                // Удаляем объявление из Firebase
+                await announcementsRef.child(announcementKey).remove();
+
+                // Обновляем локальный массив объявлений
+                announcements = announcements.filter(a => a.title.toLowerCase() !== title.toLowerCase());
+
+                message.reply(`Объявление "${title}" успешно удалено!`).catch(console.error);
+                console.log(`Announcement "${title}" deleted successfully`);
+
+            } catch (error) {
+                console.error('Error deleting announcement:', error);
+                message.reply('Произошла ошибка при удалении объявления.').catch(console.error);
+            }
         }
     }
 });
