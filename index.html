@@ -2066,7 +2066,7 @@ z-index: 5;
   <img id="helper-img" src="ecler.png" alt="Швепсик" title="Я Швепсик!" />
   <div id="helper-dialog">
     <div class="dialog-text">
-      Нажми на слайды — это переходы по разделам.
+      Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!
     </div>
     <div class="chat-container">
       <div class="auth-message">
@@ -2115,12 +2115,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let phraseIndex = 0;
   const phrases = [
+    "Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!",
     "Нажми на слайды — это переходы по разделам.",
     "Господин Эклер меня убьёт, я должен идти убираться.",
     "Не забудь зайти на наш Discord сервер, там вы сможете найти новых друзей!",
     "Поддержать проект можно нажав на панель с донатом.",
     "Если есть вопросы или заметил неисправность, напиши мне в чате!"
   ];
+
+  // Показываем Швепсика через 2 сек
+  if (!localStorage.getItem("hideShvepsik")) {
+    setTimeout(() => {
+      container.style.display = "flex";
+      container.style.opacity = "1";
+      container.style.pointerEvents = "auto";
+    }, 2000);
+  }
+
+  // Клик по Швепсику открывает диалог
+  img.addEventListener("click", () => {
+    console.log('[index.html] Швепсик кликнут');
+    dialog.style.display = "block";
+  });
+
+  // Крестик закрывает чат или весь диалог в зависимости от состояния
+  closeBtn.addEventListener("click", () => {
+    console.log('[index.html] Крестик кликнут');
+    const isChatVisible = chatContainer.style.display !== "none";
+    
+    if (isChatVisible) {
+      // Если чат открыт - закрываем только чат
+      chatContainer.style.display = "none";
+      textBox.style.display = "block";
+      nextBtn.style.display = "block";
+      toggleChatBtn.style.display = "block";
+      toggleChatBtn.textContent = "💬";
+      if (dialog.classList.contains('expanded-chat')) {
+        dialog.classList.remove('expanded-chat');
+      }
+    } else {
+      // Если чат не открыт - закрываем весь диалог
+      dialog.style.display = "none";
+    }
+  });
+
+  // Стрелка листает подсказки
+  nextBtn.addEventListener("click", () => {
+    console.log('[index.html] Стрелка кликнута');
+    phraseIndex = (phraseIndex + 1) % phrases.length;
+    textBox.textContent = phrases[phraseIndex];
+  });
+
+  // Переключение чата
+  toggleChatBtn.addEventListener("click", async () => {
+    console.log('[index.html] Кнопка чата кликнута');
+    const isChatVisible = chatContainer.style.display !== "none";
+    if (!isChatVisible) {
+      // Проверяем сессию при открытии чата
+      const sessionData = await checkSession();
+      
+      // Show chat interface
+      chatContainer.style.display = "block";
+      textBox.style.display = "none";
+      nextBtn.style.display = "none";
+      toggleChatBtn.style.display = "none";
+      dialog.classList.add('expanded-chat');
+      
+      // Добавляем приветственное сообщение
+      addMessage('Добро пожаловать в чат поддержки! Здесь вы можете связаться с администрацией проекта.', 'bot');
+    }
+  });
 
   // Проверяем сессию при загрузке
   async function checkSession() {
@@ -2160,67 +2224,6 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     console.error('[index.html] Login button not found!');
   }
-
-  // Показываем Швепсика через 2 сек
-  if (!localStorage.getItem("hideShvepsik")) {
-    setTimeout(() => {
-      container.style.display = "flex";
-      container.style.opacity = "1";
-      container.style.pointerEvents = "auto";
-    }, 2000);
-  }
-
-  // Клик по Швепсику только открывает диалог, если скрыт
-  img.addEventListener("click", () => {
-    if (dialog.style.display === "none") {
-      dialog.style.display = "block";
-    }
-  });
-
-  // Крестик закрывает чат или весь диалог в зависимости от состояния
-  closeBtn.addEventListener("click", () => {
-    const isChatVisible = chatContainer.style.display !== "none";
-    
-    if (isChatVisible) {
-      // Если чат открыт - закрываем только чат
-      chatContainer.style.display = "none";
-      textBox.style.display = "block";
-      nextBtn.style.display = "block";
-      toggleChatBtn.style.display = "block";
-      toggleChatBtn.textContent = "💬";
-      if (dialog.classList.contains('expanded-chat')) {
-        dialog.classList.remove('expanded-chat');
-      }
-    } else {
-      // Если чат не открыт - закрываем весь диалог
-      dialog.style.display = "none";
-    }
-  });
-
-  // Стрелка листает подсказки
-  nextBtn.addEventListener("click", () => {
-    phraseIndex = (phraseIndex + 1) % phrases.length;
-    textBox.textContent = phrases[phraseIndex];
-  });
-
-  // Переключение чата
-  toggleChatBtn.addEventListener("click", async () => {
-    const isChatVisible = chatContainer.style.display !== "none";
-    if (!isChatVisible) {
-      // Проверяем сессию при открытии чата
-      const sessionData = await checkSession();
-      
-      // Show chat interface
-      chatContainer.style.display = "block";
-      textBox.style.display = "none";
-      nextBtn.style.display = "none";
-      toggleChatBtn.style.display = "none";
-      dialog.classList.add('expanded-chat');
-      
-      // Добавляем приветственное сообщение
-      addMessage('Добро пожаловать в чат поддержки! Здесь вы можете связаться с администрацией проекта.', 'bot');
-    }
-  });
 
   // Отправка сообщения
   async function sendMessage() {
