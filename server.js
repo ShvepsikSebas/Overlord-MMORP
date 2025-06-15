@@ -136,7 +136,7 @@ wss.on('connection', (ws, req) => {
         }
     }
     console.log(`[server.js] Session ID extracted from cookie in handshake: ${sessionIdFromCookie}`);
-    ws.sessionId = sessionIdFromCookie; // Store sessionId on the WebSocket object
+    ws.sessionId = sessionIdFromCookie;
 
     // Проверяем сессию сразу при подключении
     if (!ws.sessionId || !sessions.has(ws.sessionId)) {
@@ -149,18 +149,37 @@ wss.on('connection', (ws, req) => {
         return;
     }
 
+    // Проверяем срок действия сессии
+    const session = sessions.get(ws.sessionId);
+    if (session.expiresAt && Date.now() > session.expiresAt) {
+        console.warn(`[server.js] Session expired for WebSocket connection`);
+        sessions.delete(ws.sessionId);
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Сессия истекла. Пожалуйста, авторизуйтесь снова.'
+        }));
+        ws.close();
+        return;
+    }
+
+    // Сохраняем данные пользователя в WebSocket объекте
+    ws.userData = {
+        id: session.userId,
+        username: session.username,
+        discriminator: session.discriminator,
+        avatar: session.avatar
+    };
+
     ws.on('message', async message => {
         try {
             const parsedMessage = JSON.parse(message);
             
             if (parsedMessage.type === 'init' && parsedMessage.clientId) {
                 const clientId = parsedMessage.clientId;
-                const session = ws.sessionId;
+                console.log(`[server.js] Received init message from client ${clientId}`);
 
-                console.log(`[server.js] Received init message from client ${clientId}. Session ID: ${session}`);
-
-                // Проверяем авторизацию
-                if (!session || !sessions.has(session)) {
+                // Проверяем сессию
+                if (!ws.sessionId || !sessions.has(ws.sessionId)) {
                     console.warn(`[server.js] Invalid session for client ${clientId}`);
                     ws.send(JSON.stringify({
                         type: 'error',
@@ -169,20 +188,8 @@ wss.on('connection', (ws, req) => {
                     return;
                 }
 
-                const sessionData = sessions.get(session);
-                console.log(`[server.js] Session data found for ${session}:`, sessionData);
-                
-                // Store the user data directly on the WebSocket object for later use
-                ws.userData = {
-                    id: sessionData.userId,
-                    username: sessionData.username,
-                    discriminator: sessionData.discriminator,
-                    avatar: sessionData.avatar
-                };
-                console.log(`[server.js] WebSocket for client ${clientId} initialized with user data:`, ws.userData);
-
                 // Проверяем блокировку
-                const blockData = blockedUsers.get(sessionData.userId);
+                const blockData = blockedUsers.get(ws.userData.id);
                 if (blockData && Date.now() < blockData.until) {
                     ws.send(JSON.stringify({
                         type: 'error',
@@ -194,7 +201,7 @@ wss.on('connection', (ws, req) => {
                 clients.set(clientId, ws);
                 console.log(`[server.js] Client ${clientId} initialized WebSocket connection.`);
 
-                // Отправляем клиенту подтверждение об успешной инициализации WebSocket и авторизации
+                // Отправляем клиенту подтверждение об успешной инициализации
                 ws.send(JSON.stringify({
                     type: 'status',
                     message: 'Авторизация и подключение к чату успешно завершены.',
@@ -202,7 +209,7 @@ wss.on('connection', (ws, req) => {
                     user: ws.userData
                 }));
 
-                // Если есть существующий Discord канал для этого клиента, отправляем подтверждение
+                // Если есть существующий Discord канал для этого клиента
                 if (clientToDiscordChannel.has(clientId)) {
                     ws.send(JSON.stringify({ 
                         type: 'status', 
