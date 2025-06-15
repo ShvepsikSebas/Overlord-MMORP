@@ -170,6 +170,14 @@ wss.on('connection', (ws, req) => {
         avatar: session.avatar
     };
 
+    // Отправляем подтверждение о подключении
+    ws.send(JSON.stringify({
+        type: 'status',
+        message: 'WebSocket подключен',
+        authenticated: true,
+        user: ws.userData
+    }));
+
     ws.on('message', async message => {
         try {
             const parsedMessage = JSON.parse(message);
