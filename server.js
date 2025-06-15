@@ -139,6 +139,7 @@ wss.on('connection', (ws, req) => {
     ws.on('message', async (message) => {
         try {
             const data = JSON.parse(message);
+            console.log('[server.js] Received message:', data);
             
             // Обработка инициализационного сообщения
             if (data.type === 'init') {
@@ -203,45 +204,44 @@ wss.on('connection', (ws, req) => {
                     user: ws.userData
                 }));
 
-                return;
-            }
-
-            // Проверяем авторизацию для остальных сообщений
-            if (!ws.userData) {
-                ws.send(JSON.stringify({
-                    type: 'error',
-                    message: 'Требуется авторизация'
-                }));
-                return;
-            }
-
-            // Проверяем, не заблокирован ли пользователь
-            if (blockedUsers.has(ws.userData.id)) {
-                ws.send(JSON.stringify({
-                    type: 'error',
-                    message: 'Вы заблокированы'
-                }));
-                return;
-            }
-
-            // Обработка сообщений чата
-            if (data.type === 'message') {
-                const messageData = {
-                    type: 'message',
-                    user: ws.userData,
+                // Отправляем историю сообщений
+                if (ws.userData) {
+                    const messages = await getRecentMessages();
+                    messages.forEach(msg => {
+                        ws.send(JSON.stringify({
+                            type: 'message',
+                            message: msg.content,
+                            sender: msg.sender,
+                            author: msg.author
+                        }));
+                    });
+                }
+            } else if (data.type === 'message' && ws.userData) {
+                // Обработка сообщений чата
+                const message = {
                     content: data.message,
-                    timestamp: new Date().toISOString()
+                    sender: ws.userData.id,
+                    author: ws.userData.username,
+                    timestamp: Date.now()
                 };
 
-                // Отправляем сообщение всем клиентам
-                wss.clients.forEach((client) => {
-                    if (client !== ws && client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify(messageData));
+                // Сохраняем сообщение
+                await saveMessage(message);
+
+                // Отправляем сообщение всем подключенным клиентам
+                activeConnections.forEach(client => {
+                    if (client !== ws && client.userData) {
+                        client.send(JSON.stringify({
+                            type: 'message',
+                            message: message.content,
+                            sender: message.sender,
+                            author: message.author
+                        }));
                     }
                 });
             }
         } catch (error) {
-            console.error('Error processing message:', error);
+            console.error('[server.js] Error processing message:', error);
             ws.send(JSON.stringify({
                 type: 'error',
                 message: 'Ошибка обработки сообщения'
@@ -249,26 +249,48 @@ wss.on('connection', (ws, req) => {
         }
     });
 
-    // Обработка отключения
     ws.on('close', () => {
         console.log('[server.js] Client disconnected');
         activeConnections.delete(ws);
-        
-        // Очищаем данные пользователя и удаляем из маппинга
         if (ws.userData) {
             userConnections.delete(ws.userData.id);
-            ws.userData = null;
         }
     });
 
-    // Обработка ошибок
     ws.on('error', (error) => {
         console.error('[server.js] WebSocket error:', error);
         activeConnections.delete(ws);
-        ws.close();
+        if (ws.userData) {
+            userConnections.delete(ws.userData.id);
+        }
     });
 });
 
+// Функция для получения последних сообщений
+async function getRecentMessages() {
+    try {
+        const messagesRef = db.ref('messages');
+        const snapshot = await messagesRef.limitToLast(50).once('value');
+        const messages = [];
+        snapshot.forEach((childSnapshot) => {
+            messages.push(childSnapshot.val());
+        });
+        return messages;
+    } catch (error) {
+        console.error('[server.js] Error getting messages:', error);
+        return [];
+    }
+}
+
+// Функция для сохранения сообщения
+async function saveMessage(message) {
+    try {
+        const messagesRef = db.ref('messages');
+        await messagesRef.push(message);
+    } catch (error) {
+        console.error('[server.js] Error saving message:', error);
+    }
+}
 
 // Обработка сообщений из Discord (ответы поддержки и объявления)
 client.on('messageCreate', async message => {
@@ -554,3 +576,4 @@ server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     console.log(`WebSocket server is also running.`);
 });
+
