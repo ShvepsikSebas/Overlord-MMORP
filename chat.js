@@ -1,8 +1,11 @@
 let currentUser = null;
 let ws = null;
 let isWebSocketReady = false;
-let isInitialized = false;
 let isConnecting = false;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 3;
+const RECONNECT_DELAY = 3000;
+let reconnectTimeout = null;
 
 // Функция для проверки сессии
 async function checkSession() {
@@ -81,6 +84,13 @@ function updateUIForUnauthenticated() {
         ws.close();
         ws = null;
     }
+
+    // Очищаем таймер переподключения
+    if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = null;
+    }
+    reconnectAttempts = 0;
 }
 
 // Инициализация кнопки входа через Discord
@@ -144,7 +154,7 @@ function connectWebSocket(sessionId) {
 
     ws.onopen = () => {
         console.log('[chat.js] WebSocket connected');
-        // Отправляем только sessionId, без clientId
+        // Отправляем только sessionId
         const initMessage = { 
             type: 'init', 
             sessionId: sessionId 
@@ -165,6 +175,7 @@ function connectWebSocket(sessionId) {
             if (data.authenticated) {
                 isWebSocketReady = true;
                 isConnecting = false;
+                reconnectAttempts = 0;
                 updateUIForAuthenticated(data.user);
             }
         } else if (data.type === 'error') {
@@ -191,6 +202,19 @@ function connectWebSocket(sessionId) {
         // Проверяем сессию при отключении
         checkSession().then(sessionData => {
             if (!sessionData.authenticated) {
+                updateUIForUnauthenticated();
+            } else if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                // Пытаемся переподключиться только если есть валидная сессия
+                reconnectAttempts++;
+                console.log(`[chat.js] Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+                reconnectTimeout = setTimeout(() => {
+                    const sessionId = localStorage.getItem('sessionId');
+                    if (sessionId) {
+                        connectWebSocket(sessionId);
+                    }
+                }, RECONNECT_DELAY);
+            } else {
+                console.log('[chat.js] Max reconnection attempts reached');
                 updateUIForUnauthenticated();
             }
         });
@@ -224,9 +248,6 @@ function addMessage(message, sender, author = null) {
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
-    if (isInitialized) return;
-    isInitialized = true;
-
     // Проверяем сессию при загрузке
     const sessionData = await checkSession();
     console.log('[chat.js] Initial session check:', sessionData);
