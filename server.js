@@ -54,6 +54,7 @@ const clients = new Map();
 const discordChannelToClient = new Map();
 const clientToDiscordChannel = new Map();
 const activeConnections = new Set(); // Для отслеживания активных подключений
+const userConnections = new Map(); // Для отслеживания подключений по userId
 
 // In-memory storage for announcements
 let announcements = []; // { title: string, content: string, imageUrl: string | null }
@@ -178,13 +179,21 @@ wss.on('connection', (ws, req) => {
                     return;
                 }
 
-                // Сохраняем данные пользователя
+                // Проверяем существующее подключение для этого пользователя
+                const existingConnection = userConnections.get(session.userId);
+                if (existingConnection && existingConnection !== ws) {
+                    console.log('[server.js] User already has an active connection, closing old one');
+                    existingConnection.close();
+                }
+
+                // Сохраняем данные пользователя и обновляем маппинг
                 ws.userData = {
                     id: session.userId,
                     username: session.username,
                     discriminator: session.discriminator,
                     avatar: session.avatar
                 };
+                userConnections.set(session.userId, ws);
 
                 // Отправляем подтверждение подключения
                 ws.send(JSON.stringify({
@@ -245,8 +254,9 @@ wss.on('connection', (ws, req) => {
         console.log('[server.js] Client disconnected');
         activeConnections.delete(ws);
         
-        // Очищаем данные пользователя
+        // Очищаем данные пользователя и удаляем из маппинга
         if (ws.userData) {
+            userConnections.delete(ws.userData.id);
             ws.userData = null;
         }
     });
