@@ -1589,6 +1589,34 @@
       background: #9b7ad6;
     }
 
+    #close-dialog {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #ccc;
+      transition: color 0.3s;
+    }
+
+    #close-dialog:hover {
+      color: #fff;
+    }
+
+    #next-phrase {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #ccc;
+      transition: color 0.3s;
+    }
+
+    #next-phrase:hover {
+      color: #fff;
+    }
+
     #toggle-chat {
       position: absolute;
       bottom: 10px;
@@ -1726,6 +1754,53 @@
       .announcement-content {
         max-height: 100px;
       }
+    }
+
+    /* Стили для кнопки авторизации Discord */
+    .discord-login-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #5865F2;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+        margin: 10px 0;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .discord-login-btn:hover {
+        background: #4752C4;
+    }
+
+    .discord-login-btn img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .auth-message {
+        background: rgba(28,28,46,0.7);
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        text-align: center;
+        color: #b891f9;
+        font-size: 0.9em;
+    }
+
+    .chat-input-container.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .chat-input-container.disabled input,
+    .chat-input-container.disabled button {
+        cursor: not-allowed;
     }
   </style>
 <script>
@@ -1989,20 +2064,25 @@
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 <!-- Швепсик — помощник -->
 <div id="helper-container">
-  <img id="helper-img" src="ecler.png" alt="Швепсик" title="Я Швепсик!" />
-  <div id="helper-dialog" style="display: block;">
-    <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!</div>
-    <div class="chat-container" style="display: none;">
-      <div class="chat-messages"></div>
-      <div class="chat-input-container">
-        <input type="text" id="chat-input" placeholder="Введите сообщение...">
-        <button id="send-message">Отправить</button>
-      </div>
+    <img id="helper-img" src="ecler.png" alt="Швепсик" title="Я Швепсик!" />
+    <div id="helper-dialog" style="display: block;">
+        <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!</div>
+        <div class="chat-container" style="display: none;">
+            <div class="auth-message">Для общения с администрацией необходимо авторизоваться через Discord</div>
+            <button class="discord-login-btn">
+                <img src="images/discord_logo.png" alt="Discord">
+                Войти через Discord
+            </button>
+            <div class="chat-messages"></div>
+            <div class="chat-input-container disabled">
+                <input type="text" id="chat-input" placeholder="Введите сообщение..." disabled>
+                <button id="send-message" disabled>Отправить</button>
+            </div>
+        </div>
+        <span id="close-dialog" title="Закрыть">✖</span>
+        <span id="next-phrase" title="Следующая фраза">➤</span>
+        <span id="toggle-chat" title="Открыть чат">💬</span>
     </div>
-    <span id="close-dialog" title="Закрыть">✖</span>
-    <span id="next-phrase" title="Следующая фраза">➤</span>
-    <span id="toggle-chat" title="Открыть чат">💬</span>
-  </div>
 </div>
 
 <script>
@@ -2456,5 +2536,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </script>
     <script src="common.js"></script>
+    <script src="chat.js"></script>
 </body>
 </html>
