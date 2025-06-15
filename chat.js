@@ -97,39 +97,6 @@ function updateUIForUnauthenticated() {
     if (chatContainer) chatContainer.classList.add('disabled');
 }
 
-// Инициализация кнопки входа через Discord
-function initDiscordLogin() {
-    const loginBtn = document.querySelector('.discord-login-btn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', (event) => {
-            event.preventDefault();
-            console.log('[chat.js] Opening Discord auth popup...');
-            
-            const authWindow = window.open('/auth/discord', 'DiscordAuth', 'width=500,height=700');
-            
-            window.addEventListener('message', function authMessageHandler(event) {
-                if (event.data.type === 'authSuccess') {
-                    console.log('[chat.js] Received auth success message:', event.data);
-                    localStorage.setItem('sessionId', event.data.sessionId);
-                    updateUIForAuthenticated(event.data.user);
-                    window.removeEventListener('message', authMessageHandler);
-                } else if (event.data.type === 'authError') {
-                    console.error('[chat.js] Auth error:', event.data.error);
-                    alert('Ошибка авторизации: ' + event.data.error);
-                    window.removeEventListener('message', authMessageHandler);
-                }
-            });
-
-            const checkAuthInterval = setInterval(() => {
-                if (authWindow.closed) {
-                    clearInterval(checkAuthInterval);
-                    console.log('[chat.js] Discord auth popup closed');
-                }
-            }, 1000);
-        });
-    }
-}
-
 // Функция для добавления сообщения в чат
 function addMessage(message, type, author = '') {
     const chatMessages = document.querySelector('.chat-messages');
@@ -293,7 +260,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Инициализируем кнопку входа
-    initDiscordLogin();
+    const loginBtn = document.querySelector('.discord-login-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            window.location.href = '/auth/discord';
+        });
+    }
 
     // Добавляем обработчик отправки сообщений
     const chatInput = document.getElementById('chat-input');
