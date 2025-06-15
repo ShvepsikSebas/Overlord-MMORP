@@ -120,25 +120,39 @@ app.get('/api/announcements', (req, res) => {
 
 // WebSocket connection handling
 wss.on('connection', ws => {
-    console.log('Client connected via WebSocket');
+    console.log('[server.js] Client connected via WebSocket');
 
     ws.on('message', async message => {
         const parsedMessage = JSON.parse(message);
         
         if (parsedMessage.type === 'init' && parsedMessage.clientId) {
             const clientId = parsedMessage.clientId;
-            const session = parsedMessage.session;
+            const session = parsedMessage.session; // This `session` should be the sessionId from the client
+
+            console.log(`[server.js] Received init message from client ${clientId}. Session ID: ${session}`);
 
             // Проверяем авторизацию
-            if (!session || !sessions.has(session)) {
-                ws.send(JSON.stringify({ 
-                    type: 'error', 
-                    message: 'Требуется авторизация через Discord' 
+            if (!session) {
+                console.warn(`[server.js] Session ID is missing for client ${clientId}.`);
+                ws.send(JSON.stringify({
+                    type: 'error',
+                    message: 'Требуется авторизация через Discord'
+                }));
+                return;
+            }
+
+            if (!sessions.has(session)) {
+                console.warn(`[server.js] Session ID ${session} not found in sessions map for client ${clientId}. Current sessions:`, Array.from(sessions.keys()));
+                ws.send(JSON.stringify({
+                    type: 'error',
+                    message: 'Требуется авторизация через Discord'
                 }));
                 return;
             }
 
             const sessionData = sessions.get(session);
+            console.log(`[server.js] Session data found for ${session}:`, sessionData);
+            
             // Store the user data directly on the WebSocket object for later use
             ws.userData = {
                 id: sessionData.userId,
@@ -146,20 +160,20 @@ wss.on('connection', ws => {
                 discriminator: sessionData.discriminator,
                 avatar: sessionData.avatar
             };
-            console.log(`WebSocket for client ${clientId} initialized with user data:`, ws.userData);
+            console.log(`[server.js] WebSocket for client ${clientId} initialized with user data:`, ws.userData);
 
             // Проверяем блокировку
             const blockData = blockedUsers.get(sessionData.userId);
             if (blockData && Date.now() < blockData.until) {
-                ws.send(JSON.stringify({ 
-                    type: 'error', 
-                    message: `Вы заблокированы. Причина: ${blockData.reason}. Разблокировка: ${new Date(blockData.until).toLocaleString()}` 
+                ws.send(JSON.stringify({
+                    type: 'error',
+                    message: `Вы заблокированы. Причина: ${blockData.reason}. Разблокировка: ${new Date(blockData.until).toLocaleString()}`
                 }));
                 return;
             }
 
             clients.set(clientId, ws);
-            console.log(`Client ${clientId} initialized WebSocket connection.`);
+            console.log(`[server.js] Client ${clientId} initialized WebSocket connection.`);
 
             // Если есть существующий Discord канал для этого клиента, отправляем подтверждение
             if (clientToDiscordChannel.has(clientId)) {
