@@ -7,6 +7,17 @@ const admin = require('firebase-admin');
 const { router: authRouter, sessions, blockedUsers } = require('./auth');
 const cookieParser = require('cookie-parser');
 
+// Функция для парсинга cookies
+function parseCookies(cookieHeader) {
+    if (!cookieHeader) return {};
+    const cookies = {};
+    cookieHeader.split(';').forEach(cookie => {
+        const [name, value] = cookie.trim().split('=');
+        cookies[name] = value;
+    });
+    return cookies;
+}
+
 // Initialize Firebase
 const serviceAccount = {
   "type": "service_account",
@@ -122,66 +133,85 @@ app.get('/api/announcements', (req, res) => {
 wss.on('connection', (ws, req) => {
     console.log('[server.js] Client connected via WebSocket');
     
-    // Получаем sessionId из cookie
-    const cookies = parseCookies(req.headers.cookie);
-    const sessionId = cookies.sessionId;
-    console.log('[server.js] Session ID extracted from cookie in handshake:', sessionId);
-
-    if (!sessionId) {
-        console.log('[server.js] No session ID in cookies');
-        ws.send(JSON.stringify({
-            type: 'error',
-            message: 'Требуется авторизация'
-        }));
-        ws.close();
-        return;
-    }
-
-    // Проверяем сессию
-    const session = sessions.get(sessionId);
-    if (!session) {
-        console.log('[server.js] Invalid or missing session for WebSocket connection');
-        ws.send(JSON.stringify({
-            type: 'error',
-            message: 'Требуется авторизация'
-        }));
-        ws.close();
-        return;
-    }
-
-    // Проверяем срок действия сессии
-    if (session.expiresAt && Date.now() > session.expiresAt) {
-        console.log('[server.js] Session expired');
-        sessions.delete(sessionId);
-        ws.send(JSON.stringify({
-            type: 'error',
-            message: 'Сессия истекла'
-        }));
-        ws.close();
-        return;
-    }
-
-    // Сохраняем данные пользователя в объекте WebSocket
-    ws.userData = {
-        id: session.userId,
-        username: session.username,
-        discriminator: session.discriminator,
-        avatar: session.avatar
-    };
-
-    // Отправляем подтверждение подключения
-    ws.send(JSON.stringify({
-        type: 'connected',
-        user: ws.userData
-    }));
+    // Инициализируем флаг авторизации
+    let isAuthenticated = false;
+    let userData = null;
 
     // Обработка сообщений
-    ws.on('message', (message) => {
+    ws.on('message', async (message) => {
         try {
             const data = JSON.parse(message);
             
+            // Обработка инициализационного сообщения
+            if (data.type === 'init') {
+                const sessionId = data.sessionId;
+                console.log('[server.js] Received init message with sessionId:', sessionId);
+
+                if (!sessionId) {
+                    console.log('[server.js] No sessionId in init message');
+                    ws.send(JSON.stringify({
+                        type: 'error',
+                        message: 'Требуется авторизация'
+                    }));
+                    ws.close();
+                    return;
+                }
+
+                // Проверяем сессию
+                const session = sessions.get(sessionId);
+                if (!session) {
+                    console.log('[server.js] Invalid or missing session');
+                    ws.send(JSON.stringify({
+                        type: 'error',
+                        message: 'Требуется авторизация'
+                    }));
+                    ws.close();
+                    return;
+                }
+
+                // Проверяем срок действия сессии
+                if (session.expiresAt && Date.now() > session.expiresAt) {
+                    console.log('[server.js] Session expired');
+                    sessions.delete(sessionId);
+                    ws.send(JSON.stringify({
+                        type: 'error',
+                        message: 'Сессия истекла'
+                    }));
+                    ws.close();
+                    return;
+                }
+
+                // Сохраняем данные пользователя
+                userData = {
+                    id: session.userId,
+                    username: session.username,
+                    discriminator: session.discriminator,
+                    avatar: session.avatar
+                };
+                isAuthenticated = true;
+
+                // Отправляем подтверждение подключения
+                ws.send(JSON.stringify({
+                    type: 'status',
+                    message: 'Подключение установлено',
+                    authenticated: true,
+                    user: userData
+                }));
+
+                return;
+            }
+
+            // Проверяем авторизацию для остальных сообщений
+            if (!isAuthenticated) {
+                ws.send(JSON.stringify({
+                    type: 'error',
+                    message: 'Требуется авторизация'
+                }));
+                return;
+            }
+
             // Проверяем, не заблокирован ли пользователь
-            if (blockedUsers.has(ws.userData.id)) {
+            if (blockedUsers.has(userData.id)) {
                 ws.send(JSON.stringify({
                     type: 'error',
                     message: 'Вы заблокированы'
@@ -189,12 +219,12 @@ wss.on('connection', (ws, req) => {
                 return;
             }
 
-            // Обработка сообщений
+            // Обработка сообщений чата
             if (data.type === 'message') {
                 const messageData = {
                     type: 'message',
-                    user: ws.userData,
-                    content: data.content,
+                    user: userData,
+                    content: data.message,
                     timestamp: new Date().toISOString()
                 };
 
@@ -207,6 +237,10 @@ wss.on('connection', (ws, req) => {
             }
         } catch (error) {
             console.error('Error processing message:', error);
+            ws.send(JSON.stringify({
+                type: 'error',
+                message: 'Ошибка обработки сообщения'
+            }));
         }
     });
 
