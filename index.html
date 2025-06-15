@@ -1386,10 +1386,37 @@
 
     .announcement-content {
       flex: 1;
-      min-width: 0; /* Важно для корректного переноса текста */
+      min-width: 0;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      max-height: 150px;
+      overflow-y: hidden; /* По умолчанию скрываем скролл */
+      padding-right: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .announcement-content.scrollable {
+      overflow-y: auto; /* Показываем скролл только когда есть класс scrollable */
+    }
+
+    /* Стилизация скроллбара */
+    .announcement-content.scrollable::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .announcement-content.scrollable::-webkit-scrollbar-track {
+      background: rgba(184,145,249,0.1);
+      border-radius: 3px;
+    }
+
+    .announcement-content.scrollable::-webkit-scrollbar-thumb {
+      background: rgba(184,145,249,0.3);
+      border-radius: 3px;
+    }
+
+    .announcement-content.scrollable::-webkit-scrollbar-thumb:hover {
+      background: rgba(184,145,249,0.5);
     }
 
     .announcement-content h3 {
@@ -1510,7 +1537,6 @@
       overflow-y: auto;
       margin-bottom: 10px;
       padding: 5px;
-      transition: max-height 0.4s ease;
     }
 
     #helper-dialog.expanded-chat .chat-messages {
@@ -1666,6 +1692,39 @@
       .announcement-content p {
         font-size: 0.85em;
         line-height: 1.1;
+      }
+    }
+
+    .announcement-content.has-scroll {
+      position: relative;
+    }
+
+    .announcement-content.has-scroll::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background: linear-gradient(transparent, rgba(28,28,46,0.95));
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .announcement-content.has-scroll:hover::after {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .announcement-content {
+        max-height: 120px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .announcement-content {
+        max-height: 100px;
       }
     }
   </style>
@@ -2303,11 +2362,23 @@ document.addEventListener('DOMContentLoaded', function() {
       panel.style.opacity = 0;
       panel.style.transform = 'translateX(150%)';
 
+      // Убираем скролл у всех панелей
+      const content = panel.querySelector('.announcement-content');
+      if (content) {
+        content.classList.remove('scrollable');
+      }
+
       if (index === currentIndex) {
         panel.classList.add('active');
         panel.style.zIndex = 4;
         panel.style.opacity = 1;
         panel.style.transform = 'translateX(-50%)';
+        
+        // Добавляем скролл только для активной панели, если контент не помещается
+        const activeContent = panel.querySelector('.announcement-content');
+        if (activeContent && activeContent.scrollHeight > activeContent.clientHeight) {
+          activeContent.classList.add('scrollable');
+        }
       } else if (index === (currentIndex + 1) % panels.length) {
         panel.classList.add('prev');
         panel.style.zIndex = 3;
@@ -2325,12 +2396,6 @@ document.addEventListener('DOMContentLoaded', function() {
         panel.style.transform = 'translateX(calc(-50% + 90%))';
       }
     });
-
-    // Remove old announcements (more than 4 panels)
-    // This ensures that only MAX_ANNOUNCEMENTS are displayed, even if more are fetched (server should already handle this)
-    // for (let i = MAX_ANNOUNCEMENTS; i < panels.length; i++) {
-    //   panels[i].remove();
-    // }
   }
 
   function nextPanel() {
@@ -2366,14 +2431,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const clickedPanel = e.target.closest('.announcement-panel');
     if (clickedPanel) {
       const clickedIndex = parseInt(clickedPanel.dataset.index);
-      if (clickedIndex !== currentIndex) {
-        currentIndex = clickedIndex;
-        updatePanels();
-        // Reset autoplay on manual interaction
-        isAutoPlaying = true; // Set to true to allow restart
-        if (autoPlayTimeout) clearTimeout(autoPlayTimeout); // Clear existing
-        startAutoPlay(); // Restart with new timer
-      }
+      
+      // Останавливаем автопрокрутку при клике
+      if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
+      isAutoPlaying = false;
+
+      // Устанавливаем текущий индекс
+      currentIndex = clickedIndex;
+      updatePanels();
+
+      // Запускаем таймер на 10 секунд
+      setTimeout(() => {
+        // Возвращаем автопрокрутку
+        isAutoPlaying = true;
+        startAutoPlay();
+      }, 10000);
     }
   });
 
