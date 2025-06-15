@@ -1311,7 +1311,7 @@
     }
 
     .announcement-board.expanded .announcement-container {
-      height: 200px;
+      height: 200px; /* Увеличиваем базовую высоту */
     }
 
     .announcement-board.expanded .toggle-button {
@@ -1441,7 +1441,7 @@
       }
 
       .announcement-board.expanded .announcement-container {
-        height: 180px; /* Увеличиваем высоту для лучшего отображения текста */
+        height: 200px;
       }
     }
 
@@ -1468,7 +1468,7 @@
       }
 
       .announcement-board.expanded .announcement-container {
-        height: 160px;
+        height: 180px;
       }
     }
 
@@ -1495,7 +1495,7 @@
       }
 
       .announcement-board.expanded .announcement-container {
-        height: 140px;
+        height: 160px;
       }
     }
 
@@ -1602,6 +1602,70 @@
       #toggle-chat {
         bottom: 8px;
         right: 35px;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .announcement-board.expanded .announcement-container {
+        height: 220px; /* Увеличиваем высоту для ноутбуков */
+      }
+
+      .announcement-content h3 {
+        font-size: 1.3em;
+        margin-bottom: 8px;
+      }
+
+      .announcement-content p {
+        font-size: 1em;
+        line-height: 1.4;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .announcement-board.expanded .announcement-container {
+        height: 200px;
+      }
+
+      .announcement-content h3 {
+        font-size: 1.2em;
+        margin-bottom: 6px;
+      }
+
+      .announcement-content p {
+        font-size: 0.95em;
+        line-height: 1.3;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .announcement-board.expanded .announcement-container {
+        height: 180px;
+      }
+
+      .announcement-content h3 {
+        font-size: 1.1em;
+        margin-bottom: 4px;
+      }
+
+      .announcement-content p {
+        font-size: 0.9em;
+        line-height: 1.2;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .announcement-board.expanded .announcement-container {
+        height: 160px;
+      }
+
+      .announcement-content h3 {
+        font-size: 1em;
+        margin-bottom: 3px;
+      }
+
+      .announcement-content p {
+        font-size: 0.85em;
+        line-height: 1.1;
       }
     }
   </style>
