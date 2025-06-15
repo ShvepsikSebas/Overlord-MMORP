@@ -6,5 +6,11 @@
     "supportCategoryId": "1383255206250283039",
     "announcementCategoryId": "1383260146993467472",
     "announcementChannelId": "1383260199258951761",
-    "deleteAnnouncementChannelId": "1383864783572303933"
+    "deleteAnnouncementChannelId": "1383864783572303933",
+    "discord": {
+        "clientId": "1383248372218990613",
+        "clientSecret": "yUOir45p1Sm8x1irM1IwHTl-G_uSK1Hv",
+        "redirectUri": "https://overlord-mmorp.onrender.com/auth/discord/callback",
+        "scopes": ["identify", "guilds"]
+    }
 } 
