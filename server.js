@@ -35,6 +35,15 @@ const clientToDiscordChannel = new Map();
 const activeConnections = new Set(); // Для отслеживания активных подключений
 const userConnections = new Map(); // Для отслеживания подключений по userId
 
+// Ограничения для защиты от перегрузки
+const MAX_CONNECTIONS = 100; // Максимальное количество одновременных подключений
+const MESSAGE_RATE_LIMIT = 5; // Максимальное количество сообщений в секунду
+const MAX_MESSAGE_SIZE = 1000; // Максимальный размер сообщения в байтах
+const CONNECTION_TIMEOUT = 30000; // Таймаут неактивного соединения (30 секунд)
+
+// Хранилище для rate limiting
+const messageCounts = new Map();
+
 // In-memory storage for announcements
 let announcements = []; // { title: string, content: string, imageUrl: string | null }
 const MAX_ANNOUNCEMENTS = 4; // Max number of announcements to keep
@@ -106,9 +115,33 @@ app.get('/api/announcements', (req, res) => {
     res.json(announcements);
 });
 
+// Функция для проверки rate limit
+function checkRateLimit(userId) {
+    const now = Date.now();
+    const userMessages = messageCounts.get(userId) || [];
+    
+    // Удаляем старые сообщения
+    const recentMessages = userMessages.filter(time => now - time < 1000);
+    
+    if (recentMessages.length >= MESSAGE_RATE_LIMIT) {
+        return false;
+    }
+    
+    recentMessages.push(now);
+    messageCounts.set(userId, recentMessages);
+    return true;
+}
+
 // WebSocket обработчик
 wss.on('connection', async (ws, req) => {
     console.log('[server.js] Client connected via WebSocket');
+    
+    // Проверяем количество активных соединений
+    if (activeConnections.size >= MAX_CONNECTIONS) {
+        console.log('[server.js] Too many connections, rejecting');
+        ws.close(1008, 'Too many connections');
+        return;
+    }
     
     // Парсим куки из заголовков
     const cookies = parseCookies(req.headers.cookie || '');
@@ -117,13 +150,31 @@ wss.on('connection', async (ws, req) => {
     // Функция для отправки сообщения клиенту
     const sendMessage = (type, data) => {
         if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type, ...data }));
+            try {
+                ws.send(JSON.stringify({ type, ...data }));
+            } catch (error) {
+                console.error('[server.js] Error sending message:', error);
+            }
         }
     };
+
+    // Устанавливаем таймаут для неактивных соединений
+    let timeout = setTimeout(() => {
+        if (!ws.userId) {
+            console.log('[server.js] Connection timeout, closing');
+            ws.close(1000, 'Connection timeout');
+        }
+    }, CONNECTION_TIMEOUT);
 
     // Обработка сообщений от клиента
     ws.on('message', async (message) => {
         try {
+            // Проверяем размер сообщения
+            if (message.length > MAX_MESSAGE_SIZE) {
+                sendMessage('error', { message: 'Сообщение слишком большое' });
+                return;
+            }
+
             const data = JSON.parse(message);
             console.log('[server.js] Received message:', data);
 
@@ -162,6 +213,10 @@ wss.on('connection', async (ws, req) => {
                 ws.username = sessionData.user.username;
                 ws.isSupport = sessionData.user.isSupport || false;
 
+                // Добавляем соединение в активные
+                activeConnections.add(ws);
+                userConnections.set(ws.userId, ws);
+
                 // Отправляем подтверждение авторизации
                 sendMessage('status', {
                     authenticated: true,
@@ -169,17 +224,26 @@ wss.on('connection', async (ws, req) => {
                     message: 'Вы успешно авторизованы'
                 });
 
-                // Отправляем историю сообщений
-                const messagesSnapshot = await messagesRef.limitToLast(50).once('value');
+                // Отправляем историю сообщений (только последние 20)
+                const messagesSnapshot = await messagesRef.limitToLast(20).once('value');
                 const messages = [];
                 messagesSnapshot.forEach((childSnapshot) => {
                     messages.push(childSnapshot.val());
                 });
                 sendMessage('history', { messages });
 
+                // Очищаем таймаут после успешной авторизации
+                clearTimeout(timeout);
+
             } else if (data.type === 'message') {
                 if (!ws.userId) {
                     sendMessage('error', { message: 'Требуется авторизация' });
+                    return;
+                }
+
+                // Проверяем rate limit
+                if (!checkRateLimit(ws.userId)) {
+                    sendMessage('error', { message: 'Слишком много сообщений. Пожалуйста, подождите.' });
                     return;
                 }
 
@@ -198,10 +262,14 @@ wss.on('connection', async (ws, req) => {
                 // Отправляем сообщение всем клиентам
                 wss.clients.forEach((client) => {
                     if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({
-                            type: 'message',
-                            ...messageData
-                        }));
+                        try {
+                            client.send(JSON.stringify({
+                                type: 'message',
+                                ...messageData
+                            }));
+                        } catch (error) {
+                            console.error('[server.js] Error sending message to client:', error);
+                        }
                     }
                 });
 
@@ -218,11 +286,21 @@ wss.on('connection', async (ws, req) => {
     // Обработка отключения клиента
     ws.on('close', () => {
         console.log('[server.js] Client disconnected');
+        activeConnections.delete(ws);
+        if (ws.userId) {
+            userConnections.delete(ws.userId);
+        }
+        clearTimeout(timeout);
     });
 
     // Обработка ошибок
     ws.on('error', (error) => {
         console.error('[server.js] WebSocket error:', error);
+        activeConnections.delete(ws);
+        if (ws.userId) {
+            userConnections.delete(ws.userId);
+        }
+        clearTimeout(timeout);
     });
 });
 
