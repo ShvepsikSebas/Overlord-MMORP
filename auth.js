@@ -25,6 +25,7 @@ router.get('/discord/callback', async (req, res) => {
     const { code, state } = req.query;
     
     if (!code) {
+        console.error('No code received from Discord');
         return res.redirect('/?error=no_code');
     }
 
@@ -48,6 +49,7 @@ router.get('/discord/callback', async (req, res) => {
         const tokens = await tokenResponse.json();
 
         if (!tokens.access_token) {
+            console.error('No access token received:', tokens);
             return res.redirect('/?error=no_access_token');
         }
 
@@ -61,39 +63,53 @@ router.get('/discord/callback', async (req, res) => {
         const user = await userResponse.json();
 
         if (!user.id) {
+            console.error('No user data received:', user);
             return res.redirect('/?error=no_user_data');
         }
 
         // Создание сессии
         const sessionId = Math.random().toString(36).substring(7);
-        sessions.set(sessionId, {
+        const sessionData = {
             userId: user.id,
             username: user.username,
             discriminator: user.discriminator,
             avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
-        });
+            createdAt: Date.now()
+        };
+        
+        sessions.set(sessionId, sessionData);
+        console.log(`Created new session ${sessionId} for user ${user.username}`);
 
         // Установка cookie
         res.cookie('sessionId', sessionId, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: true, // Всегда true для HTTPS
+            sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+            domain: '.onrender.com' // Указываем домен для cookie
         });
 
-        // Вместо редиректа, отправляем скрипт для закрытия окна
+        // Отправляем скрипт для закрытия окна и обновления родительского окна
         res.send(`
             <!DOCTYPE html>
             <html>
-            <head><title>Авторизация успешна</title></head>
-            <body>
+            <head>
+                <title>Авторизация успешна</title>
                 <script>
-                    if (window.opener) {
-                        window.opener.postMessage('authSuccess', '*');
-                        window.close();
-                    } else {
-                        window.location.href = '/';
+                    function closeAndNotify() {
+                        if (window.opener) {
+                            window.opener.postMessage({ type: 'authSuccess', sessionId: '${sessionId}' }, '*');
+                            window.close();
+                        } else {
+                            window.location.href = '/';
+                        }
                     }
+                    // Даем время на установку cookie
+                    setTimeout(closeAndNotify, 1000);
                 </script>
+            </head>
+            <body>
+                <p>Авторизация успешна. Закрытие окна...</p>
             </body>
             </html>
         `);
@@ -102,16 +118,19 @@ router.get('/discord/callback', async (req, res) => {
         res.send(`
             <!DOCTYPE html>
             <html>
-            <head><title>Ошибка авторизации</title></head>
-            <body>
+            <head>
+                <title>Ошибка авторизации</title>
                 <script>
                     if (window.opener) {
-                        window.opener.postMessage('authError', '*');
+                        window.opener.postMessage({ type: 'authError', error: '${error.message}' }, '*');
                         window.close();
                     } else {
                         window.location.href = '/?error=auth_failed';
                     }
                 </script>
+            </head>
+            <body>
+                <p>Произошла ошибка при авторизации. Закрытие окна...</p>
             </body>
             </html>
         `);
@@ -121,7 +140,15 @@ router.get('/discord/callback', async (req, res) => {
 // Проверка сессии
 router.get('/session', (req, res) => {
     const sessionId = req.cookies.sessionId;
+    console.log('Checking session:', sessionId);
+    
+    if (!sessionId) {
+        console.log('No sessionId in cookies');
+        return res.json({ authenticated: false });
+    }
+
     const session = sessions.get(sessionId);
+    console.log('Session data:', session);
 
     if (session) {
         res.json({
@@ -134,6 +161,7 @@ router.get('/session', (req, res) => {
             },
         });
     } else {
+        console.log('Session not found');
         res.json({ authenticated: false });
     }
 });
@@ -143,8 +171,13 @@ router.post('/logout', (req, res) => {
     const sessionId = req.cookies.sessionId;
     if (sessionId) {
         sessions.delete(sessionId);
+        console.log(`Deleted session ${sessionId}`);
     }
-    res.clearCookie('sessionId');
+    res.clearCookie('sessionId', {
+        domain: '.onrender.com',
+        secure: true,
+        httpOnly: true
+    });
     res.json({ success: true });
 });
 
