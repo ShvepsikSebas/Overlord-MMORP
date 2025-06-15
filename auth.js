@@ -12,14 +12,48 @@ const DISCORD_API_ENDPOINT = 'https://discord.com/api/v10';
 // Хранилище сессий (в реальном приложении лучше использовать Redis или другое хранилище)
 const sessions = new Map();
 const blockedUsers = new Map(); // userId -> { until: timestamp, reason: string }
+const authAttempts = new Map(); // IP -> { count: number, lastAttempt: timestamp }
+
+// Константы для ограничения запросов
+const MAX_AUTH_ATTEMPTS = 5;
+const AUTH_WINDOW_MS = 5 * 60 * 1000; // 5 минут
+const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 часа
+
+// Функция для проверки ограничения запросов
+function checkRateLimit(ip) {
+    const now = Date.now();
+    const attempt = authAttempts.get(ip) || { count: 0, lastAttempt: now };
+    
+    // Сбрасываем счетчик, если прошло достаточно времени
+    if (now - attempt.lastAttempt > AUTH_WINDOW_MS) {
+        attempt.count = 0;
+    }
+    
+    attempt.lastAttempt = now;
+    attempt.count++;
+    authAttempts.set(ip, attempt);
+    
+    return attempt.count <= MAX_AUTH_ATTEMPTS;
+}
 
 // Генерация URL для авторизации через Discord
 router.get('/discord', (req, res) => {
+    const clientIP = req.ip;
+    
+    // Проверяем ограничение запросов
+    if (!checkRateLimit(clientIP)) {
+        console.log(`Rate limit exceeded for IP: ${clientIP}`);
+        return res.status(429).json({ error: 'Слишком много попыток авторизации. Попробуйте позже.' });
+    }
+
     // Проверяем существующую сессию
     const existingSessionId = req.cookies.sessionId;
     if (existingSessionId && sessions.has(existingSessionId)) {
-        console.log('User already has a valid session, redirecting to main page');
-        return res.redirect('/');
+        const session = sessions.get(existingSessionId);
+        if (session.expiresAt && Date.now() < session.expiresAt) {
+            console.log('User already has a valid session, redirecting to main page');
+            return res.redirect('/');
+        }
     }
 
     const state = Math.random().toString(36).substring(7);
@@ -77,153 +111,96 @@ router.get('/discord/callback', async (req, res) => {
 
         // Создание сессии
         const sessionId = Math.random().toString(36).substring(7);
-        const sessionData = {
+        const session = {
             userId: user.id,
             username: user.username,
             discriminator: user.discriminator,
-            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
-            createdAt: Date.now(),
+            avatar: user.avatar,
             accessToken: tokens.access_token,
             refreshToken: tokens.refresh_token,
-            expiresAt: Date.now() + (tokens.expires_in * 1000)
+            expiresAt: Date.now() + SESSION_DURATION
         };
-        
-        // Удаляем старую сессию пользователя, если она существует
-        for (const [oldSessionId, oldSession] of sessions.entries()) {
-            if (oldSession.userId === user.id) {
-                sessions.delete(oldSessionId);
-                console.log(`Removed old session ${oldSessionId} for user ${user.username}`);
-            }
-        }
-        
-        sessions.set(sessionId, sessionData);
-        console.log(`Created new session ${sessionId} for user ${user.username}`);
 
-        // Отправляем скрипт для закрытия окна и обновления родительского окна
+        // Сохраняем сессию
+        sessions.set(sessionId, session);
+
+        // Устанавливаем cookie
+        res.cookie('sessionId', sessionId, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: SESSION_DURATION
+        });
+
+        // Отправляем HTML страницу, которая закроет окно авторизации и отправит сообщение родительскому окну
         res.send(`
-            <!DOCTYPE html>
             <html>
-            <head>
-                <title>Авторизация успешна</title>
-                <script>
-                    function closeAndNotify() {
-                        if (window.opener) {
-                            // Отправляем данные сессии в родительское окно
-                            window.opener.postMessage({ 
-                                type: 'authSuccess', 
-                                sessionId: '${sessionId}',
-                                user: ${JSON.stringify({
-                                    id: user.id,
-                                    username: user.username,
-                                    discriminator: user.discriminator,
-                                    avatar: sessionData.avatar
-                                })}
-                            }, '*');
-                            
-                            // Закрываем окно авторизации
-                            window.close();
-                        } else {
-                            window.location.href = '/';
-                        }
-                    }
-                    // Даем время на установку cookie
-                    setTimeout(closeAndNotify, 1000);
-                </script>
-            </head>
-            <body>
-                <p>Авторизация успешна. Закрытие окна...</p>
-            </body>
+                <body>
+                    <script>
+                        window.opener.postMessage({
+                            type: 'authSuccess',
+                            sessionId: '${sessionId}',
+                            user: ${JSON.stringify({
+                                id: user.id,
+                                username: user.username,
+                                discriminator: user.discriminator,
+                                avatar: user.avatar
+                            })}
+                        }, '*');
+                        window.close();
+                    </script>
+                </body>
             </html>
         `);
     } catch (error) {
-        console.error('Ошибка при авторизации:', error);
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Ошибка авторизации</title>
-                <script>
-                    if (window.opener) {
-                        window.opener.postMessage({ 
-                            type: 'authError', 
-                            error: '${error.message.replace(/'/g, "\\'")}' 
-                        }, '*');
-                        window.close();
-                    } else {
-                        window.location.href = '/?error=auth_failed';
-                    }
-                </script>
-            </head>
-            <body>
-                <p>Произошла ошибка при авторизации. Закрытие окна...</p>
-            </body>
-            </html>
-        `);
+        console.error('Error during Discord authentication:', error);
+        res.redirect('/?error=auth_failed');
     }
 });
 
 // Проверка сессии
 router.get('/session', (req, res) => {
     const sessionId = req.cookies.sessionId;
-    console.log('Checking session:', sessionId);
     
-    if (!sessionId) {
-        console.log('No sessionId in cookies');
+    if (!sessionId || !sessions.has(sessionId)) {
         return res.json({ authenticated: false });
     }
 
     const session = sessions.get(sessionId);
-    console.log('Session data:', session);
 
-    if (session) {
-        // Проверяем, не истек ли токен
-        if (session.expiresAt && Date.now() > session.expiresAt) {
-            console.log('Session expired, removing...');
+    // Проверяем срок действия сессии
+    if (session.expiresAt && Date.now() > session.expiresAt) {
+        sessions.delete(sessionId);
+        res.clearCookie('sessionId');
+        return res.json({ authenticated: false });
+    }
+
+    // Проверяем валидность токена Discord
+    fetch('https://discord.com/api/users/@me', {
+        headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+        },
+    }).then(response => {
+        if (!response.ok) {
+            console.log('Discord token invalid, removing session...');
             sessions.delete(sessionId);
-            res.clearCookie('sessionId', {
-                domain: '.onrender.com',
-                secure: true,
-                httpOnly: true,
-                path: '/'
-            });
+            res.clearCookie('sessionId');
             return res.json({ authenticated: false });
         }
 
-        // Проверяем валидность токена Discord
-        fetch('https://discord.com/api/users/@me', {
-            headers: {
-                Authorization: `Bearer ${session.accessToken}`,
+        res.json({
+            authenticated: true,
+            user: {
+                id: session.userId,
+                username: session.username,
+                discriminator: session.discriminator,
+                avatar: session.avatar,
             },
-        }).then(response => {
-            if (!response.ok) {
-                console.log('Discord token invalid, removing session...');
-                sessions.delete(sessionId);
-                res.clearCookie('sessionId', {
-                    domain: '.onrender.com',
-                    secure: true,
-                    httpOnly: true,
-                    path: '/'
-                });
-                return res.json({ authenticated: false });
-            }
-
-            res.json({
-                authenticated: true,
-                user: {
-                    id: session.userId,
-                    username: session.username,
-                    discriminator: session.discriminator,
-                    avatar: session.avatar,
-                },
-            });
-        }).catch(error => {
-            console.error('Error checking Discord token:', error);
-            res.json({ authenticated: false });
         });
-    } else {
-        console.log('Session not found');
+    }).catch(error => {
+        console.error('Error checking Discord token:', error);
         res.json({ authenticated: false });
-    }
+    });
 });
 
 // Выход из системы
@@ -231,13 +208,8 @@ router.post('/logout', (req, res) => {
     const sessionId = req.cookies.sessionId;
     if (sessionId) {
         sessions.delete(sessionId);
-        console.log(`Deleted session ${sessionId}`);
     }
-    res.clearCookie('sessionId', {
-        domain: '.onrender.com',
-        secure: true,
-        httpOnly: true
-    });
+    res.clearCookie('sessionId');
     res.json({ success: true });
 });
 
