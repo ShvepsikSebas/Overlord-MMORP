@@ -6,6 +6,8 @@ let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 3;
 const RECONNECT_DELAY = 3000;
 let reconnectTimeout = null;
+let heartbeatInterval = null;
+const HEARTBEAT_INTERVAL = 30000; // 30 секунд
 
 // Функция для проверки сессии
 async function checkSession() {
@@ -14,25 +16,37 @@ async function checkSession() {
         const data = await response.json();
         console.log('[chat.js] checkSession returned:', data);
         
-        // Если сессия невалидна, очищаем localStorage
         if (!data.authenticated) {
             localStorage.removeItem('sessionId');
-            if (ws) {
-                ws.close();
-                ws = null;
-            }
+            closeWebSocket();
         }
         
         return data;
     } catch (error) {
         console.error('Ошибка при проверке сессии:', error);
         localStorage.removeItem('sessionId');
-        if (ws) {
-            ws.close();
-            ws = null;
-        }
+        closeWebSocket();
         return { authenticated: false };
     }
+}
+
+// Функция для закрытия WebSocket соединения
+function closeWebSocket() {
+    if (ws) {
+        ws.close();
+        ws = null;
+    }
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+    }
+    if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = null;
+    }
+    isWebSocketReady = false;
+    isConnecting = false;
+    reconnectAttempts = 0;
 }
 
 // Функция для обновления UI после авторизации
@@ -52,9 +66,9 @@ function updateUIForAuthenticated(user) {
     if (sendButton) sendButton.disabled = false;
     if (chatContainer) chatContainer.classList.remove('disabled');
 
-    // Подключаем WebSocket только если у нас есть sessionId и мы еще не подключаемся
+    // Подключаем WebSocket только если у нас есть sessionId и нет активного соединения
     const sessionId = localStorage.getItem('sessionId');
-    if (sessionId && !isConnecting && !ws) {
+    if (sessionId && !ws && !isConnecting) {
         connectWebSocket(sessionId);
     }
 }
@@ -63,7 +77,7 @@ function updateUIForAuthenticated(user) {
 function updateUIForUnauthenticated() {
     console.log('[chat.js] Updating UI for unauthenticated user.');
     currentUser = null;
-    isWebSocketReady = false;
+    closeWebSocket();
     
     const authMessage = document.querySelector('.auth-message');
     const loginBtn = document.querySelector('.discord-login-btn');
@@ -79,18 +93,6 @@ function updateUIForUnauthenticated() {
     }
     if (sendButton) sendButton.disabled = true;
     if (chatContainer) chatContainer.classList.add('disabled');
-
-    if (ws) {
-        ws.close();
-        ws = null;
-    }
-
-    // Очищаем таймер переподключения
-    if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
-        reconnectTimeout = null;
-    }
-    reconnectAttempts = 0;
 }
 
 // Инициализация кнопки входа через Discord
@@ -140,9 +142,8 @@ function connectWebSocket(sessionId) {
     }
 
     if (ws) {
-        console.log('[chat.js] Closing existing WebSocket connection');
-        ws.close();
-        ws = null;
+        console.log('[chat.js] WebSocket already connected');
+        return;
     }
 
     isConnecting = true;
@@ -161,6 +162,16 @@ function connectWebSocket(sessionId) {
         };
         console.log('[chat.js] Sending init message:', initMessage);
         ws.send(JSON.stringify(initMessage));
+
+        // Запускаем heartbeat для поддержания соединения
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+        }
+        heartbeatInterval = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'heartbeat' }));
+            }
+        }, HEARTBEAT_INTERVAL);
     };
 
     ws.onmessage = event => {
@@ -185,11 +196,7 @@ function connectWebSocket(sessionId) {
                 localStorage.removeItem('sessionId');
                 updateUIForUnauthenticated();
             }
-            isConnecting = false;
-            if (ws) {
-                ws.close();
-                ws = null;
-            }
+            closeWebSocket();
         }
     };
 
@@ -198,6 +205,11 @@ function connectWebSocket(sessionId) {
         isWebSocketReady = false;
         isConnecting = false;
         ws = null;
+        
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+        }
         
         // Проверяем сессию при отключении
         checkSession().then(sessionData => {
@@ -222,11 +234,7 @@ function connectWebSocket(sessionId) {
 
     ws.onerror = error => {
         console.error('[chat.js] WebSocket error:', error);
-        isConnecting = false;
-        if (ws) {
-            ws.close();
-            ws = null;
-        }
+        closeWebSocket();
         updateUIForUnauthenticated();
     };
 }
