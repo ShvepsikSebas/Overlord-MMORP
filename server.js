@@ -62,6 +62,7 @@ const MAX_ANNOUNCEMENTS = 4; // Max number of announcements to keep
 
 const db = admin.database();
 const announcementsRef = db.ref('announcements');
+const sessionsRef = db.ref('sessions');
 
 // Load announcements from Firebase on startup
 announcementsRef.once('value', (snapshot) => {
@@ -156,8 +157,10 @@ wss.on('connection', (ws, req) => {
                     return;
                 }
 
-                // Проверяем сессию
-                const session = sessions.get(sessionId);
+                // Проверяем сессию в Firebase
+                const sessionSnapshot = await sessionsRef.child(sessionId).once('value');
+                const session = sessionSnapshot.val();
+
                 if (!session) {
                     console.log('[server.js] Invalid or missing session');
                     ws.send(JSON.stringify({
@@ -171,7 +174,7 @@ wss.on('connection', (ws, req) => {
                 // Проверяем срок действия сессии
                 if (session.expiresAt && Date.now() > session.expiresAt) {
                     console.log('[server.js] Session expired');
-                    sessions.delete(sessionId);
+                    await sessionsRef.child(sessionId).remove();
                     ws.send(JSON.stringify({
                         type: 'error',
                         message: 'Сессия истекла'
