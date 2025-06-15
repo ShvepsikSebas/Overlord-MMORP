@@ -11,6 +11,6 @@
         "clientId": "1383248372218990613",
         "clientSecret": "yUOir45p1Sm8x1irM1IwHTl-G_uSK1Hv",
         "redirectUri": "https://overlord-mmorp.onrender.com/auth/discord/callback",
-        "scopes": ["identify", "guilds", "bot", "applications.commands"]
+        "scopes": ["identify", "guilds"]
     }
 } 
