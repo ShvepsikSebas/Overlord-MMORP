@@ -105,7 +105,7 @@ router.get('/discord/callback', async (req, res) => {
             secure: true,
             sameSite: 'lax',
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
-            path: '/', // Важно: указываем путь
+            path: '/',
             domain: '.onrender.com'
         });
 
@@ -118,6 +118,7 @@ router.get('/discord/callback', async (req, res) => {
                 <script>
                     function closeAndNotify() {
                         if (window.opener) {
+                            // Сначала отправляем сообщение об успешной авторизации
                             window.opener.postMessage({ 
                                 type: 'authSuccess', 
                                 sessionId: '${sessionId}',
@@ -128,13 +129,20 @@ router.get('/discord/callback', async (req, res) => {
                                     avatar: sessionData.avatar
                                 })}
                             }, '*');
-                            window.close();
+                            
+                            // Даем время на обработку сообщения
+                            setTimeout(() => {
+                                // Перезагружаем родительское окно
+                                window.opener.location.reload();
+                                // Закрываем окно авторизации
+                                window.close();
+                            }, 1000);
                         } else {
                             window.location.href = '/';
                         }
                     }
                     // Даем время на установку cookie
-                    setTimeout(closeAndNotify, 1000);
+                    setTimeout(closeAndNotify, 2000);
                 </script>
             </head>
             <body>
