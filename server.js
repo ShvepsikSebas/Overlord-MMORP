@@ -139,7 +139,15 @@ wss.on('connection', ws => {
             }
 
             const sessionData = sessions.get(session);
-            
+            // Store the user data directly on the WebSocket object for later use
+            ws.userData = {
+                id: sessionData.userId,
+                username: sessionData.username,
+                discriminator: sessionData.discriminator,
+                avatar: sessionData.avatar
+            };
+            console.log(`WebSocket for client ${clientId} initialized with user data:`, ws.userData);
+
             // Проверяем блокировку
             const blockData = blockedUsers.get(sessionData.userId);
             if (blockData && Date.now() < blockData.until) {
@@ -181,10 +189,17 @@ wss.on('connection', ws => {
             // Handle chat messages coming from the website via WebSocket
             const clientId = parsedMessage.clientId;
             const userMessage = parsedMessage.message;
-            const userData = parsedMessage.user; // Получаем данные пользователя из сообщения
+            // Retrieve userData from the WebSocket connection itself
+            const userData = ws.userData; // <-- CHANGE HERE
 
-            console.log(`Received chat message from client ${clientId}: ${userMessage}. User data: ${JSON.stringify(userData)}`);
-            console.log('Full parsed message from client:', parsedMessage); // Добавлено для отладки
+            if (!userData) { // Add a check in case userData wasn't set (e.g., if init failed or not sent)
+                console.error(`Received chat message from client ${clientId} but no user data found on WebSocket connection.`);
+                ws.send(JSON.stringify({ type: 'error', message: 'Не удалось определить пользователя. Пожалуйста, попробуйте авторизоваться снова.' }));
+                return;
+            }
+
+            console.log(`Received chat message from client ${clientId}: ${userMessage}. User data from WS: ${JSON.stringify(userData)}`);
+            console.log('Full parsed message from client:', parsedMessage); 
 
             // Check if a Discord channel already exists for this client
             let discordChannelId = clientToDiscordChannel.get(clientId);
