@@ -181,6 +181,7 @@ wss.on('connection', ws => {
             // Handle chat messages coming from the website via WebSocket
             const clientId = parsedMessage.clientId;
             const userMessage = parsedMessage.message;
+            const userData = parsedMessage.user; // Получаем данные пользователя из сообщения
 
             console.log(`Received chat message from client ${clientId}: ${userMessage}`);
 
@@ -236,7 +237,7 @@ wss.on('connection', ws => {
                         console.log(`Support category found: ${category.name}`);
 
                         // Create a unique channel name (e.g., 'support-user-clientId_short')
-                        const channelName = `support-${clientId.substring(0, 8)}`;
+                        const channelName = `support-${userData.username}-${userData.discriminator || userData.id.substring(0,4)}`; // Используем никнейм и дискриминатор/ID
                         console.log(`Attempting to create Discord channel with name: ${channelName} in category ${category.name} (${category.id})`);
                         supportChannel = await guild.channels.create({
                             name: channelName,
@@ -263,7 +264,7 @@ wss.on('connection', ws => {
                         // Send initial message to the newly created Discord channel
                         await supportChannel.send({
                             embeds: [{
-                                title: `Новый чат от пользователя ${clientId}`,
+                                title: `Новый чат от ${userData.username}#${userData.discriminator || '0000'} (ID: ${userData.id})`,
                                 description: `**Первое сообщение:** ${userMessage}`,
                                 color: 0x00ff00,
                                 timestamp: new Date()
@@ -277,10 +278,12 @@ wss.on('connection', ws => {
                     // If channel already exists, send message to it
                     await supportChannel.send({
                         embeds: [{
-                            title: 'Сообщение от пользователя',
+                            title: `Сообщение от ${userData.username}#${userData.discriminator || '0000'}`,
                             description: userMessage,
                             color: 0xb891f9,
-                            fields: [{ name: 'Пользователь ID', value: clientId, inline: true }],
+                            fields: [
+                                { name: 'Пользователь ID', value: userData.id, inline: true }
+                            ],
                             timestamp: new Date()
                         }]
                     });
