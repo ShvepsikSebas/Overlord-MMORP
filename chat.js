@@ -2,6 +2,7 @@ let currentUser = null;
 let ws = null;
 let isWebSocketReady = false;
 let isInitialized = false;
+let isConnecting = false;
 
 // Функция для проверки сессии
 async function checkSession() {
@@ -33,9 +34,9 @@ function updateUIForAuthenticated(user) {
     if (sendButton) sendButton.disabled = false;
     if (chatContainer) chatContainer.classList.remove('disabled');
 
-    // Подключаем WebSocket только если у нас есть sessionId
+    // Подключаем WebSocket только если у нас есть sessionId и мы еще не подключаемся
     const sessionId = localStorage.getItem('sessionId');
-    if (sessionId) {
+    if (sessionId && !isConnecting) {
         connectWebSocket(sessionId);
     }
 }
@@ -107,12 +108,18 @@ function connectWebSocket(sessionId) {
         return;
     }
 
+    if (isConnecting) {
+        console.log('[chat.js] WebSocket connection already in progress');
+        return;
+    }
+
     if (ws) {
         console.log('[chat.js] Closing existing WebSocket connection');
         ws.close();
         ws = null;
     }
 
+    isConnecting = true;
     console.log(`[chat.js] Connecting WebSocket with session ID: ${sessionId}`);
     ws = new WebSocket('wss://overlord-mmorp.onrender.com');
 
@@ -137,6 +144,7 @@ function connectWebSocket(sessionId) {
             addMessage(data.message, 'bot');
             if (data.authenticated) {
                 isWebSocketReady = true;
+                isConnecting = false;
                 const chatInput = document.getElementById('chat-input');
                 const sendButton = document.getElementById('send-message');
                 const chatContainer = document.querySelector('.chat-input-container');
@@ -151,16 +159,19 @@ function connectWebSocket(sessionId) {
                 localStorage.removeItem('sessionId');
                 updateUIForUnauthenticated();
             }
+            isConnecting = false;
         }
     };
 
     ws.onclose = () => {
         console.log('[chat.js] WebSocket disconnected');
         isWebSocketReady = false;
+        isConnecting = false;
     };
 
     ws.onerror = error => {
         console.error('[chat.js] WebSocket error:', error);
+        isConnecting = false;
         if (ws) {
             ws.close();
             ws = null;
