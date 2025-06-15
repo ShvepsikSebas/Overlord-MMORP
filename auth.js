@@ -15,6 +15,13 @@ const blockedUsers = new Map(); // userId -> { until: timestamp, reason: string 
 
 // Генерация URL для авторизации через Discord
 router.get('/discord', (req, res) => {
+    // Проверяем существующую сессию
+    const existingSessionId = req.cookies.sessionId;
+    if (existingSessionId && sessions.has(existingSessionId)) {
+        console.log('User already has a valid session, redirecting to main page');
+        return res.redirect('/');
+    }
+
     const state = Math.random().toString(36).substring(7);
     const scopes = config.discord.scopes.join(' ');
     const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${state}`;
@@ -40,7 +47,7 @@ router.get('/discord/callback', async (req, res) => {
                 code,
                 grant_type: 'authorization_code',
                 redirect_uri: REDIRECT_URI,
-                scope: 'identify',
+                scope: config.discord.scopes.join(' '),
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -75,8 +82,19 @@ router.get('/discord/callback', async (req, res) => {
             username: user.username,
             discriminator: user.discriminator,
             avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            accessToken: tokens.access_token,
+            refreshToken: tokens.refresh_token,
+            expiresAt: Date.now() + (tokens.expires_in * 1000)
         };
+        
+        // Удаляем старую сессию пользователя, если она существует
+        for (const [oldSessionId, oldSession] of sessions.entries()) {
+            if (oldSession.userId === user.id) {
+                sessions.delete(oldSessionId);
+                console.log(`Removed old session ${oldSessionId} for user ${user.username}`);
+            }
+        }
         
         sessions.set(sessionId, sessionData);
         console.log(`Created new session ${sessionId} for user ${user.username}`);
@@ -84,10 +102,10 @@ router.get('/discord/callback', async (req, res) => {
         // Установка cookie
         res.cookie('sessionId', sessionId, {
             httpOnly: true,
-            secure: true, // Всегда true для HTTPS
+            secure: true,
             sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-            domain: '.onrender.com' // Указываем домен для cookie
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+            domain: '.onrender.com'
         });
 
         // Отправляем скрипт для закрытия окна и обновления родительского окна
@@ -152,6 +170,18 @@ router.get('/session', (req, res) => {
     console.log('Session data:', session);
 
     if (session) {
+        // Проверяем, не истек ли токен
+        if (session.expiresAt && Date.now() > session.expiresAt) {
+            console.log('Session expired, removing...');
+            sessions.delete(sessionId);
+            res.clearCookie('sessionId', {
+                domain: '.onrender.com',
+                secure: true,
+                httpOnly: true
+            });
+            return res.json({ authenticated: false });
+        }
+
         res.json({
             authenticated: true,
             user: {
