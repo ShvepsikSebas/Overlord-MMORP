@@ -3,9 +3,9 @@ const express = require('express');
 const { Client, GatewayIntentBits, Partials, ChannelType } = require('discord.js');
 const { WebSocketServer } = require('ws');
 const http = require('http');
-const admin = require('firebase-admin');
-const { router: authRouter, sessions, blockedUsers } = require('./auth');
+const { router: authRouter, sessionsRef, blockedUsersRef } = require('./auth');
 const cookieParser = require('cookie-parser');
+const { db } = require('./firebase');
 
 // Функция для парсинга cookies
 function parseCookies(cookieHeader) {
@@ -18,37 +18,6 @@ function parseCookies(cookieHeader) {
     return cookies;
 }
 
-// Initialize Firebase
-const serviceAccount = {
-  "type": "service_account",
-  "project_id": "bfysup",
-  "private_key_id": "25607f30c9",
-  "private_key": Buffer.from(process.env.FIREBASE_PRIVATE_KEY, 'base64').toString('utf8'),
-  "client_email": "firebase-adminsdk-fbsvc@bfysup.iam.gserviceaccount.com",
-  "client_id": "115735123456789012345",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40bfysup.iam.gserviceaccount.com"
-};
-
-console.log('Firebase Private Key (decoded):', serviceAccount.private_key);
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: process.env.DATABASE_URL
-});
-
-const app = express();
-// Use process.env.PORT for Render, fallback to 3000 locally
-const port = process.env.PORT || 3000;
-
-// Create HTTP server
-const server = http.createServer(app);
-
-// Initialize WebSocket server
-const wss = new WebSocketServer({ server });
-
 // Maps to store active connections and channel mappings
 const clients = new Map();
 const discordChannelToClient = new Map();
@@ -60,9 +29,7 @@ const userConnections = new Map(); // Для отслеживания подкл
 let announcements = []; // { title: string, content: string, imageUrl: string | null }
 const MAX_ANNOUNCEMENTS = 4; // Max number of announcements to keep
 
-const db = admin.database();
 const announcementsRef = db.ref('announcements');
-const sessionsRef = db.ref('sessions');
 
 // Load announcements from Firebase on startup
 announcementsRef.once('value', (snapshot) => {
@@ -509,7 +476,7 @@ client.on('messageCreate', async message => {
             const until = Date.now() + duration * 60 * 1000;
 
             // Блокируем пользователя
-            blockedUsers.set(user.id, {
+            blockedUsersRef.set({
                 until,
                 reason,
                 blockedBy: message.author.id,
@@ -532,7 +499,7 @@ client.on('messageCreate', async message => {
                 return;
             }
 
-            if (blockedUsers.delete(user.id)) {
+            if (blockedUsersRef.delete(user.id)) {
                 message.reply(`Пользователь ${user.tag} разблокирован.`).catch(console.error);
             } else {
                 message.reply(`Пользователь ${user.tag} не был заблокирован.`).catch(console.error);
