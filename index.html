@@ -2167,6 +2167,25 @@ document.addEventListener('DOMContentLoaded', () => {
     textBox.textContent = phrases[phraseIndex];
   });
 
+  // Проверяем сессию
+  async function checkSession() {
+    try {
+      const response = await fetch('/auth/session');
+      if (response.status === 503) {
+        console.error('[index.html] Сервер временно недоступен (503)');
+        addMessage('Сервер временно недоступен. Пожалуйста, попробуйте позже.', 'bot');
+        return { authenticated: false, error: 'server_unavailable' };
+      }
+      const data = await response.json();
+      console.log('[index.html] checkSession returned:', data);
+      return data;
+    } catch (error) {
+      console.error('[index.html] Ошибка при проверке сессии:', error);
+      addMessage('Не удалось подключиться к серверу. Пожалуйста, попробуйте позже.', 'bot');
+      return { authenticated: false, error: 'connection_error' };
+    }
+  }
+
   // Переключение чата
   toggleChatBtn.addEventListener("click", () => {
     console.log('[index.html] Кнопка чата кликнута');
@@ -2188,6 +2207,18 @@ document.addEventListener('DOMContentLoaded', () => {
       checkSession().then(sessionData => {
         console.log('[index.html] checkSession returned:', sessionData);
         
+        if (sessionData.error) {
+          // Если произошла ошибка, показываем сообщение об авторизации
+          if (authMessage) {
+            authMessage.style.display = 'block';
+            console.log('[index.html] Показываем сообщение об авторизации из-за ошибки');
+          }
+          if (chatInput) chatInput.disabled = true;
+          if (sendBtn) sendBtn.disabled = true;
+          if (chatContainer) chatContainer.classList.add('disabled');
+          return;
+        }
+        
         if (sessionData.authenticated) {
           // Если пользователь авторизован, скрываем сообщение об авторизации
           if (authMessage) authMessage.style.display = 'none';
@@ -2206,6 +2237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }).catch(error => {
         console.error('[index.html] Ошибка при проверке сессии:', error);
+        addMessage('Произошла ошибка при подключении к серверу. Пожалуйста, попробуйте позже.', 'bot');
         // В случае ошибки показываем сообщение об авторизации
         if (authMessage) {
           authMessage.style.display = 'block';
@@ -2215,33 +2247,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Проверяем сессию
-  async function checkSession() {
-    try {
-      const response = await fetch('/auth/session');
-      const data = await response.json();
-      console.log('[index.html] checkSession returned:', data);
-      return data;
-    } catch (error) {
-      console.error('[index.html] Ошибка при проверке сессии:', error);
-      return { authenticated: false };
-    }
-  }
-
-  // Инициализация кнопки входа через Discord
-  if (loginBtn) {
-    console.log('[index.html] Adding click handler to login button');
-    loginBtn.addEventListener('click', () => {
-      console.log('[index.html] Login button clicked');
-      window.location.href = '/auth/discord';
-    });
-  } else {
-    console.error('[index.html] Login button not found!');
-  }
-
   // Отправка сообщения
   async function sendMessage() {
     const sessionData = await checkSession();
+    if (sessionData.error) {
+      addMessage('Сервер временно недоступен. Пожалуйста, попробуйте позже.', 'bot');
+      return;
+    }
     if (!sessionData.authenticated) {
       addMessage('Для отправки сообщений необходимо авторизоваться через Discord', 'bot');
       return;
@@ -2260,6 +2272,10 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           body: JSON.stringify({ message })
         });
+        
+        if (response.status === 503) {
+          throw new Error('Сервер временно недоступен');
+        }
         
         if (!response.ok) {
           throw new Error('Ошибка отправки сообщения');
