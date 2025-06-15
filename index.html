@@ -1756,51 +1756,36 @@
       }
     }
 
-    /* Стили для кнопки авторизации Discord */
+    .auth-message {
+      text-align: center;
+      padding: 20px;
+      background: rgba(28,28,46,0.7);
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
     .discord-login-btn {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: #5865F2;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 15px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background 0.3s;
-        margin: 10px 0;
-        width: 100%;
-        justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #5865F2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin: 10px auto;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
     }
 
     .discord-login-btn:hover {
-        background: #4752C4;
-    }
-
-    .discord-login-btn img {
-        width: 20px;
-        height: 20px;
-    }
-
-    .auth-message {
-        background: rgba(28,28,46,0.7);
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 5px;
-        text-align: center;
-        color: #b891f9;
-        font-size: 0.9em;
+      background: #4752C4;
     }
 
     .chat-input-container.disabled {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    .chat-input-container.disabled input,
-    .chat-input-container.disabled button {
-        cursor: not-allowed;
+      opacity: 0.5;
+      pointer-events: none;
     }
   </style>
 <script>
@@ -2064,25 +2049,20 @@
   <footer>© 2025 Battle For Yggdrasil — Все права защищены</footer>
 <!-- Швепсик — помощник -->
 <div id="helper-container">
-    <img id="helper-img" src="ecler.png" alt="Швепсик" title="Я Швепсик!" />
-    <div id="helper-dialog" style="display: block;">
-        <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!</div>
-        <div class="chat-container" style="display: none;">
-            <div class="auth-message">Для общения с администрацией необходимо авторизоваться через Discord</div>
-            <button class="discord-login-btn">
-                <img src="images/discord_logo.png" alt="Discord">
-                Войти через Discord
-            </button>
-            <div class="chat-messages"></div>
-            <div class="chat-input-container disabled">
-                <input type="text" id="chat-input" placeholder="Введите сообщение..." disabled>
-                <button id="send-message" disabled>Отправить</button>
-            </div>
-        </div>
-        <span id="close-dialog" title="Закрыть">✖</span>
-        <span id="next-phrase" title="Следующая фраза">➤</span>
-        <span id="toggle-chat" title="Открыть чат">💬</span>
+  <img id="helper-img" src="ecler.png" alt="Швепсик" title="Я Швепсик!" />
+  <div id="helper-dialog" style="display: block;">
+    <div class="dialog-text">Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!</div>
+    <div class="chat-container" style="display: none;">
+      <div class="chat-messages"></div>
+      <div class="chat-input-container disabled">
+        <input type="text" id="chat-input" placeholder="Введите сообщение..." disabled>
+        <button id="send-message" disabled>Отправить</button>
+      </div>
     </div>
+    <span id="close-dialog" title="Закрыть">✖</span>
+    <span id="next-phrase" title="Следующая фраза">➤</span>
+    <span id="toggle-chat" title="Открыть чат">💬</span>
+  </div>
 </div>
 
 <script>
@@ -2098,6 +2078,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatMessages = dialog.querySelector(".chat-messages");
   const chatInput = document.getElementById("chat-input");
   const sendBtn = document.getElementById("send-message");
+  const authMessage = chatContainer.querySelector(".auth-message");
+  const loginBtn = chatContainer.querySelector(".discord-login-btn");
 
   let phraseIndex = 0;
   const phrases = [
@@ -2108,56 +2090,41 @@ document.addEventListener('DOMContentLoaded', () => {
     "Если есть вопросы или заметил неисправность, напиши мне в чате!"
   ];
 
-  // Generate or retrieve unique client ID
-  let clientId = localStorage.getItem('clientId');
-  if (!clientId) {
-      clientId = 'user-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      localStorage.setItem('clientId', clientId);
-  }
-  console.log(`Client ID: ${clientId}`);
-
-  // WebSocket connection
-  let ws;
-
-  function connectWebSocket() {
-      ws = new WebSocket('wss://overlord-mmorp.onrender.com');
-
-      ws.onopen = () => {
-          console.log('WebSocket connected.');
-          // Send initial message with client ID
-          ws.send(JSON.stringify({ type: 'init', clientId: clientId }));
-      };
-
-      ws.onmessage = event => {
-          const data = JSON.parse(event.data);
-          if (data.type === 'message') {
-              // Если отправитель - поддержка (support), используем 'Администратор' как автора
-              const displayAuthor = data.sender === 'support' ? 'Администратор' : data.author;
-              addMessage(data.message, data.sender === 'support' ? 'bot' : data.sender, displayAuthor);
-          } else if (data.type === 'status') {
-              addMessage(data.message, 'bot');
-          } else if (data.type === 'error') {
-              addMessage(data.message, 'bot');
-              console.error('WebSocket error from server:', data.message);
-          }
-      };
-
-      ws.onclose = () => {
-          console.log('WebSocket disconnected. Attempting to reconnect in 5 seconds...');
-          setTimeout(connectWebSocket, 5000); // Reconnect on close
-      };
-
-      ws.onerror = error => {
-          console.error('WebSocket error:', error);
-          // Error handling, will usually trigger onclose
-      };
+  // Проверяем сессию при загрузке
+  async function checkSession() {
+    try {
+      const response = await fetch('/auth/session');
+      const data = await response.json();
+      console.log('[index.html] checkSession returned:', data);
+      
+      if (data.authenticated) {
+        // Если пользователь авторизован, скрываем сообщение об авторизации
+        if (authMessage) authMessage.style.display = 'none';
+        if (chatInput) chatInput.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
+        if (chatContainer) chatContainer.classList.remove('disabled');
+      } else {
+        // Если пользователь не авторизован, показываем сообщение об авторизации
+        if (authMessage) authMessage.style.display = 'block';
+        if (chatInput) chatInput.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
+        if (chatContainer) chatContainer.classList.add('disabled');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Ошибка при проверке сессии:', error);
+      return { authenticated: false };
+    }
   }
 
-  // Connect WebSocket when chat is toggled or page loads if chat was open
-  // For now, let's connect it on DOMContentLoaded, or when the chat is opened.
-  // It's better to connect when the chat is actually used to save resources.
-  // Let's connect when the user opens the chat for the first time.
-  
+  // Инициализация кнопки входа через Discord
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      window.location.href = '/auth/discord';
+    });
+  }
+
   // Показываем Швепсика через 2 сек
   if (!localStorage.getItem("hideShvepsik")) {
     setTimeout(() => {
@@ -2201,13 +2168,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Переключение чата
-  toggleChatBtn.addEventListener("click", () => {
+  toggleChatBtn.addEventListener("click", async () => {
     const isChatVisible = chatContainer.style.display !== "none";
     if (!isChatVisible) {
-      // Подключаем WebSocket при первом открытии чата
-      if (!ws) {
-        connectWebSocket();
-      }
+      // Проверяем сессию при открытии чата
+      const sessionData = await checkSession();
+      
       // Show chat interface
       chatContainer.style.display = "block";
       textBox.style.display = "none";
@@ -2221,16 +2187,34 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Отправка сообщения
-  function sendMessage() {
+  async function sendMessage() {
+    const sessionData = await checkSession();
+    if (!sessionData.authenticated) {
+      addMessage('Для отправки сообщений необходимо авторизоваться через Discord', 'bot');
+      return;
+    }
+
     const message = chatInput.value.trim();
-    if (message && ws && ws.readyState === WebSocket.OPEN) {
+    if (message) {
       addMessage(message, 'user');
-      ws.send(JSON.stringify({ type: 'chatMessage', clientId: clientId, message: message }));
       chatInput.value = '';
-    } else if (!ws || ws.readyState !== WebSocket.OPEN) {
-      addMessage('Соединение с чатом не установлено. Пожалуйста, попробуйте позже.', 'bot');
-      // Пробуем переподключиться
-      connectWebSocket();
+      
+      try {
+        const response = await fetch('/chat/message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Ошибка отправки сообщения');
+        }
+      } catch (error) {
+        console.error('Ошибка при отправке сообщения:', error);
+        addMessage('Ошибка отправки сообщения. Пожалуйста, попробуйте позже.', 'bot');
+      }
     }
   }
 
@@ -2536,6 +2520,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </script>
     <script src="common.js"></script>
-    <script src="chat.js"></script>
 </body>
 </html>
