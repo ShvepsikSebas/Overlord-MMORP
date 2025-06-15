@@ -3,6 +3,7 @@ async function checkSession() {
     try {
         const response = await fetch('/auth/session');
         const data = await response.json();
+        console.log('checkSession returned:', data);
         return data;
     } catch (error) {
         console.error('Ошибка при проверке сессии:', error);
@@ -12,6 +13,7 @@ async function checkSession() {
 
 // Функция для обновления UI после авторизации
 function updateUIForAuthenticated(user) {
+    console.log('Updating UI for authenticated user:', user);
     const authMessage = document.querySelector('.auth-message');
     const loginBtn = document.querySelector('.discord-login-btn');
     const chatInput = document.getElementById('chat-input');
@@ -27,6 +29,7 @@ function updateUIForAuthenticated(user) {
 
 // Функция для обновления UI при отсутствии авторизации
 function updateUIForUnauthenticated() {
+    console.log('Updating UI for unauthenticated user.');
     const authMessage = document.querySelector('.auth-message');
     const loginBtn = document.querySelector('.discord-login-btn');
     const chatInput = document.getElementById('chat-input');
@@ -47,8 +50,26 @@ function updateUIForUnauthenticated() {
 function initDiscordLogin() {
     const loginBtn = document.querySelector('.discord-login-btn');
     if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            window.location.href = '/auth/discord';
+        loginBtn.addEventListener('click', (event) => {
+            event.preventDefault(); // Предотвращаем стандартное действие ссылки
+            console.log('Opening Discord auth popup...');
+            const authWindow = window.open('/auth/discord', 'DiscordAuth', 'width=500,height=700');
+            
+            // Фокусируем на окне авторизации и проверяем сессию после его закрытия
+            const checkAuthInterval = setInterval(() => {
+                if (authWindow.closed) {
+                    clearInterval(checkAuthInterval);
+                    console.log('Discord auth popup closed. Checking session...');
+                    // После закрытия окна авторизации, проверяем сессию
+                    checkSession().then(session => {
+                        if (session.authenticated) {
+                            updateUIForAuthenticated(session.user);
+                        } else {
+                            updateUIForUnauthenticated();
+                        }
+                    });
+                }
+            }, 1000);
         });
     }
 }
@@ -71,6 +92,7 @@ function sendMessage() {
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOM Content Loaded. Initializing...');
     const container = document.getElementById("helper-container");
     const img = document.getElementById("helper-img");
     const dialog = document.getElementById("helper-dialog");
@@ -82,6 +104,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Инициализация кнопки Discord
     initDiscordLogin();
+
+    // Проверяем авторизацию при загрузке страницы
+    const session = await checkSession();
+    if (session.authenticated) {
+        updateUIForAuthenticated(session.user);
+    } else {
+        updateUIForUnauthenticated();
+    }
 
     // Показываем Швепсика через 2 сек
     if (!localStorage.getItem("hideShvepsik")) {
@@ -124,14 +154,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isChatVisible = chatContainer.style.display !== "none";
         
         if (!isChatVisible) {
-            // Проверяем авторизацию при открытии чата
-            const session = await checkSession();
-            if (!session.authenticated) {
-                updateUIForUnauthenticated();
-            } else {
-                updateUIForAuthenticated(session.user);
-            }
-            
             // Показываем чат
             chatContainer.style.display = "block";
             textBox.style.display = "none";
