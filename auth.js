@@ -16,7 +16,8 @@ const blockedUsers = new Map(); // userId -> { until: timestamp, reason: string 
 // Генерация URL для авторизации через Discord
 router.get('/discord', (req, res) => {
     const state = Math.random().toString(36).substring(7);
-    const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify&state=${state}`;
+    const scopes = config.discord.scopes.join(' ');
+    const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${state}`;
     res.redirect(url);
 });
 
