@@ -119,21 +119,37 @@ app.get('/api/announcements', (req, res) => {
 });
 
 // WebSocket connection handling
-wss.on('connection', ws => {
+wss.on('connection', (ws, req) => {
     console.log('[server.js] Client connected via WebSocket');
+
+    // Parse cookies from the WebSocket handshake request
+    const cookies = req.headers.cookie;
+    let sessionIdFromCookie = null;
+    if (cookies) {
+        const cookieParts = cookies.split(';');
+        for (const part of cookieParts) {
+            const trimmedPart = part.trim();
+            if (trimmedPart.startsWith('sessionId=')) {
+                sessionIdFromCookie = trimmedPart.substring('sessionId='.length);
+                break;
+            }
+        }
+    }
+    console.log(`[server.js] Session ID extracted from cookie in handshake: ${sessionIdFromCookie}`);
 
     ws.on('message', async message => {
         const parsedMessage = JSON.parse(message);
         
         if (parsedMessage.type === 'init' && parsedMessage.clientId) {
             const clientId = parsedMessage.clientId;
-            const session = parsedMessage.session; // This `session` should be the sessionId from the client
+            // const session = parsedMessage.session; // No longer relying on client sending session in init message
+            const session = sessionIdFromCookie; // Use session ID from handshake cookie
 
-            console.log(`[server.js] Received init message from client ${clientId}. Session ID: ${session}`);
+            console.log(`[server.js] Received init message from client ${clientId}. Using Session ID from handshake: ${session}`);
 
             // Проверяем авторизацию
             if (!session) {
-                console.warn(`[server.js] Session ID is missing for client ${clientId}.`);
+                console.warn(`[server.js] Session ID is missing (not found in handshake cookie) for client ${clientId}.`);
                 ws.send(JSON.stringify({
                     type: 'error',
                     message: 'Требуется авторизация через Discord'
