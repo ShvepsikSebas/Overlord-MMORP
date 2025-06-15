@@ -124,7 +124,7 @@
   background: rgba(30, 30, 60, 0.9);
   border: 1px solid #b891f9;
   border-radius: 10px;
-  padding: 10px 15px;
+  padding: 15px 20px;
   color: #fff;
   max-width: 260px;
   font-size: 0.9em;
@@ -135,38 +135,118 @@
 
 #helper-dialog.expanded-chat {
   max-width: 450px;
-  padding: 15px 20px;
+  padding: 20px;
 }
 
-#close-dialog,
-#next-phrase {
-  position: absolute;
-  font-size: 1.2em;
+.dialog-text {
+  margin-right: 20px;
+}
+
+.chat-container {
+  margin-top: 10px;
+  border-top: 1px solid rgba(184,145,249,0.3);
+  padding-top: 10px;
+}
+
+.chat-messages {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.chat-message {
+  background: rgba(28,28,46,0.7);
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 5px;
+  font-size: 0.9em;
+}
+
+.chat-message.user {
+  background: rgba(184,145,249,0.2);
+  margin-left: 20px;
+}
+
+.chat-message.bot {
+  background: rgba(252,163,17,0.2);
+  margin-right: 20px;
+}
+
+.chat-input-container {
+  display: flex;
+  gap: 5px;
+}
+
+#chat-input {
+  flex: 1;
+  background: rgba(28,28,46,0.7);
+  border: 1px solid rgba(184,145,249,0.3);
+  border-radius: 5px;
+  padding: 8px;
+  color: #fff;
+}
+
+#send-message {
+  background: #b891f9;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  color: #fff;
   cursor: pointer;
-  color: #ccc;
+  transition: background 0.3s;
+}
+
+#send-message:hover {
+  background: #9b7ad6;
 }
 
 #close-dialog {
-  top: 5px;
-  right: 8px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.2em;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.3s;
+}
+
+#close-dialog:hover {
+  color: #fff;
 }
 
 #next-phrase {
-  bottom: 5px;
+  position: absolute;
+  bottom: 10px;
   right: 10px;
+  font-size: 1.2em;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.3s;
 }
 
-#close-dialog:hover,
 #next-phrase:hover {
   color: #fff;
-  transform: scale(1.2);
 }
 
-
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+#toggle-chat {
+  position: absolute;
+  bottom: 10px;
+  right: 40px;
+  font-size: 1.2em;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.3s;
 }
+
+#toggle-chat:hover {
+  color: #fff;
+}
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
 
     @keyframes fadeGlow {
       0% { opacity: 0; transform: scale(0.95); text-shadow: 0 0 0px #b891f9; }
@@ -1541,7 +1621,7 @@
       background: rgba(28,28,46,0.7);
       border: 1px solid rgba(184,145,249,0.3);
       border-radius: 5px;
-      padding: 5px;
+      padding: 8px;
       color: #fff;
     }
 
@@ -1549,7 +1629,7 @@
       background: #b891f9;
       border: none;
       border-radius: 5px;
-      padding: 5px 10px;
+      padding: 8px 15px;
       color: #fff;
       cursor: pointer;
       transition: background 0.3s;
@@ -1561,16 +1641,16 @@
 
     #toggle-chat {
       position: absolute;
-      bottom: 5px;
+      bottom: 10px;
       right: 40px;
       font-size: 1.2em;
       cursor: pointer;
       color: #ccc;
+      transition: color 0.3s;
     }
 
     #toggle-chat:hover {
       color: #fff;
-      transform: scale(1.2);
     }
 
   </style>
@@ -1681,8 +1761,6 @@
     <div class="overlay-emblem-wrapper">
       <img src="gerb.png" alt="Герб" class="overlay-emblem">
       <div class="particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
@@ -1942,9 +2020,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Крестик закрывает диалог
+  // Крестик закрывает чат или весь диалог в зависимости от состояния
   closeBtn.addEventListener("click", () => {
-    dialog.style.display = "none";
+    const isChatVisible = chatContainer.style.display !== "none";
+    
+    if (isChatVisible) {
+      // Если чат открыт - закрываем только чат
+      chatContainer.style.display = "none";
+      textBox.style.display = "block";
+      nextBtn.style.display = "block";
+      toggleChatBtn.style.display = "block";
+      toggleChatBtn.textContent = "💬";
+      if (dialog.classList.contains('expanded-chat')) {
+        dialog.classList.remove('expanded-chat');
+      }
+    } else {
+      // Если чат не открыт - закрываем весь диалог
+      dialog.style.display = "none";
+    }
   });
 
   // Стрелка листает подсказки
@@ -1956,12 +2049,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Переключение чата
   toggleChatBtn.addEventListener("click", () => {
     const isChatVisible = chatContainer.style.display !== "none";
-    if (!isChatVisible && !ws) { // Connect WebSocket only when opening chat for the first time
-        connectWebSocket();
+    if (!isChatVisible) {
+      // Show chat interface
+      chatContainer.style.display = "block";
+      textBox.style.display = "none";
+      nextBtn.style.display = "none";
+      toggleChatBtn.style.display = "none";
+      dialog.classList.add('expanded-chat');
     }
-    chatContainer.style.display = isChatVisible ? "none" : "block";
-    textBox.style.display = isChatVisible ? "block" : "none";
-    toggleChatBtn.textContent = isChatVisible ? "💬" : "📝";
   });
 
   // Отправка сообщения
@@ -1971,15 +2066,8 @@ document.addEventListener('DOMContentLoaded', () => {
       addMessage(message, 'user');
       ws.send(JSON.stringify({ type: 'chatMessage', clientId: clientId, message: message }));
       chatInput.value = '';
-
-      // Expand the dialog after sending the first message
-      if (!dialog.classList.contains('expanded-chat')) {
-          dialog.classList.add('expanded-chat');
-      }
-
     } else if (!ws || ws.readyState !== WebSocket.OPEN) {
-        addMessage('Соединение с чатом не установлено. Пожалуйста, попробуйте позже.', 'bot');
-        console.error('WebSocket is not connected or not open.');
+      addMessage('Соединение с чатом не установлено. Пожалуйста, попробуйте позже.', 'bot');
     }
   }
 
@@ -1989,7 +2077,7 @@ document.addEventListener('DOMContentLoaded', () => {
     messageDiv.className = `chat-message ${type}`;
     let displayMessage = text;
     if (author) {
-        displayMessage = `[${author}] ${text}`;
+      displayMessage = `[${author}] ${text}`;
     }
     messageDiv.textContent = displayMessage;
     chatMessages.appendChild(messageDiv);
