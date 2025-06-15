@@ -136,6 +136,7 @@ wss.on('connection', (ws, req) => {
         }
     }
     console.log(`[server.js] Session ID extracted from cookie in handshake: ${sessionIdFromCookie}`);
+    ws.sessionId = sessionIdFromCookie; // Store sessionId on the WebSocket object
 
     ws.on('message', async message => {
         const parsedMessage = JSON.parse(message);
@@ -143,13 +144,13 @@ wss.on('connection', (ws, req) => {
         if (parsedMessage.type === 'init' && parsedMessage.clientId) {
             const clientId = parsedMessage.clientId;
             // const session = parsedMessage.session; // No longer relying on client sending session in init message
-            const session = sessionIdFromCookie; // Use session ID from handshake cookie
+            const session = ws.sessionId; // Use session ID from WebSocket object
 
-            console.log(`[server.js] Received init message from client ${clientId}. Using Session ID from handshake: ${session}`);
+            console.log(`[server.js] Received init message from client ${clientId}. Using Session ID from WebSocket object: ${session}`);
 
             // Проверяем авторизацию
             if (!session) {
-                console.warn(`[server.js] Session ID is missing (not found in handshake cookie) for client ${clientId}.`);
+                console.warn(`[server.js] Session ID is missing (not found on WebSocket object) for client ${clientId}.`);
                 ws.send(JSON.stringify({
                     type: 'error',
                     message: 'Требуется авторизация через Discord'
@@ -226,16 +227,22 @@ wss.on('connection', (ws, req) => {
             // Handle chat messages coming from the website via WebSocket
             const clientId = parsedMessage.clientId;
             const userMessage = parsedMessage.message;
-            // Retrieve userData from the WebSocket connection itself
-            const userData = ws.userData; // <-- CHANGE HERE
+            // Retrieve userData from the sessions map using the sessionId stored on the WebSocket object
+            const session = ws.sessionId; // Get sessionId from the WebSocket object
+            if (!session || !sessions.has(session)) {
+                console.error(`Received chat message from client ${clientId} but no valid session found for session ID: ${session}.`);
+                ws.send(JSON.stringify({ type: 'error', message: 'Не удалось определить пользователя. Пожалуйста, попробуйте авторизоваться снова.' }));
+                return;
+            }
+            const userData = sessions.get(session);
 
-            if (!userData) { // Add a check in case userData wasn't set (e.g., if init failed or not sent)
+            if (!userData) { // This check should ideally not be hit if sessions.has(session) is true, but good for safety
                 console.error(`Received chat message from client ${clientId} but no user data found on WebSocket connection.`);
                 ws.send(JSON.stringify({ type: 'error', message: 'Не удалось определить пользователя. Пожалуйста, попробуйте авторизоваться снова.' }));
                 return;
             }
 
-            console.log(`Received chat message from client ${clientId}: ${userMessage}. User data from WS: ${JSON.stringify(userData)}`);
+            console.log(`Received chat message from client ${clientId}: ${userMessage}. User data from sessions map: ${JSON.stringify(userData)}`);
             console.log('Full parsed message from client:', parsedMessage); 
 
             // Check if a Discord channel already exists for this client
