@@ -4,6 +4,7 @@ const { Client, GatewayIntentBits, Partials, ChannelType } = require('discord.js
 const { WebSocketServer } = require('ws');
 const http = require('http');
 const admin = require('firebase-admin');
+const { router: authRouter, sessions, blockedUsers } = require('./auth');
 
 // Initialize Firebase
 const serviceAccount = {
@@ -107,6 +108,9 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.static('.')); // Разрешаем доступ к статическим файлам
 
+// Подключаем роутер авторизации
+app.use('/auth', authRouter);
+
 // API endpoint to get announcements
 app.get('/api/announcements', (req, res) => {
     res.json(announcements);
@@ -116,21 +120,61 @@ app.get('/api/announcements', (req, res) => {
 wss.on('connection', ws => {
     console.log('Client connected via WebSocket');
 
-    // On initial connection, client should send their unique ID
-    ws.on('message', message => {
+    ws.on('message', async message => {
         const parsedMessage = JSON.parse(message);
+        
         if (parsedMessage.type === 'init' && parsedMessage.clientId) {
             const clientId = parsedMessage.clientId;
+            const session = parsedMessage.session;
+
+            // Проверяем авторизацию
+            if (!session || !sessions.has(session)) {
+                ws.send(JSON.stringify({ 
+                    type: 'error', 
+                    message: 'Требуется авторизация через Discord' 
+                }));
+                return;
+            }
+
+            const sessionData = sessions.get(session);
+            
+            // Проверяем блокировку
+            const blockData = blockedUsers.get(sessionData.userId);
+            if (blockData && Date.now() < blockData.until) {
+                ws.send(JSON.stringify({ 
+                    type: 'error', 
+                    message: `Вы заблокированы. Причина: ${blockData.reason}. Разблокировка: ${new Date(blockData.until).toLocaleString()}` 
+                }));
+                return;
+            }
+
             clients.set(clientId, ws);
             console.log(`Client ${clientId} initialized WebSocket connection.`);
 
-            // If there's an existing Discord channel for this client, send a confirmation
+            // Если есть существующий Discord канал для этого клиента, отправляем подтверждение
             if (clientToDiscordChannel.has(clientId)) {
-                ws.send(JSON.stringify({ type: 'status', message: 'Подключено к существующему чату.' }));
+                ws.send(JSON.stringify({ 
+                    type: 'status', 
+                    message: 'Подключено к существующему чату.',
+                    user: {
+                        id: sessionData.userId,
+                        username: sessionData.username,
+                        discriminator: sessionData.discriminator,
+                        avatar: sessionData.avatar
+                    }
+                }));
             } else {
-                ws.send(JSON.stringify({ type: 'status', message: 'Ожидаем ваше первое сообщение...' }));
+                ws.send(JSON.stringify({ 
+                    type: 'status', 
+                    message: 'Ожидаем ваше первое сообщение...',
+                    user: {
+                        id: sessionData.userId,
+                        username: sessionData.username,
+                        discriminator: sessionData.discriminator,
+                        avatar: sessionData.avatar
+                    }
+                }));
             }
-
         } else if (parsedMessage.type === 'chatMessage' && parsedMessage.clientId && parsedMessage.message) {
             // Handle chat messages coming from the website via WebSocket
             const clientId = parsedMessage.clientId;
@@ -440,6 +484,68 @@ client.on('messageCreate', async message => {
             } catch (error) {
                 console.error('Error deleting announcement:', error);
                 message.reply('Произошла ошибка при удалении объявления.').catch(console.error);
+            }
+        }
+    }
+
+    // Обработка команд блокировки
+    if (message.channel.id === config.supportChannelId) {
+        if (message.content.startsWith('/block')) {
+            // Проверяем права администратора
+            if (!message.member.permissions.has('ADMINISTRATOR')) {
+                message.reply('У вас нет прав для использования этой команды.').catch(console.error);
+                return;
+            }
+
+            const args = message.content.split(' ');
+            if (args.length < 3) {
+                message.reply('Использование: /block @пользователь <время в минутах> [причина]').catch(console.error);
+                return;
+            }
+
+            const user = message.mentions.users.first();
+            if (!user) {
+                message.reply('Пожалуйста, укажите пользователя для блокировки.').catch(console.error);
+                return;
+            }
+
+            const duration = parseInt(args[2]);
+            if (isNaN(duration) || duration <= 0) {
+                message.reply('Пожалуйста, укажите корректное время блокировки в минутах.').catch(console.error);
+                return;
+            }
+
+            const reason = args.slice(3).join(' ') || 'Причина не указана';
+            const until = Date.now() + duration * 60 * 1000;
+
+            // Блокируем пользователя
+            blockedUsers.set(user.id, {
+                until,
+                reason,
+                blockedBy: message.author.id,
+                blockedAt: Date.now()
+            });
+
+            message.reply(`Пользователь ${user.tag} заблокирован на ${duration} минут. Причина: ${reason}`).catch(console.error);
+        }
+
+        if (message.content.startsWith('/unblock')) {
+            // Проверяем права администратора
+            if (!message.member.permissions.has('ADMINISTRATOR')) {
+                message.reply('У вас нет прав для использования этой команды.').catch(console.error);
+                return;
+            }
+
+            const user = message.mentions.users.first();
+            if (!user) {
+                message.reply('Пожалуйста, укажите пользователя для разблокировки.').catch(console.error);
+                return;
+            }
+
+            if (blockedUsers.delete(user.id)) {
+                message.reply(`Пользователь ${user.tag} разблокирован.`).catch(console.error);
+            } else {
+                message.reply(`Пользователь ${user.tag} не был заблокирован.`).catch(console.error);
             }
         }
     }
