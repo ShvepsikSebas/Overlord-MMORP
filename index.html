@@ -131,6 +131,7 @@
   position: relative;
   pointer-events: auto;
   transition: max-width 0.4s ease, max-height 0.4s ease, padding 0.4s ease;
+  display: none;
 }
 
 #helper-dialog.expanded-chat {
@@ -140,13 +141,55 @@
 
 .dialog-text {
   margin-right: 20px;
-  margin-bottom: 30px; /* Добавляем отступ снизу для текста */
+  margin-bottom: 30px;
 }
 
 .chat-container {
   margin-top: 10px;
   border-top: 1px solid rgba(184,145,249,0.3);
   padding-top: 10px;
+  display: none;
+}
+
+.auth-message {
+  text-align: center;
+  padding: 20px;
+  background: rgba(28,28,46,0.7);
+  border-radius: 5px;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.auth-message p {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.discord-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #5865F2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  margin: 10px auto;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  width: 100%;
+  max-width: 250px;
+}
+
+.discord-login-btn:hover {
+  background: #4752C4;
+}
+
+.discord-login-btn img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
 }
 
 .chat-messages {
@@ -177,6 +220,11 @@
 .chat-input-container {
   display: flex;
   gap: 5px;
+}
+
+.chat-input-container.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 #chat-input {
@@ -244,10 +292,10 @@
   color: #fff;
 }
 
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 
     @keyframes fadeGlow {
       0% { opacity: 0; transform: scale(0.95); text-shadow: 0 0 0px #b891f9; }
@@ -2068,11 +2116,11 @@
     <div class="dialog-text">
       Нажми на слайды — это переходы по разделам.
     </div>
-    <div class="chat-container" style="display: none;">
-      <div class="auth-message" style="display: block;">
+    <div class="chat-container">
+      <div class="auth-message">
         <p>Для использования чата необходимо авторизоваться через Discord</p>
         <button class="discord-login-btn">
-          <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_white_RGB.png" alt="Discord" style="width: 20px; height: 20px; margin-right: 8px;">
+          <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_white_RGB.png" alt="Discord">
           Войти через Discord
         </button>
       </div>
@@ -2112,6 +2160,15 @@ document.addEventListener('DOMContentLoaded', () => {
     authMessage: !!authMessage,
     loginBtn: !!loginBtn
   });
+
+  let phraseIndex = 0;
+  const phrases = [
+    "Нажми на слайды — это переходы по разделам.",
+    "Господин Эклер меня убьёт, я должен идти убираться.",
+    "Не забудь зайти на наш Discord сервер, там вы сможете найти новых друзей!",
+    "Поддержать проект можно нажав на панель с донатом.",
+    "Если есть вопросы или заметил неисправность, напиши мне в чате!"
+  ];
 
   // Проверяем сессию при загрузке
   async function checkSession() {
