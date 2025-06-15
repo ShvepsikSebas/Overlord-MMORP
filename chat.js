@@ -1,6 +1,9 @@
 let currentUser = null;
-let ws = null; // Инициализируем ws как null
-let isWebSocketReady = false; // Флаг готовности WebSocket для отправки сообщений
+let ws = null;
+let isWebSocketReady = false;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 3;
+let reconnectTimeout = null;
 
 // Функция для проверки сессии
 async function checkSession() {
@@ -18,16 +21,23 @@ async function checkSession() {
 // Функция для обновления UI после авторизации
 function updateUIForAuthenticated(user) {
     console.log('[chat.js] Updating UI for authenticated user:', user);
-    currentUser = user; // Сохраняем данные пользователя
-    // Элементы UI будут активированы после получения статуса готовности от сервера через WebSocket
-    connectWebSocket(); 
+    currentUser = user;
+    reconnectAttempts = 0; // Сбрасываем счетчик попыток переподключения
+    connectWebSocket();
 }
 
 // Функция для обновления UI при отсутствии авторизации
 function updateUIForUnauthenticated() {
     console.log('[chat.js] Updating UI for unauthenticated user.');
-    currentUser = null; // Сбрасываем данные пользователя
-    isWebSocketReady = false; // Сбрасываем флаг готовности
+    currentUser = null;
+    isWebSocketReady = false;
+    reconnectAttempts = 0;
+    
+    if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = null;
+    }
+
     const authMessage = document.querySelector('.auth-message');
     const loginBtn = document.querySelector('.discord-login-btn');
     const chatInput = document.getElementById('chat-input');
@@ -43,9 +53,9 @@ function updateUIForUnauthenticated() {
     if (sendButton) sendButton.disabled = true;
     if (chatContainer) chatContainer.classList.add('disabled');
 
-    // Если WebSocket подключен и пользователь не авторизован, закрываем его.
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (ws) {
         ws.close();
+        ws = null;
     }
 }
 
@@ -57,20 +67,13 @@ function initDiscordLogin() {
             event.preventDefault();
             console.log('[chat.js] Opening Discord auth popup...');
             
-            // Открываем окно авторизации
             const authWindow = window.open('/auth/discord', 'DiscordAuth', 'width=500,height=700');
             
-            // Слушаем сообщения от окна авторизации
             window.addEventListener('message', function authMessageHandler(event) {
                 if (event.data.type === 'authSuccess') {
                     console.log('[chat.js] Received auth success message:', event.data);
-                    // Сохраняем sessionId в localStorage
                     localStorage.setItem('sessionId', event.data.sessionId);
-                    
-                    // Обновляем UI с данными пользователя
                     updateUIForAuthenticated(event.data.user);
-                    
-                    // Удаляем обработчик сообщений
                     window.removeEventListener('message', authMessageHandler);
                 } else if (event.data.type === 'authError') {
                     console.error('[chat.js] Auth error:', event.data.error);
@@ -79,19 +82,10 @@ function initDiscordLogin() {
                 }
             });
 
-            // Проверяем, не закрылось ли окно без авторизации
             const checkAuthInterval = setInterval(() => {
                 if (authWindow.closed) {
                     clearInterval(checkAuthInterval);
-                    console.log('[chat.js] Discord auth popup closed without auth success');
-                    // Проверяем сессию на всякий случай
-                    checkSession().then(session => {
-                        if (session.authenticated) {
-                            updateUIForAuthenticated(session.user);
-                        } else {
-                            updateUIForUnauthenticated();
-                        }
-                    });
+                    console.log('[chat.js] Discord auth popup closed');
                 }
             }, 1000);
         });
@@ -140,16 +134,16 @@ function sendMessage() {
 
 // Инициализация WebSocket connection
 function connectWebSocket() {
-    // Закрываем существующее соединение, если оно открыто или в процессе подключения
-    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
-        console.log('[chat.js] WebSocket already connected or connecting. Closing existing connection...');
+    if (ws) {
+        console.log('[chat.js] Closing existing WebSocket connection');
         ws.close();
         ws = null;
     }
 
     const sessionId = localStorage.getItem('sessionId');
     if (!sessionId) {
-        console.error('[chat.js] No session ID found. Cannot establish WebSocket connection.');
+        console.error('[chat.js] No session ID found');
+        updateUIForUnauthenticated();
         return;
     }
 
@@ -157,8 +151,7 @@ function connectWebSocket() {
     ws = new WebSocket('wss://overlord-mmorp.onrender.com');
 
     ws.onopen = () => {
-        console.log('[chat.js] WebSocket connected.');
-        // Отправляем инициализационное сообщение с sessionId
+        console.log('[chat.js] WebSocket connected');
         const initMessage = { 
             type: 'init', 
             sessionId: sessionId 
@@ -178,6 +171,7 @@ function connectWebSocket() {
             addMessage(data.message, 'bot');
             if (data.authenticated) {
                 isWebSocketReady = true;
+                reconnectAttempts = 0;
                 const chatInput = document.getElementById('chat-input');
                 const sendButton = document.getElementById('send-message');
                 const chatContainer = document.querySelector('.chat-input-container');
@@ -189,19 +183,23 @@ function connectWebSocket() {
             addMessage(data.message, 'bot');
             console.error('WebSocket error from server:', data.message);
             if (data.message.includes('авторизация')) {
+                localStorage.removeItem('sessionId');
                 updateUIForUnauthenticated();
-                localStorage.removeItem('sessionId'); // Удаляем недействительный sessionId
             }
         }
     };
 
     ws.onclose = () => {
-        console.log('[chat.js] WebSocket disconnected.');
-        if (currentUser) {
-            console.log('[chat.js] Attempting to reconnect in 5 seconds...');
-            setTimeout(connectWebSocket, 5000);
-        } else {
-            console.log('[chat.js] Not attempting to reconnect as user is unauthenticated.');
+        console.log('[chat.js] WebSocket disconnected');
+        isWebSocketReady = false;
+        
+        if (currentUser && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            reconnectAttempts++;
+            console.log(`[chat.js] Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+            reconnectTimeout = setTimeout(connectWebSocket, 5000);
+        } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+            console.log('[chat.js] Max reconnect attempts reached');
+            updateUIForUnauthenticated();
         }
     };
 
