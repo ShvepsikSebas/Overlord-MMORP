@@ -5,6 +5,7 @@ const { WebSocketServer } = require('ws');
 const http = require('http');
 const admin = require('firebase-admin');
 const { router: authRouter, sessions, blockedUsers } = require('./auth');
+const cookieParser = require('cookie-parser');
 
 // Initialize Firebase
 const serviceAccount = {
@@ -107,6 +108,7 @@ app.use((req, res, next) => {
 // Middleware для парсинга JSON
 app.use(express.json());
 app.use(express.static('.')); // Разрешаем доступ к статическим файлам
+app.use(cookieParser());
 
 // Подключаем роутер авторизации
 app.use('/auth', authRouter);
