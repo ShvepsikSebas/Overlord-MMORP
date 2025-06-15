@@ -1,34 +1,51 @@
-let ws = null;
-let isConnecting = false;
-let isWebSocketReady = false;
-let reconnectAttempts = 0;
-const MAX_RECONNECT_ATTEMPTS = 1; // Уменьшаем до 1 попытки
-const RECONNECT_DELAY = 3000;
-let reconnectTimeout = null;
 let currentUser = null;
+let ws = null;
+let isWebSocketReady = false;
+let isInitialized = false;
+let isConnecting = false;
 
-// Функция для добавления сообщения в чат
-function addMessage(message, type = 'user', author = '') {
-    const chatMessages = document.querySelector('.chat-messages');
-    if (!chatMessages) return;
+// Функция для проверки сессии
+async function checkSession() {
+    try {
+        const response = await fetch('/auth/session');
+        const data = await response.json();
+        console.log('[chat.js] checkSession returned:', data);
+        
+        // Если сессия невалидна, очищаем localStorage
+        if (!data.authenticated) {
+            localStorage.removeItem('sessionId');
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Ошибка при проверке сессии:', error);
+        localStorage.removeItem('sessionId');
+        return { authenticated: false };
+    }
+}
 
-    const messageElement = document.createElement('div');
-    messageElement.className = `chat-message ${type}`;
+// Функция для обновления UI после авторизации
+function updateUIForAuthenticated(user) {
+    console.log('[chat.js] Updating UI for authenticated user:', user);
+    currentUser = user;
     
-    const authorElement = document.createElement('div');
-    authorElement.className = 'message-author';
-    authorElement.textContent = author || (type === 'bot' ? 'Система' : 'Вы');
+    const authMessage = document.querySelector('.auth-message');
+    const loginBtn = document.querySelector('.discord-login-btn');
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-message');
+    const chatContainer = document.querySelector('.chat-input-container');
     
-    const contentElement = document.createElement('div');
-    contentElement.className = 'message-content';
-    contentElement.textContent = message;
-    
-    messageElement.appendChild(authorElement);
-    messageElement.appendChild(contentElement);
-    chatMessages.appendChild(messageElement);
-    
-    // Прокручиваем чат вниз
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    if (authMessage) authMessage.style.display = 'none';
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (chatInput) chatInput.disabled = false;
+    if (sendButton) sendButton.disabled = false;
+    if (chatContainer) chatContainer.classList.remove('disabled');
+
+    // Подключаем WebSocket только если у нас есть sessionId и мы еще не подключаемся
+    const sessionId = localStorage.getItem('sessionId');
+    if (sessionId && !isConnecting && !ws) {
+        connectWebSocket(sessionId);
+    }
 }
 
 // Функция для обновления UI при отсутствии авторизации
@@ -52,64 +69,11 @@ function updateUIForUnauthenticated() {
     if (sendButton) sendButton.disabled = true;
     if (chatContainer) chatContainer.classList.add('disabled');
 
-    // Закрываем WebSocket соединение
     if (ws) {
         ws.close();
         ws = null;
     }
 }
-
-// Функция для показа ошибок
-function showError(message) {
-    const errorContainer = document.querySelector('.error-message');
-    if (errorContainer) {
-        errorContainer.textContent = message;
-        errorContainer.style.display = 'block';
-        setTimeout(() => {
-            errorContainer.style.display = 'none';
-        }, 5000);
-    } else {
-        console.error(message);
-    }
-}
-
-// Функция для проверки сессии
-async function checkSession() {
-    try {
-        const response = await fetch('/auth/session');
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('[chat.js] Error checking session:', error);
-        return { authenticated: false };
-    }
-}
-
-// Функция для обновления UI после проверки сессии
-async function updateUIFromSession() {
-    try {
-        const session = await checkSession();
-        if (session.authenticated) {
-            updateUIForAuthenticated(session.user);
-        } else {
-            updateUIForUnauthenticated();
-        }
-    } catch (error) {
-        console.error('[chat.js] Error updating UI from session:', error);
-        updateUIForUnauthenticated();
-    }
-}
-
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('[chat.js] DOM Content Loaded. Initializing...');
-    
-    // Инициализируем кнопку входа через Discord
-    initDiscordLogin();
-    
-    // Проверяем сессию и обновляем UI
-    await updateUIFromSession();
-});
 
 // Инициализация кнопки входа через Discord
 function initDiscordLogin() {
@@ -119,45 +83,25 @@ function initDiscordLogin() {
             event.preventDefault();
             console.log('[chat.js] Opening Discord auth popup...');
             
-            const width = 600;
-            const height = 700;
-            const left = (window.innerWidth - width) / 2;
-            const top = (window.innerHeight - height) / 2;
+            const authWindow = window.open('/auth/discord', 'DiscordAuth', 'width=500,height=700');
             
-            const authWindow = window.open(
-                '/auth/discord',
-                'Discord Auth',
-                `width=${width},height=${height},left=${left},top=${top}`
-            );
-
-            if (!authWindow) {
-                showError('Пожалуйста, разрешите всплывающие окна для этого сайта');
-                return;
-            }
-
-            // Обработчик сообщений от окна авторизации
-            const messageHandler = function(event) {
+            window.addEventListener('message', function authMessageHandler(event) {
                 if (event.data.type === 'authSuccess') {
-                    console.log('[chat.js] Auth success, session ID:', event.data.sessionId);
+                    console.log('[chat.js] Received auth success message:', event.data);
                     localStorage.setItem('sessionId', event.data.sessionId);
-                    localStorage.setItem('userData', JSON.stringify(event.data.user));
                     updateUIForAuthenticated(event.data.user);
-                    window.removeEventListener('message', messageHandler);
+                    window.removeEventListener('message', authMessageHandler);
                 } else if (event.data.type === 'authError') {
                     console.error('[chat.js] Auth error:', event.data.error);
-                    showError('Ошибка авторизации: ' + event.data.error);
-                    window.removeEventListener('message', messageHandler);
+                    alert('Ошибка авторизации: ' + event.data.error);
+                    window.removeEventListener('message', authMessageHandler);
                 }
-            };
+            });
 
-            window.addEventListener('message', messageHandler);
-
-            // Проверяем сессию после закрытия окна авторизации
             const checkAuthInterval = setInterval(() => {
                 if (authWindow.closed) {
                     clearInterval(checkAuthInterval);
-                    console.log('[chat.js] Discord auth popup closed. Checking session...');
-                    updateUIFromSession();
+                    console.log('[chat.js] Discord auth popup closed');
                 }
             }, 1000);
         });
@@ -168,6 +112,7 @@ function initDiscordLogin() {
 function connectWebSocket(sessionId) {
     if (!sessionId) {
         console.error('[chat.js] No sessionId provided for WebSocket connection');
+        updateUIForUnauthenticated();
         return;
     }
 
@@ -187,7 +132,6 @@ function connectWebSocket(sessionId) {
     
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}`;
-    
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -212,23 +156,20 @@ function connectWebSocket(sessionId) {
             if (data.authenticated) {
                 isWebSocketReady = true;
                 isConnecting = false;
-                reconnectAttempts = 0;
-                const chatInput = document.getElementById('chat-input');
-                const sendButton = document.getElementById('send-message');
-                const chatContainer = document.querySelector('.chat-input-container');
-                if (chatInput) chatInput.disabled = false;
-                if (sendButton) sendButton.disabled = false;
-                if (chatContainer) chatContainer.classList.remove('disabled');
+                updateUIForAuthenticated(data.user);
             }
         } else if (data.type === 'error') {
             addMessage(data.message, 'bot');
             console.error('WebSocket error from server:', data.message);
             if (data.message.includes('авторизация')) {
                 localStorage.removeItem('sessionId');
-                localStorage.removeItem('userData');
                 updateUIForUnauthenticated();
             }
             isConnecting = false;
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
         }
     };
 
@@ -236,68 +177,144 @@ function connectWebSocket(sessionId) {
         console.log('[chat.js] WebSocket disconnected');
         isWebSocketReady = false;
         isConnecting = false;
+        ws = null;
         
-        // Пытаемся переподключиться только если у нас есть sessionId и это не было принудительное закрытие
-        const sessionId = localStorage.getItem('sessionId');
-        if (sessionId && !ws.forceClosed) {
-            reconnectWebSocket();
-        }
+        // Проверяем сессию при отключении
+        checkSession().then(sessionData => {
+            if (!sessionData.authenticated) {
+                updateUIForUnauthenticated();
+            }
+        });
     };
 
     ws.onerror = error => {
         console.error('[chat.js] WebSocket error:', error);
         isConnecting = false;
         if (ws) {
-            ws.forceClosed = true;
             ws.close();
             ws = null;
         }
+        updateUIForUnauthenticated();
     };
 }
 
-// Функция для переподключения WebSocket
-function reconnectWebSocket() {
-    if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
+// Вспомогательная функция для добавления сообщений в чат
+function addMessage(message, sender, author = null) {
+    const messagesContainer = document.querySelector('.chat-messages');
+    const messageElement = document.createElement('div');
+    messageElement.className = `chat-message ${sender}`;
+    
+    let textContent = message;
+    if (author) {
+        textContent = `${author}: ${message}`;
     }
-
-    if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-        console.log('[chat.js] Max reconnection attempts reached');
-        showError('Не удалось установить соединение. Пожалуйста, обновите страницу.');
-        return;
-    }
-
-    reconnectTimeout = setTimeout(() => {
-        const sessionId = localStorage.getItem('sessionId');
-        if (sessionId) {
-            console.log(`[chat.js] Attempting to reconnect (attempt ${reconnectAttempts + 1}/${MAX_RECONNECT_ATTEMPTS})`);
-            connectWebSocket(sessionId);
-            reconnectAttempts++;
-        }
-    }, RECONNECT_DELAY);
+    messageElement.textContent = textContent;
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-// Функция для обновления UI после авторизации
-function updateUIForAuthenticated(user) {
-    console.log('[chat.js] Updating UI for authenticated user:', user);
-    currentUser = user;
-    
-    const authMessage = document.querySelector('.auth-message');
-    const loginBtn = document.querySelector('.discord-login-btn');
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', async () => {
+    if (isInitialized) return;
+    isInitialized = true;
+
+    // Проверяем сессию при загрузке
+    const sessionData = await checkSession();
+    console.log('[chat.js] Initial session check:', sessionData);
+
+    if (sessionData.authenticated) {
+        const sessionId = localStorage.getItem('sessionId');
+        if (sessionId) {
+            updateUIForAuthenticated(sessionData.user);
+        } else {
+            updateUIForUnauthenticated();
+        }
+    } else {
+        updateUIForUnauthenticated();
+    }
+
+    // Инициализируем кнопку входа
+    initDiscordLogin();
+
+    // Добавляем обработчик отправки сообщений
     const chatInput = document.getElementById('chat-input');
     const sendButton = document.getElementById('send-message');
-    const chatContainer = document.querySelector('.chat-input-container');
-    
-    if (authMessage) authMessage.style.display = 'none';
-    if (loginBtn) loginBtn.style.display = 'none';
-    if (chatInput) chatInput.disabled = false;
-    if (sendButton) sendButton.disabled = false;
-    if (chatContainer) chatContainer.classList.remove('disabled');
 
-    // Подключаем WebSocket только если у нас есть sessionId и мы еще не подключаемся
-    const sessionId = localStorage.getItem('sessionId');
-    if (sessionId && !isConnecting) {
-        reconnectAttempts = 0;
-        connectWebSocket(sessionId);
+    if (chatInput && sendButton) {
+        const sendMessage = () => {
+            if (!isWebSocketReady || !ws || !currentUser) {
+                console.log('[chat.js] Cannot send message: WebSocket not ready or user not authenticated');
+                return;
+            }
+
+            const message = chatInput.value.trim();
+            if (message) {
+                ws.send(JSON.stringify({
+                    type: 'message',
+                    message: message
+                }));
+                chatInput.value = '';
+            }
+        };
+
+        sendButton.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
     }
-} 
+
+    // Показываем Швепсика через 2 сек
+    if (!localStorage.getItem("hideShvepsik")) {
+        setTimeout(() => {
+            container.style.display = "flex";
+            container.style.opacity = "1";
+            container.style.pointerEvents = "auto";
+        }, 2000);
+    }
+
+    // Клик по Швепсику только открывает диалог, если скрыт
+    img.addEventListener("click", () => {
+        if (dialog.style.display === "none") {
+            dialog.style.display = "block";
+        }
+    });
+
+    // Крестик закрывает чат или весь диалог в зависимости от состояния
+    closeBtn.addEventListener("click", () => {
+        const isChatVisible = chatContainer.style.display !== "none";
+        
+        if (isChatVisible) {
+            // Если чат открыт - закрываем только чат
+            chatContainer.style.display = "none";
+            textBox.style.display = "block";
+            nextBtn.style.display = "block";
+            toggleChatBtn.style.display = "block";
+            toggleChatBtn.textContent = "💬";
+            if (dialog.classList.contains('expanded-chat')) {
+                dialog.classList.remove('expanded-chat');
+            }
+        } else {
+            // Если чат не открыт - закрываем весь диалог
+            dialog.style.display = "none";
+        }
+    });
+
+    // Кнопка чата
+    toggleChatBtn.addEventListener("click", async () => {
+        const isChatVisible = chatContainer.style.display !== "none";
+        
+        if (!isChatVisible) {
+            // Показываем чат
+            chatContainer.style.display = "block";
+            textBox.style.display = "none";
+            nextBtn.style.display = "none";
+            toggleChatBtn.style.display = "none";
+            dialog.classList.add('expanded-chat');
+            
+            // WebSocket уже подключен через updateUIForAuthenticated после авторизации
+            // Нет необходимости вызывать connectWebSocket() здесь повторно.
+        }
+    });
+}); 
