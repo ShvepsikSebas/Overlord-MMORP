@@ -122,7 +122,12 @@ function connectWebSocket(sessionId) {
 
     isConnecting = true;
     console.log(`[chat.js] Connecting WebSocket with session ID: ${sessionId}`);
-    ws = new WebSocket('wss://overlord-mmorp.onrender.com');
+    
+    // Используем протокол wss:// для безопасного соединения
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}`;
+    
+    ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
         console.log('[chat.js] WebSocket connected');
@@ -159,6 +164,7 @@ function connectWebSocket(sessionId) {
             console.error('WebSocket error from server:', data.message);
             if (data.message.includes('авторизация')) {
                 localStorage.removeItem('sessionId');
+                localStorage.removeItem('userData');
                 updateUIForUnauthenticated();
             }
             isConnecting = false;
@@ -212,6 +218,33 @@ function updateUIForAuthenticated(user) {
     }
 }
 
+// Функция для проверки сессии
+async function checkSession() {
+    try {
+        const response = await fetch('/auth/session');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('[chat.js] Error checking session:', error);
+        return { authenticated: false };
+    }
+}
+
+// Функция для обновления UI после проверки сессии
+async function updateUIFromSession() {
+    try {
+        const session = await checkSession();
+        if (session.authenticated) {
+            updateUIForAuthenticated(session.user);
+        } else {
+            updateUIForUnauthenticated();
+        }
+    } catch (error) {
+        console.error('[chat.js] Error updating UI from session:', error);
+        updateUIForUnauthenticated();
+    }
+}
+
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('[chat.js] DOM Content Loaded. Initializing...');
@@ -236,13 +269,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Инициализация кнопки Discord
     initDiscordLogin();
 
-    // Проверяем авторизацию при загрузке страницы
-    const session = await checkSession();
-    if (session.authenticated) {
-        updateUIForAuthenticated(session.user);
-    } else {
-        updateUIForUnauthenticated();
-    }
+    // Проверяем сессию и обновляем UI
+    await updateUIFromSession();
 
     // Показываем Швепсика через 2 сек
     if (!localStorage.getItem("hideShvepsik")) {
@@ -325,7 +353,7 @@ function initDiscordLogin() {
     const loginBtn = document.querySelector('.discord-login-btn');
     if (loginBtn) {
         loginBtn.addEventListener('click', (event) => {
-            event.preventDefault(); // Предотвращаем стандартное действие ссылки
+            event.preventDefault();
             console.log('[chat.js] Opening Discord auth popup...');
             
             const width = 600;
@@ -344,19 +372,29 @@ function initDiscordLogin() {
                 return;
             }
 
-            // Фокусируем на окне авторизации и проверяем сессию после его закрытия
+            // Обработчик сообщений от окна авторизации
+            const messageHandler = function(event) {
+                if (event.data.type === 'authSuccess') {
+                    console.log('[chat.js] Auth success, session ID:', event.data.sessionId);
+                    localStorage.setItem('sessionId', event.data.sessionId);
+                    localStorage.setItem('userData', JSON.stringify(event.data.user));
+                    updateUIForAuthenticated(event.data.user);
+                    window.removeEventListener('message', messageHandler);
+                } else if (event.data.type === 'authError') {
+                    console.error('[chat.js] Auth error:', event.data.error);
+                    showError('Ошибка авторизации: ' + event.data.error);
+                    window.removeEventListener('message', messageHandler);
+                }
+            };
+
+            window.addEventListener('message', messageHandler);
+
+            // Проверяем сессию после закрытия окна авторизации
             const checkAuthInterval = setInterval(() => {
                 if (authWindow.closed) {
                     clearInterval(checkAuthInterval);
                     console.log('[chat.js] Discord auth popup closed. Checking session...');
-                    // После закрытия окна авторизации, проверяем сессию
-                    checkSession().then(session => {
-                        if (session.authenticated) {
-                            updateUIForAuthenticated(session.user);
-                        } else {
-                            updateUIForUnauthenticated();
-                        }
-                    });
+                    updateUIFromSession();
                 }
             }, 1000);
         });
