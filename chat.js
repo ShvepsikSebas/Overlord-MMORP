@@ -19,6 +19,7 @@ async function checkSession() {
         if (!data.authenticated) {
             localStorage.removeItem('sessionId');
             closeWebSocket();
+            updateUIForUnauthenticated();
         }
         
         return data;
@@ -26,6 +27,7 @@ async function checkSession() {
         console.error('Ошибка при проверке сессии:', error);
         localStorage.removeItem('sessionId');
         closeWebSocket();
+        updateUIForUnauthenticated();
         return { authenticated: false };
     }
 }
@@ -126,6 +128,34 @@ function initDiscordLogin() {
             }, 1000);
         });
     }
+}
+
+// Функция для добавления сообщения в чат
+function addMessage(message, type, author = '') {
+    const chatMessages = document.querySelector('.chat-messages');
+    if (!chatMessages) return;
+
+    const messageElement = document.createElement('div');
+    messageElement.className = `message ${type}`;
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    
+    if (author) {
+        const authorElement = document.createElement('div');
+        authorElement.className = 'message-author';
+        authorElement.textContent = author;
+        content.appendChild(authorElement);
+    }
+    
+    const textElement = document.createElement('div');
+    textElement.className = 'message-text';
+    textElement.textContent = message;
+    content.appendChild(textElement);
+    
+    messageElement.appendChild(content);
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 // Инициализация WebSocket connection
@@ -239,23 +269,14 @@ function connectWebSocket(sessionId) {
     };
 }
 
-// Вспомогательная функция для добавления сообщений в чат
-function addMessage(message, sender, author = null) {
-    const messagesContainer = document.querySelector('.chat-messages');
-    const messageElement = document.createElement('div');
-    messageElement.className = `chat-message ${sender}`;
-    
-    let textContent = message;
-    if (author) {
-        textContent = `${author}: ${message}`;
-    }
-    messageElement.textContent = textContent;
-    messagesContainer.appendChild(messageElement);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
+    // Очищаем старые сообщения при загрузке
+    const chatMessages = document.querySelector('.chat-messages');
+    if (chatMessages) {
+        chatMessages.innerHTML = '';
+    }
+
     // Проверяем сессию при загрузке
     const sessionData = await checkSession();
     console.log('[chat.js] Initial session check:', sessionData);
