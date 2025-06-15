@@ -140,6 +140,7 @@
 
 .dialog-text {
   margin-right: 20px;
+  margin-bottom: 30px; /* Добавляем отступ снизу для текста */
 }
 
 .chat-container {
@@ -1653,6 +1654,33 @@
       color: #fff;
     }
 
+    /* Медиа-запрос для маленьких экранов */
+    @media screen and (max-width: 480px) {
+      #helper-dialog {
+        padding: 15px;
+        max-width: 240px;
+      }
+
+      .dialog-text {
+        margin-bottom: 35px; /* Увеличиваем отступ на маленьких экранах */
+        font-size: 0.85em;
+      }
+
+      #close-dialog {
+        top: 8px;
+        right: 8px;
+      }
+
+      #next-phrase {
+        bottom: 8px;
+        right: 8px;
+      }
+
+      #toggle-chat {
+        bottom: 8px;
+        right: 35px;
+      }
+    }
   </style>
 <script>
   function initSlider() {
@@ -2050,12 +2078,19 @@ document.addEventListener('DOMContentLoaded', () => {
   toggleChatBtn.addEventListener("click", () => {
     const isChatVisible = chatContainer.style.display !== "none";
     if (!isChatVisible) {
+      // Подключаем WebSocket при первом открытии чата
+      if (!ws) {
+        connectWebSocket();
+      }
       // Show chat interface
       chatContainer.style.display = "block";
       textBox.style.display = "none";
       nextBtn.style.display = "none";
       toggleChatBtn.style.display = "none";
       dialog.classList.add('expanded-chat');
+      
+      // Добавляем приветственное сообщение
+      addMessage('Добро пожаловать в чат поддержки! Здесь вы можете связаться с администрацией проекта.', 'bot');
     }
   });
 
@@ -2068,6 +2103,8 @@ document.addEventListener('DOMContentLoaded', () => {
       chatInput.value = '';
     } else if (!ws || ws.readyState !== WebSocket.OPEN) {
       addMessage('Соединение с чатом не установлено. Пожалуйста, попробуйте позже.', 'bot');
+      // Пробуем переподключиться
+      connectWebSocket();
     }
   }
 
