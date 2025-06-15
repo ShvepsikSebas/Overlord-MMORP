@@ -1,35 +1,36 @@
 const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch');
+const config = require('./config.json');
 
 // Конфигурация Discord OAuth2
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || require('./config.json').clientId;
-const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI || 'https://overlord-mmorp.onrender.com/auth/discord/callback';
+const DISCORD_CLIENT_ID = config.discord.clientId;
+const DISCORD_CLIENT_SECRET = config.discord.clientSecret;
+const REDIRECT_URI = config.discord.redirectUri;
 const DISCORD_API_ENDPOINT = 'https://discord.com/api/v10';
 
-// Хранилище сессий (в реальном проекте лучше использовать Redis или базу данных)
+// Хранилище сессий (в реальном приложении лучше использовать Redis или другое хранилище)
 const sessions = new Map();
 const blockedUsers = new Map(); // userId -> { until: timestamp, reason: string }
 
-// Генерация URL для авторизации
+// Генерация URL для авторизации через Discord
 router.get('/discord', (req, res) => {
     const state = Math.random().toString(36).substring(7);
     const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify&state=${state}`;
-    res.json({ url });
+    res.redirect(url);
 });
 
 // Обработка callback от Discord
 router.get('/discord/callback', async (req, res) => {
     const { code, state } = req.query;
-
+    
     if (!code) {
         return res.redirect('/?error=no_code');
     }
 
     try {
-        // Получаем токен доступа
-        const tokenResponse = await fetch(`${DISCORD_API_ENDPOINT}/oauth2/token`, {
+        // Получение токена доступа
+        const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
             method: 'POST',
             body: new URLSearchParams({
                 client_id: DISCORD_CLIENT_ID,
@@ -37,6 +38,7 @@ router.get('/discord/callback', async (req, res) => {
                 code,
                 grant_type: 'authorization_code',
                 redirect_uri: REDIRECT_URI,
+                scope: 'identify',
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -45,8 +47,12 @@ router.get('/discord/callback', async (req, res) => {
 
         const tokens = await tokenResponse.json();
 
-        // Получаем информацию о пользователе
-        const userResponse = await fetch(`${DISCORD_API_ENDPOINT}/users/@me`, {
+        if (!tokens.access_token) {
+            return res.redirect('/?error=no_access_token');
+        }
+
+        // Получение информации о пользователе
+        const userResponse = await fetch('https://discord.com/api/users/@me', {
             headers: {
                 Authorization: `Bearer ${tokens.access_token}`,
             },
@@ -54,56 +60,60 @@ router.get('/discord/callback', async (req, res) => {
 
         const user = await userResponse.json();
 
-        // Создаем сессию
+        if (!user.id) {
+            return res.redirect('/?error=no_user_data');
+        }
+
+        // Создание сессии
         const sessionId = Math.random().toString(36).substring(7);
         sessions.set(sessionId, {
             userId: user.id,
             username: user.username,
             discriminator: user.discriminator,
-            avatar: user.avatar,
-            accessToken: tokens.access_token,
-            refreshToken: tokens.refresh_token,
-            expiresAt: Date.now() + tokens.expires_in * 1000,
+            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
         });
 
-        // Перенаправляем на главную страницу с токеном сессии
-        res.redirect(`/?session=${sessionId}`);
+        // Установка cookie
+        res.cookie('sessionId', sessionId, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+        });
+
+        res.redirect('/');
     } catch (error) {
-        console.error('Auth error:', error);
+        console.error('Ошибка при авторизации:', error);
         res.redirect('/?error=auth_failed');
     }
 });
 
 // Проверка сессии
-router.get('/check', (req, res) => {
-    const { session } = req.query;
-    if (!session || !sessions.has(session)) {
-        return res.json({ authenticated: false });
-    }
+router.get('/session', (req, res) => {
+    const sessionId = req.cookies.sessionId;
+    const session = sessions.get(sessionId);
 
-    const sessionData = sessions.get(session);
-    if (Date.now() > sessionData.expiresAt) {
-        sessions.delete(session);
-        return res.json({ authenticated: false });
+    if (session) {
+        res.json({
+            authenticated: true,
+            user: {
+                id: session.userId,
+                username: session.username,
+                discriminator: session.discriminator,
+                avatar: session.avatar,
+            },
+        });
+    } else {
+        res.json({ authenticated: false });
     }
-
-    res.json({
-        authenticated: true,
-        user: {
-            id: sessionData.userId,
-            username: sessionData.username,
-            discriminator: sessionData.discriminator,
-            avatar: sessionData.avatar,
-        }
-    });
 });
 
 // Выход из системы
 router.post('/logout', (req, res) => {
-    const { session } = req.body;
-    if (session) {
-        sessions.delete(session);
+    const sessionId = req.cookies.sessionId;
+    if (sessionId) {
+        sessions.delete(sessionId);
     }
+    res.clearCookie('sessionId');
     res.json({ success: true });
 });
 
