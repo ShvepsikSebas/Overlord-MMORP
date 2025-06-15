@@ -1,4 +1,13 @@
 let currentUser = null;
+let ws;
+
+// Вспомогательная функция для получения значения cookie
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
 
 // Функция для проверки сессии
 async function checkSession() {
@@ -116,6 +125,68 @@ function sendMessage() {
     }
 }
 
+// Инициализация WebSocket connection
+function connectWebSocket() {
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+        console.log('WebSocket already connected or connecting.');
+        return;
+    }
+
+    const clientId = localStorage.getItem('clientId');
+    const sessionId = getCookie('sessionId'); // Получаем sessionId из куки
+
+    if (!clientId) {
+        console.error('Client ID not found. Cannot establish WebSocket connection.');
+        return;
+    }
+
+    console.log(`Connecting WebSocket for client ${clientId} with sessionId: ${sessionId}`);
+    ws = new WebSocket('wss://overlord-mmorp.onrender.com');
+
+    ws.onopen = () => {
+        console.log('WebSocket connected.');
+        // Send initial message with client ID and session ID
+        ws.send(JSON.stringify({ type: 'init', clientId: clientId, session: sessionId }));
+    };
+
+    ws.onmessage = event => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'message') {
+            const displayAuthor = data.sender === 'support' ? 'Администратор' : data.author;
+            addMessage(data.message, data.sender === 'support' ? 'bot' : data.sender, displayAuthor);
+        } else if (data.type === 'status') {
+            addMessage(data.message, 'bot');
+        } else if (data.type === 'error') {
+            addMessage(data.message, 'bot');
+            console.error('WebSocket error from server:', data.message);
+        }
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket disconnected. Attempting to reconnect in 5 seconds...');
+        setTimeout(connectWebSocket, 5000); // Reconnect on close
+    };
+
+    ws.onerror = error => {
+        console.error('WebSocket error:', error);
+    };
+}
+
+// Вспомогательная функция для добавления сообщений в чат
+function addMessage(message, sender, author = null) {
+    const messagesContainer = document.querySelector('.chat-messages');
+    const messageElement = document.createElement('div');
+    messageElement.className = `chat-message ${sender}`;
+    
+    let textContent = message;
+    if (author) {
+        textContent = `${author}: ${message}`;
+    }
+    messageElement.textContent = textContent;
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM Content Loaded. Initializing...');
@@ -180,6 +251,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isChatVisible = chatContainer.style.display !== "none";
         
         if (!isChatVisible) {
+            // Подключаем WebSocket при первом открытии чата
+            if (!ws) {
+                connectWebSocket();
+            }
             // Показываем чат
             chatContainer.style.display = "block";
             textBox.style.display = "none";
