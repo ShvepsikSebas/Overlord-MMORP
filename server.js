@@ -50,12 +50,10 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
 // Maps to store active connections and channel mappings
-// clientId -> ws (WebSocket connection for a specific website user)
 const clients = new Map();
-// discordChannelId -> clientId (mapping Discord channel to website user)
 const discordChannelToClient = new Map();
-// clientId -> discordChannelId (mapping website user to Discord channel)
 const clientToDiscordChannel = new Map();
+const activeConnections = new Set(); // Для отслеживания активных подключений
 
 // In-memory storage for announcements
 let announcements = []; // { title: string, content: string, imageUrl: string | null }
@@ -133,10 +131,9 @@ app.get('/api/announcements', (req, res) => {
 wss.on('connection', (ws, req) => {
     console.log('[server.js] Client connected via WebSocket');
     
-    // Инициализируем флаг авторизации
-    let isAuthenticated = false;
-    let userData = null;
-
+    // Добавляем соединение в список активных
+    activeConnections.add(ws);
+    
     // Обработка сообщений
     ws.on('message', async (message) => {
         try {
@@ -182,27 +179,26 @@ wss.on('connection', (ws, req) => {
                 }
 
                 // Сохраняем данные пользователя
-                userData = {
+                ws.userData = {
                     id: session.userId,
                     username: session.username,
                     discriminator: session.discriminator,
                     avatar: session.avatar
                 };
-                isAuthenticated = true;
 
                 // Отправляем подтверждение подключения
                 ws.send(JSON.stringify({
                     type: 'status',
                     message: 'Подключение установлено',
                     authenticated: true,
-                    user: userData
+                    user: ws.userData
                 }));
 
                 return;
             }
 
             // Проверяем авторизацию для остальных сообщений
-            if (!isAuthenticated) {
+            if (!ws.userData) {
                 ws.send(JSON.stringify({
                     type: 'error',
                     message: 'Требуется авторизация'
@@ -211,7 +207,7 @@ wss.on('connection', (ws, req) => {
             }
 
             // Проверяем, не заблокирован ли пользователь
-            if (blockedUsers.has(userData.id)) {
+            if (blockedUsers.has(ws.userData.id)) {
                 ws.send(JSON.stringify({
                     type: 'error',
                     message: 'Вы заблокированы'
@@ -223,7 +219,7 @@ wss.on('connection', (ws, req) => {
             if (data.type === 'message') {
                 const messageData = {
                     type: 'message',
-                    user: userData,
+                    user: ws.userData,
                     content: data.message,
                     timestamp: new Date().toISOString()
                 };
@@ -247,6 +243,19 @@ wss.on('connection', (ws, req) => {
     // Обработка отключения
     ws.on('close', () => {
         console.log('[server.js] Client disconnected');
+        activeConnections.delete(ws);
+        
+        // Очищаем данные пользователя
+        if (ws.userData) {
+            ws.userData = null;
+        }
+    });
+
+    // Обработка ошибок
+    ws.on('error', (error) => {
+        console.error('[server.js] WebSocket error:', error);
+        activeConnections.delete(ws);
+        ws.close();
     });
 });
 
