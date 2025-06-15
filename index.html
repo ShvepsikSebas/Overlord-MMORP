@@ -2110,7 +2110,8 @@ document.addEventListener('DOMContentLoaded', () => {
     dialog: !!dialog,
     chatContainer: !!chatContainer,
     authMessage: !!authMessage,
-    loginBtn: !!loginBtn
+    loginBtn: !!loginBtn,
+    toggleChatBtn: !!toggleChatBtn
   });
 
   let phraseIndex = 0;
@@ -2167,11 +2168,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Переключение чата
-  toggleChatBtn.addEventListener("click", async () => {
+  toggleChatBtn.addEventListener("click", () => {
     console.log('[index.html] Кнопка чата кликнута');
     const isChatVisible = chatContainer.style.display !== "none";
+    
     if (!isChatVisible) {
-      // Сначала показываем интерфейс чата
+      console.log('[index.html] Открываем чат');
+      // Показываем интерфейс чата
       chatContainer.style.display = "block";
       textBox.style.display = "none";
       nextBtn.style.display = "none";
@@ -2181,9 +2184,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // Добавляем приветственное сообщение
       addMessage('Добро пожаловать в чат поддержки! Здесь вы можете связаться с администрацией проекта.', 'bot');
       
-      // Затем проверяем сессию
-      try {
-        const sessionData = await checkSession();
+      // Проверяем сессию
+      checkSession().then(sessionData => {
         console.log('[index.html] checkSession returned:', sessionData);
         
         if (sessionData.authenticated) {
@@ -2202,18 +2204,18 @@ document.addEventListener('DOMContentLoaded', () => {
           if (sendBtn) sendBtn.disabled = true;
           if (chatContainer) chatContainer.classList.add('disabled');
         }
-      } catch (error) {
+      }).catch(error => {
         console.error('[index.html] Ошибка при проверке сессии:', error);
         // В случае ошибки показываем сообщение об авторизации
         if (authMessage) {
           authMessage.style.display = 'block';
           console.log('[index.html] Показываем сообщение об авторизации после ошибки');
         }
-      }
+      });
     }
   });
 
-  // Проверяем сессию при загрузке
+  // Проверяем сессию
   async function checkSession() {
     try {
       const response = await fetch('/auth/session');
