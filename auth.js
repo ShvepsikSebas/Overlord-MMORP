@@ -99,16 +99,6 @@ router.get('/discord/callback', async (req, res) => {
         sessions.set(sessionId, sessionData);
         console.log(`Created new session ${sessionId} for user ${user.username}`);
 
-        // Установка cookie
-        res.cookie('sessionId', sessionId, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
-            path: '/',
-            domain: '.onrender.com'
-        });
-
         // Отправляем скрипт для закрытия окна и обновления родительского окна
         res.send(`
             <!DOCTYPE html>
@@ -154,7 +144,10 @@ router.get('/discord/callback', async (req, res) => {
                 <title>Ошибка авторизации</title>
                 <script>
                     if (window.opener) {
-                        window.opener.postMessage({ type: 'authError', error: '${error.message}' }, '*');
+                        window.opener.postMessage({ 
+                            type: 'authError', 
+                            error: '${error.message.replace(/'/g, "\\'")}' 
+                        }, '*');
                         window.close();
                     } else {
                         window.location.href = '/?error=auth_failed';
@@ -196,14 +189,36 @@ router.get('/session', (req, res) => {
             return res.json({ authenticated: false });
         }
 
-        res.json({
-            authenticated: true,
-            user: {
-                id: session.userId,
-                username: session.username,
-                discriminator: session.discriminator,
-                avatar: session.avatar,
+        // Проверяем валидность токена Discord
+        fetch('https://discord.com/api/users/@me', {
+            headers: {
+                Authorization: `Bearer ${session.accessToken}`,
             },
+        }).then(response => {
+            if (!response.ok) {
+                console.log('Discord token invalid, removing session...');
+                sessions.delete(sessionId);
+                res.clearCookie('sessionId', {
+                    domain: '.onrender.com',
+                    secure: true,
+                    httpOnly: true,
+                    path: '/'
+                });
+                return res.json({ authenticated: false });
+            }
+
+            res.json({
+                authenticated: true,
+                user: {
+                    id: session.userId,
+                    username: session.username,
+                    discriminator: session.discriminator,
+                    avatar: session.avatar,
+                },
+            });
+        }).catch(error => {
+            console.error('Error checking Discord token:', error);
+            res.json({ authenticated: false });
         });
     } else {
         console.log('Session not found');
