@@ -105,15 +105,15 @@ footer {
 /* Медиа-запросы для ноутбуков 16:9 */
 @media screen and (max-width: 1920px) and (min-width: 1366px) {
     .slider {
-        height: 90vh; /* Немного уменьшаем высоту слайдера для лучшего отображения */
+        height: 90vh;
     }
 
     .character-grid {
-        gap: 1.5rem; /* Уменьшаем отступы между карточками */
+        gap: 1.5rem;
     }
 
     .character-card img {
-        height: 450px; /* Оптимизируем высоту изображений */
+        height: 350px;
     }
 
     .info-panel,
@@ -125,7 +125,28 @@ footer {
     .cocytus-panel-container .character-panel,
     .shalltear-panel-container .character-panel,
     .aura-mare-panel-container .character-panel {
-        padding: 40px; /* Уменьшаем внутренние отступы панелей */
+        padding: 40px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    #helper-dialog {
+        padding: 15px 20px;
+    }
+
+    #close-dialog,
+    #next-phrase {
+        margin: 5px;
+    }
+
+    #close-dialog {
+        top: 8px;
+        right: 12px;
+    }
+
+    #next-phrase {
+        bottom: 8px;
+        right: 15px;
     }
 }
 
@@ -136,7 +157,7 @@ footer {
     }
 
     .character-card img {
-        height: 400px;
+        height: 300px;
     }
 
     .info-panel,
@@ -149,6 +170,28 @@ footer {
     .shalltear-panel-container .character-panel,
     .aura-mare-panel-container .character-panel {
         padding: 30px;
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+
+    #helper-dialog {
+        padding: 12px 15px;
+        max-width: 240px;
+    }
+
+    #close-dialog,
+    #next-phrase {
+        margin: 8px;
+    }
+
+    #close-dialog {
+        top: 10px;
+        right: 15px;
+    }
+
+    #next-phrase {
+        bottom: 10px;
+        right: 18px;
     }
 }
 
