@@ -1,5 +1,6 @@
 let currentUser = null;
 let ws = null; // Инициализируем ws как null
+let isWebSocketReady = false; // Флаг готовности WebSocket для отправки сообщений
 
 // Функция для проверки сессии
 async function checkSession() {
@@ -18,19 +19,7 @@ async function checkSession() {
 function updateUIForAuthenticated(user) {
     console.log('[chat.js] Updating UI for authenticated user:', user);
     currentUser = user; // Сохраняем данные пользователя
-    const authMessage = document.querySelector('.auth-message');
-    const loginBtn = document.querySelector('.discord-login-btn');
-    const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-message');
-    const chatContainer = document.querySelector('.chat-input-container');
-    
-    if (authMessage) authMessage.style.display = 'none';
-    if (loginBtn) loginBtn.style.display = 'none';
-    if (chatInput) chatInput.disabled = false;
-    if (sendButton) sendButton.disabled = false;
-    if (chatContainer) chatContainer.classList.remove('disabled');
-
-    // Убедимся, что WebSocket подключен с актуальной сессией
+    // Элементы UI будут активированы после получения статуса готовности от сервера через WebSocket
     connectWebSocket(); 
 }
 
@@ -38,6 +27,7 @@ function updateUIForAuthenticated(user) {
 function updateUIForUnauthenticated() {
     console.log('[chat.js] Updating UI for unauthenticated user.');
     currentUser = null; // Сбрасываем данные пользователя
+    isWebSocketReady = false; // Сбрасываем флаг готовности
     const authMessage = document.querySelector('.auth-message');
     const loginBtn = document.querySelector('.discord-login-btn');
     const chatInput = document.getElementById('chat-input');
@@ -93,6 +83,12 @@ function sendMessage() {
     const message = input.value.trim();
     
     if (message && ws && ws.readyState === WebSocket.OPEN) {
+        if (!isWebSocketReady) {
+            console.warn('WebSocket connection not yet ready. Please wait for authorization and initialization.');
+            alert('Подождите, пока чат полностью инициализируется. Если проблема сохраняется, попробуйте перезагрузить страницу.');
+            return;
+        }
+
         if (!currentUser) {
             console.warn('Attempted to send message without authentication. Please log in.');
             alert('Для отправки сообщения необходимо авторизоваться через Discord!');
@@ -155,6 +151,15 @@ function connectWebSocket() {
             addMessage(data.message, data.sender === 'support' ? 'bot' : data.sender, displayAuthor);
         } else if (data.type === 'status') {
             addMessage(data.message, 'bot');
+            if (data.authenticated) {
+                isWebSocketReady = true; // Устанавливаем флаг готовности
+                const chatInput = document.getElementById('chat-input');
+                const sendButton = document.getElementById('send-message');
+                const chatContainer = document.querySelector('.chat-input-container');
+                if (chatInput) chatInput.disabled = false;
+                if (sendButton) sendButton.disabled = false;
+                if (chatContainer) chatContainer.classList.remove('disabled');
+            }
         } else if (data.type === 'error') {
             addMessage(data.message, 'bot');
             console.error('WebSocket error from server:', data.message);
@@ -206,6 +211,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toggleChatBtn = document.getElementById("toggle-chat");
     const textBox = dialog.querySelector(".dialog-text");
     const chatContainer = dialog.querySelector(".chat-container");
+
+    // Элементы чата (изначально отключены)
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-message');
+    const chatInputContainer = document.querySelector('.chat-input-container');
+
+    if (chatInput) chatInput.disabled = true;
+    if (sendButton) sendButton.disabled = true;
+    if (chatInputContainer) chatInputContainer.classList.add('disabled');
 
     // Инициализация кнопки Discord
     initDiscordLogin();
@@ -266,15 +280,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             toggleChatBtn.style.display = "none";
             dialog.classList.add('expanded-chat');
             
-            // Переподключаем WebSocket при открытии чата, чтобы убедиться в актуальной сессии
-            connectWebSocket(); 
+            // WebSocket уже подключен через updateUIForAuthenticated после авторизации
+            // Нет необходимости вызывать connectWebSocket() здесь повторно.
         }
     });
 
     // Добавляем обработчики для отправки сообщений
-    const sendButton = document.getElementById('send-message');
-    const chatInput = document.getElementById('chat-input');
-
     if (sendButton) {
         sendButton.addEventListener('click', sendMessage);
     }
