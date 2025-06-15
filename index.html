@@ -1323,7 +1323,7 @@
       width: min(35%, 600px);
       max-width: 600px;
       height: 100%;
-      background: rgba(28,28,46,0.95);
+      background: rgba(28,28,46,0.98); /* Увеличиваем непрозрачность с 0.95 до 0.98 */
       border: 1px solid rgba(184,145,249,0.3);
       border-radius: 8px;
       padding: 20px;
@@ -1343,7 +1343,7 @@
       box-shadow: 0 0 20px rgba(184,145,249,0.3);
       border-color: rgba(184,145,249,0.6);
       z-index: 5;
-      background: rgba(28,28,46,0.98);
+      background: rgba(28,28,46,1); /* Полностью непрозрачный фон при наведении */
     }
 
     .announcement-panel.active {
@@ -1352,28 +1352,28 @@
       z-index: 4;
       box-shadow: 0 0 30px rgba(184,145,249,0.4);
       border-color: rgba(184,145,249,0.8);
-      background: rgba(28,28,46,0.98);
+      background: rgba(28,28,46,1); /* Полностью непрозрачный фон для активного объявления */
     }
 
     .announcement-panel.prev {
       transform: translateX(calc(-50% + 30%));
       opacity: 0.7;
       z-index: 3;
-      background: rgba(28,28,46,0.9);
+      background: rgba(28,28,46,0.95); /* Увеличиваем непрозрачность с 0.9 до 0.95 */
     }
 
     .announcement-panel.prev2 {
       transform: translateX(calc(-50% + 60%));
       opacity: 0.4;
       z-index: 2;
-      background: rgba(28,28,46,0.85);
+      background: rgba(28,28,46,0.92); /* Увеличиваем непрозрачность с 0.85 до 0.92 */
     }
 
     .announcement-panel.prev3 {
       transform: translateX(calc(-50% + 90%));
       opacity: 0.1;
       z-index: 1;
-      background: rgba(28,28,46,0.8);
+      background: rgba(28,28,46,0.9); /* Увеличиваем непрозрачность с 0.8 до 0.9 */
     }
 
     .announcement-panel img {
@@ -1391,13 +1391,13 @@
       flex-direction: column;
       gap: 10px;
       max-height: 150px;
-      overflow-y: hidden; /* По умолчанию скрываем скролл */
+      overflow-y: hidden;
       padding-right: 10px;
       transition: all 0.3s ease;
     }
 
     .announcement-content.scrollable {
-      overflow-y: auto; /* Показываем скролл только когда есть класс scrollable */
+      overflow-y: auto;
     }
 
     /* Стилизация скроллбара */
@@ -1417,6 +1417,28 @@
 
     .announcement-content.scrollable::-webkit-scrollbar-thumb:hover {
       background: rgba(184,145,249,0.5);
+    }
+
+    /* Добавляем стили для индикации возможности скролла */
+    .announcement-panel.active .announcement-content {
+      position: relative;
+    }
+
+    .announcement-panel.active .announcement-content::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background: linear-gradient(transparent, rgba(28,28,46,0.95));
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .announcement-panel.active:hover .announcement-content::after {
+      opacity: 1;
     }
 
     .announcement-content h3 {
@@ -2374,10 +2396,18 @@ document.addEventListener('DOMContentLoaded', function() {
         panel.style.opacity = 1;
         panel.style.transform = 'translateX(-50%)';
         
-        // Добавляем скролл только для активной панели, если контент не помещается
+        // Добавляем обработчик наведения для активной панели
         const activeContent = panel.querySelector('.announcement-content');
-        if (activeContent && activeContent.scrollHeight > activeContent.clientHeight) {
-          activeContent.classList.add('scrollable');
+        if (activeContent) {
+          panel.addEventListener('mouseenter', () => {
+            if (activeContent.scrollHeight > activeContent.clientHeight) {
+              activeContent.classList.add('scrollable');
+            }
+          });
+          
+          panel.addEventListener('mouseleave', () => {
+            activeContent.classList.remove('scrollable');
+          });
         }
       } else if (index === (currentIndex + 1) % panels.length) {
         panel.classList.add('prev');
