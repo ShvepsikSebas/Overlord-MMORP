@@ -183,7 +183,8 @@ wss.on('connection', ws => {
             const userMessage = parsedMessage.message;
             const userData = parsedMessage.user; // Получаем данные пользователя из сообщения
 
-            console.log(`Received chat message from client ${clientId}: ${userMessage}`);
+            console.log(`Received chat message from client ${clientId}: ${userMessage}. User data: ${JSON.stringify(userData)}`);
+            console.log('Full parsed message from client:', parsedMessage); // Добавлено для отладки
 
             // Check if a Discord channel already exists for this client
             let discordChannelId = clientToDiscordChannel.get(clientId);
