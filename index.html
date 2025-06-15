@@ -1781,20 +1781,23 @@
     /* ... existing styles ... */
     
     .auth-container {
-        position: fixed;
+        position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.95);
         padding: 2rem;
         border-radius: 10px;
         text-align: center;
         z-index: 1000;
+        border: 1px solid #7289DA;
+        box-shadow: 0 0 20px rgba(114, 137, 218, 0.3);
     }
 
     .auth-container h2 {
         color: #fff;
         margin-bottom: 1rem;
+        font-size: 1.5rem;
     }
 
     .discord-login-btn {
@@ -1808,24 +1811,29 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        transition: background 0.3s;
+        transition: all 0.3s;
     }
 
     .discord-login-btn:hover {
         background: #5b6eae;
+        transform: translateY(-2px);
     }
 
     .user-info {
         display: flex;
         align-items: center;
         gap: 1rem;
+        padding: 0.5rem;
+        background: rgba(114, 137, 218, 0.1);
+        border-radius: 5px;
         margin-bottom: 1rem;
     }
 
     .user-avatar {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
+        border: 2px solid #7289DA;
     }
 
     .user-details {
@@ -1834,20 +1842,22 @@
 
     .user-name {
         font-weight: bold;
+        font-size: 0.9rem;
     }
 
     .user-discriminator {
         color: #999;
+        font-size: 0.8rem;
     }
 
     .logout-btn {
         background: #ed4245;
         color: white;
-        padding: 0.5rem 1rem;
+        padding: 0.3rem 0.8rem;
         border: none;
-        border-radius: 5px;
+        border-radius: 3px;
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         transition: background 0.3s;
     }
 
@@ -1858,6 +1868,7 @@
 
   <div id="auth-container" class="auth-container" style="display: none;">
       <h2>Авторизация через Discord</h2>
+      <p style="color: #ccc; margin-bottom: 1rem;">Для общения с администрацией необходимо войти через Discord</p>
       <button id="discord-login" class="discord-login-btn">
           <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_white_RGB.png" alt="Discord" style="width: 24px; height: 24px;">
           Войти через Discord
@@ -1884,8 +1895,16 @@
       const userDiscriminator = document.getElementById('user-discriminator');
       const logoutBtn = document.getElementById('logout-btn');
       const discordLoginBtn = document.getElementById('discord-login');
+      const chatContainer = document.getElementById('chat-container');
 
-      // Проверяем авторизацию при загрузке
+      // Показываем авторизацию только при открытии чата
+      document.getElementById('toggle-chat').addEventListener('click', () => {
+          if (!session) {
+              checkAuth();
+          }
+      });
+
+      // Проверяем авторизацию
       async function checkAuth() {
           if (!session) {
               showAuth();
@@ -1967,8 +1986,8 @@
           // ... rest of the WebSocket code ...
       }
 
-      // Проверяем авторизацию при загрузке страницы
-      checkAuth();
+      // Проверяем авторизацию только при открытии чата
+      document.getElementById('toggle-chat').addEventListener('click', checkAuth);
   </script>
 </head>
 <body>
