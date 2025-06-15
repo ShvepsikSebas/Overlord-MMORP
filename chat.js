@@ -14,12 +14,20 @@ async function checkSession() {
         // Если сессия невалидна, очищаем localStorage
         if (!data.authenticated) {
             localStorage.removeItem('sessionId');
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
         }
         
         return data;
     } catch (error) {
         console.error('Ошибка при проверке сессии:', error);
         localStorage.removeItem('sessionId');
+        if (ws) {
+            ws.close();
+            ws = null;
+        }
         return { authenticated: false };
     }
 }
@@ -136,6 +144,7 @@ function connectWebSocket(sessionId) {
 
     ws.onopen = () => {
         console.log('[chat.js] WebSocket connected');
+        // Отправляем только sessionId, без clientId
         const initMessage = { 
             type: 'init', 
             sessionId: sessionId 
