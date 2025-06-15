@@ -1,3 +1,5 @@
+let currentUser = null;
+
 // Функция для проверки сессии
 async function checkSession() {
     try {
@@ -14,6 +16,7 @@ async function checkSession() {
 // Функция для обновления UI после авторизации
 function updateUIForAuthenticated(user) {
     console.log('Updating UI for authenticated user:', user);
+    currentUser = user; // Сохраняем данные пользователя
     const authMessage = document.querySelector('.auth-message');
     const loginBtn = document.querySelector('.discord-login-btn');
     const chatInput = document.getElementById('chat-input');
@@ -30,6 +33,7 @@ function updateUIForAuthenticated(user) {
 // Функция для обновления UI при отсутствии авторизации
 function updateUIForUnauthenticated() {
     console.log('Updating UI for unauthenticated user.');
+    currentUser = null; // Сбрасываем данные пользователя
     const authMessage = document.querySelector('.auth-message');
     const loginBtn = document.querySelector('.discord-login-btn');
     const chatInput = document.getElementById('chat-input');
@@ -79,7 +83,13 @@ function sendMessage() {
     const input = document.getElementById('chat-input');
     const message = input.value.trim();
     
-    if (message) {
+    if (message && ws && ws.readyState === WebSocket.OPEN) {
+        if (!currentUser) {
+            console.warn('Attempted to send message without authentication. Please log in.');
+            alert('Для отправки сообщения необходимо авторизоваться через Discord!');
+            return;
+        }
+
         const messagesContainer = document.querySelector('.chat-messages');
         const messageElement = document.createElement('div');
         messageElement.className = 'chat-message user';
@@ -87,6 +97,22 @@ function sendMessage() {
         messagesContainer.appendChild(messageElement);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         input.value = '';
+
+        // Отправляем сообщение на сервер WebSocket с информацией о пользователе
+        ws.send(JSON.stringify({
+            type: 'chatMessage',
+            clientId: localStorage.getItem('clientId'),
+            message: message,
+            user: {
+                id: currentUser.id,
+                username: currentUser.username,
+                discriminator: currentUser.discriminator
+            }
+        }));
+
+    } else if (message && (!ws || ws.readyState !== WebSocket.OPEN)) {
+        console.error('WebSocket is not connected. Cannot send message.');
+        alert('Чат недоступен. Попробуйте обновить страницу или повторите попытку позже.');
     }
 }
 
