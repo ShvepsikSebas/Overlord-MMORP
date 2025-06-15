@@ -1,4 +1,6 @@
+/* Основные стили для десктоп-верстки */
 :root {
+    --container-width: 1200px;
     --primary-color: #2c1810;
     --secondary-color: #8b0000;
     --accent-color: #ffd700;
@@ -18,216 +20,167 @@ body {
     background-color: var(--background-dark);
     color: var(--text-color);
     line-height: 1.6;
+    min-width: var(--container-width);
+    overflow-x: hidden;
 }
 
-.header {
-    background-color: var(--primary-color);
-    padding: 1rem 0;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-}
-
-.nav {
-    max-width: 1200px;
+/* Основной контейнер для всего контента */
+.main-container {
+    width: var(--container-width);
     margin: 0 auto;
+    position: relative;
+}
+
+/* Стили для фоновых и декоративных элементов */
+.background-element {
+    position: absolute;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: -1;
+}
+
+/* Стили для панелей */
+.info-panel,
+.donate-panel,
+.character-panel,
+.sebas-panel-container .character-panel,
+.albedo-panel-container .character-panel,
+.demiurge-panel-container .character-panel,
+.cocytus-panel-container .character-panel,
+.shalltear-panel-container .character-panel,
+.aura-mare-panel-container .character-panel {
+    width: var(--container-width);
+    margin: 0 auto;
+    background: rgba(28,28,46,0.5);
+    backdrop-filter: blur(10px);
+    border: none;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0 2rem;
+    padding: 60px;
+    border-radius: 12px;
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: transform 1s ease, opacity 1s ease;
+    cursor: pointer;
+    z-index: 1;
 }
 
-.logo {
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--accent-color);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 2rem;
-}
-
-.nav-links a {
-    color: var(--text-color);
-    text-decoration: none;
-    font-size: 1.1rem;
-    transition: color 0.3s ease;
-}
-
-.nav-links a:hover {
-    color: var(--accent-color);
-}
-
-.hero {
+/* Стили для слайдера */
+.slider {
+    width: var(--container-width);
+    margin: 0 auto;
     height: 100vh;
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                url('images/overlord-bg.jpg') center/cover;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 0 2rem;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(184, 145, 249, 0.2);
 }
 
-.hero-content {
-    max-width: 800px;
-}
-
-.hero h1 {
-    font-size: 3.5rem;
-    margin-bottom: 1rem;
-    color: var(--accent-color);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.hero p {
-    font-size: 1.5rem;
-    color: var(--text-color);
-}
-
-.characters {
-    padding: 5rem 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.characters h2 {
-    text-align: center;
-    font-size: 2.5rem;
-    margin-bottom: 3rem;
-    color: var(--accent-color);
-}
-
+/* Стили для сетки персонажей */
 .character-grid {
+    width: var(--container-width);
+    margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
     padding: 0;
-    max-width: 1000px;
-    margin: 0 auto;
 }
 
-.character-card {
-    background-color: var(--card-bg);
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-}
-
-.character-card:hover {
-    transform: translateY(-10px);
-}
-
-.character-card img {
-    width: 100%;
-    height: 500px;
-    object-fit: cover;
-    object-position: center;
-}
-
-.character-card h3 {
-    padding: 1rem;
-    color: var(--accent-color);
-    font-size: 1.5rem;
-    text-align: center;
-}
-
-.character-card p {
-    padding: 0 1rem 1rem;
-    color: var(--text-color);
-    text-align: center;
-    font-size: 1.1rem;
-}
-
-.story {
-    padding: 5rem 2rem;
-    background-color: var(--background-dark);
-}
-
-.story-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 3rem;
-    align-items: start;
-}
-
-.story-image {
-    width: 100%;
-    position: sticky;
-    top: 100px;
-}
-
-.story-image img {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.story-content {
-    width: 100%;
-}
-
-.story-content h2 {
-    color: var(--accent-color);
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    text-align: left;
-}
-
-.story-content p {
-    margin-bottom: 1.5rem;
-    font-size: 1.1rem;
-    line-height: 1.8;
-    text-align: justify;
-}
-
-.footer-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.social-links {
-    display: flex;
-    gap: 1.5rem;
-}
-
-.discord-link, .youtube-link {
-    color: var(--text-color);
-    font-size: 2rem;
-    transition: color 0.3s ease;
-}
-
-.discord-link:hover {
-    color: #7289DA;
-}
-
-.youtube-link:hover {
-    color: #FF0000;
-}
-
+/* Стили для футера */
 footer {
+    width: 100vw;
     background-color: var(--primary-color);
-    text-align: center;
-    padding: 2rem;
+    padding: 2rem 0;
     margin-top: 4rem;
 }
 
+.footer-content {
+    width: var(--container-width);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Медиа-запросы для ноутбуков 16:9 */
+@media screen and (max-width: 1920px) and (min-width: 1366px) {
+    .slider {
+        height: 90vh; /* Немного уменьшаем высоту слайдера для лучшего отображения */
+    }
+
+    .character-grid {
+        gap: 1.5rem; /* Уменьшаем отступы между карточками */
+    }
+
+    .character-card img {
+        height: 450px; /* Оптимизируем высоту изображений */
+    }
+
+    .info-panel,
+    .donate-panel,
+    .character-panel,
+    .sebas-panel-container .character-panel,
+    .albedo-panel-container .character-panel,
+    .demiurge-panel-container .character-panel,
+    .cocytus-panel-container .character-panel,
+    .shalltear-panel-container .character-panel,
+    .aura-mare-panel-container .character-panel {
+        padding: 40px; /* Уменьшаем внутренние отступы панелей */
+    }
+}
+
+/* Медиа-запрос для ноутбуков с разрешением 1366x768 */
+@media screen and (max-width: 1366px) {
+    .slider {
+        height: 85vh;
+    }
+
+    .character-card img {
+        height: 400px;
+    }
+
+    .info-panel,
+    .donate-panel,
+    .character-panel,
+    .sebas-panel-container .character-panel,
+    .albedo-panel-container .character-panel,
+    .demiurge-panel-container .character-panel,
+    .cocytus-panel-container .character-panel,
+    .shalltear-panel-container .character-panel,
+    .aura-mare-panel-container .character-panel {
+        padding: 30px;
+    }
+}
+
+/* Медиа-запросы только для крайних случаев */
+@media (max-width: 1200px) {
+    body {
+        overflow-x: auto;
+    }
+    
+    .main-container,
+    .info-panel,
+    .donate-panel,
+    .character-panel,
+    .slider,
+    .character-grid,
+    .footer-content {
+        width: 100%;
+        min-width: var(--container-width);
+    }
+}
+
+/* Сохраняем существующие медиа-запросы для мобильных устройств */
 @media (max-width: 768px) {
+    body {
+        min-width: auto; /* Remove min-width restriction for mobile */
+    }
+    
+    .main-container {
+        width: 100%;
+        padding: 0 1rem;
+    }
+    
     .nav {
         flex-direction: column;
         gap: 1rem;
@@ -279,6 +232,190 @@ footer {
     .character-card img {
         height: 300px;
     }
+}
+
+.header {
+    background-color: var(--primary-color);
+    padding: 1rem 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.nav {
+    width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: var(--accent-color);
+}
+
+.hero {
+    height: 100vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('images/overlord-bg.jpg') center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+}
+
+.hero-content {
+    width: 1200px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent-color);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero p {
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+.characters {
+    padding: 5rem 0;
+    width: 1200px;
+    margin: 0 auto;
+}
+
+.characters h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    color: var(--accent-color);
+}
+
+.character-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.character-card:hover {
+    transform: translateY(-10px);
+}
+
+.character-card img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.character-card h3 {
+    padding: 1rem;
+    color: var(--accent-color);
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.character-card p {
+    padding: 0 1rem 1rem;
+    color: var(--text-color);
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.story {
+    padding: 5rem 0;
+    background-color: var(--background-dark);
+    width: 100%;
+}
+
+.story-container {
+    width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.story-image {
+    width: 100%;
+    position: sticky;
+    top: 100px;
+}
+
+.story-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.story-content {
+    width: 100%;
+}
+
+.story-content h2 {
+    color: var(--accent-color);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.story-content p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    text-align: justify;
+}
+
+.social-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.discord-link, .youtube-link {
+    color: var(--text-color);
+    font-size: 2rem;
+    transition: color 0.3s ease;
+}
+
+.discord-link:hover {
+    color: #7289DA;
+}
+
+.youtube-link:hover {
+    color: #FF0000;
 }
 
 .titles, .create {
