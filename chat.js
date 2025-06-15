@@ -1,14 +1,6 @@
 let currentUser = null;
 let ws = null; // Инициализируем ws как null
 
-// Вспомогательная функция для получения значения cookie
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-}
-
 // Функция для проверки сессии
 async function checkSession() {
     try {
@@ -139,28 +131,19 @@ function connectWebSocket() {
     }
 
     const clientId = localStorage.getItem('clientId');
-    const sessionId = getCookie('sessionId'); // Получаем sessionId из куки
 
     if (!clientId) {
         console.error('[chat.js] Client ID not found. Cannot establish WebSocket connection.');
         return;
     }
 
-    // Если сессия не найдена, возможно, пользователь не авторизован
-    if (!sessionId) {
-        console.warn('[chat.js] Session ID not found. WebSocket connection will be initialized without session data.');
-    }
-
-    console.log(`[chat.js] Connecting WebSocket for client ${clientId} with sessionId: ${sessionId}`);
+    console.log(`[chat.js] Connecting WebSocket for client ${clientId}`);
     ws = new WebSocket('wss://overlord-mmorp.onrender.com');
 
     ws.onopen = () => {
         console.log('[chat.js] WebSocket connected.');
-        // Send initial message with client ID and session ID if available
+        // Send initial message with client ID (session ID is sent via handshake cookies)
         const initMessage = { type: 'init', clientId: clientId };
-        if (sessionId) {
-            initMessage.session = sessionId;
-        }
         console.log('[chat.js] Sending init message:', initMessage);
         ws.send(JSON.stringify(initMessage));
     };
