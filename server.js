@@ -138,243 +138,242 @@ wss.on('connection', (ws, req) => {
     console.log(`[server.js] Session ID extracted from cookie in handshake: ${sessionIdFromCookie}`);
     ws.sessionId = sessionIdFromCookie; // Store sessionId on the WebSocket object
 
+    // Проверяем сессию сразу при подключении
+    if (!ws.sessionId || !sessions.has(ws.sessionId)) {
+        console.warn(`[server.js] Invalid or missing session for WebSocket connection`);
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Требуется авторизация через Discord'
+        }));
+        ws.close();
+        return;
+    }
+
     ws.on('message', async message => {
-        const parsedMessage = JSON.parse(message);
-        
-        if (parsedMessage.type === 'init' && parsedMessage.clientId) {
-            const clientId = parsedMessage.clientId;
-            // const session = parsedMessage.session; // No longer relying on client sending session in init message
-            const session = ws.sessionId; // Use session ID from WebSocket object
-
-            console.log(`[server.js] Received init message from client ${clientId}. Using Session ID from WebSocket object: ${session}`);
-
-            // Проверяем авторизацию
-            if (!session) {
-                console.warn(`[server.js] Session ID is missing (not found on WebSocket object) for client ${clientId}.`);
-                ws.send(JSON.stringify({
-                    type: 'error',
-                    message: 'Требуется авторизация через Discord'
-                }));
-                return;
-            }
-
-            if (!sessions.has(session)) {
-                console.warn(`[server.js] Session ID ${session} not found in sessions map for client ${clientId}. Current sessions:`, Array.from(sessions.keys()));
-                ws.send(JSON.stringify({
-                    type: 'error',
-                    message: 'Требуется авторизация через Discord'
-                }));
-                return;
-            }
-
-            const sessionData = sessions.get(session);
-            console.log(`[server.js] Session data found for ${session}:`, sessionData);
+        try {
+            const parsedMessage = JSON.parse(message);
             
-            // Store the user data directly on the WebSocket object for later use
-            ws.userData = {
-                id: sessionData.userId,
-                username: sessionData.username,
-                discriminator: sessionData.discriminator,
-                avatar: sessionData.avatar
-            };
-            console.log(`[server.js] WebSocket for client ${clientId} initialized with user data:`, ws.userData);
+            if (parsedMessage.type === 'init' && parsedMessage.clientId) {
+                const clientId = parsedMessage.clientId;
+                const session = ws.sessionId;
 
-            // Проверяем блокировку
-            const blockData = blockedUsers.get(sessionData.userId);
-            if (blockData && Date.now() < blockData.until) {
+                console.log(`[server.js] Received init message from client ${clientId}. Session ID: ${session}`);
+
+                // Проверяем авторизацию
+                if (!session || !sessions.has(session)) {
+                    console.warn(`[server.js] Invalid session for client ${clientId}`);
+                    ws.send(JSON.stringify({
+                        type: 'error',
+                        message: 'Требуется авторизация через Discord'
+                    }));
+                    return;
+                }
+
+                const sessionData = sessions.get(session);
+                console.log(`[server.js] Session data found for ${session}:`, sessionData);
+                
+                // Store the user data directly on the WebSocket object for later use
+                ws.userData = {
+                    id: sessionData.userId,
+                    username: sessionData.username,
+                    discriminator: sessionData.discriminator,
+                    avatar: sessionData.avatar
+                };
+                console.log(`[server.js] WebSocket for client ${clientId} initialized with user data:`, ws.userData);
+
+                // Проверяем блокировку
+                const blockData = blockedUsers.get(sessionData.userId);
+                if (blockData && Date.now() < blockData.until) {
+                    ws.send(JSON.stringify({
+                        type: 'error',
+                        message: `Вы заблокированы. Причина: ${blockData.reason}. Разблокировка: ${new Date(blockData.until).toLocaleString()}`
+                    }));
+                    return;
+                }
+
+                clients.set(clientId, ws);
+                console.log(`[server.js] Client ${clientId} initialized WebSocket connection.`);
+
+                // Отправляем клиенту подтверждение об успешной инициализации WebSocket и авторизации
                 ws.send(JSON.stringify({
-                    type: 'error',
-                    message: `Вы заблокированы. Причина: ${blockData.reason}. Разблокировка: ${new Date(blockData.until).toLocaleString()}`
+                    type: 'status',
+                    message: 'Авторизация и подключение к чату успешно завершены.',
+                    authenticated: true,
+                    user: ws.userData
                 }));
-                return;
-            }
 
-            clients.set(clientId, ws);
-            console.log(`[server.js] Client ${clientId} initialized WebSocket connection.`);
+                // Если есть существующий Discord канал для этого клиента, отправляем подтверждение
+                if (clientToDiscordChannel.has(clientId)) {
+                    ws.send(JSON.stringify({ 
+                        type: 'status', 
+                        message: 'Подключено к существующему чату.',
+                        user: ws.userData
+                    }));
+                } else {
+                    ws.send(JSON.stringify({ 
+                        type: 'status', 
+                        message: 'Ожидаем ваше первое сообщение...',
+                        user: ws.userData
+                    }));
+                }
+            } else if (parsedMessage.type === 'chatMessage' && parsedMessage.clientId && parsedMessage.message) {
+                // Handle chat messages coming from the website via WebSocket
+                const clientId = parsedMessage.clientId;
+                const userMessage = parsedMessage.message;
+                // Retrieve userData from the sessions map using the sessionId stored on the WebSocket object
+                const session = ws.sessionId; // Get sessionId from the WebSocket object
+                if (!session || !sessions.has(session)) {
+                    console.error(`Received chat message from client ${clientId} but no valid session found for session ID: ${session}.`);
+                    ws.send(JSON.stringify({ type: 'error', message: 'Не удалось определить пользователя. Пожалуйста, попробуйте авторизоваться снова.' }));
+                    return;
+                }
+                const userData = sessions.get(session);
 
-            // Отправляем клиенту подтверждение об успешной инициализации WebSocket и авторизации
-            ws.send(JSON.stringify({
-                type: 'status',
-                message: 'Авторизация и подключение к чату успешно завершены.',
-                authenticated: true // Индикатор успешной инициализации
-            }));
+                if (!userData) { // This check should ideally not be hit if sessions.has(session) is true, but good for safety
+                    console.error(`Received chat message from client ${clientId} but no user data found on WebSocket connection.`);
+                    ws.send(JSON.stringify({ type: 'error', message: 'Не удалось определить пользователя. Пожалуйста, попробуйте авторизоваться снова.' }));
+                    return;
+                }
 
-            // Если есть существующий Discord канал для этого клиента, отправляем подтверждение
-            if (clientToDiscordChannel.has(clientId)) {
-                ws.send(JSON.stringify({ 
-                    type: 'status', 
-                    message: 'Подключено к существующему чату.',
-                    user: {
-                        id: sessionData.userId,
-                        username: sessionData.username,
-                        discriminator: sessionData.discriminator,
-                        avatar: sessionData.avatar
-                    }
-                }));
-            } else {
-                ws.send(JSON.stringify({ 
-                    type: 'status', 
-                    message: 'Ожидаем ваше первое сообщение...',
-                    user: {
-                        id: sessionData.userId,
-                        username: sessionData.username,
-                        discriminator: sessionData.discriminator,
-                        avatar: sessionData.avatar
-                    }
-                }));
-            }
-        } else if (parsedMessage.type === 'chatMessage' && parsedMessage.clientId && parsedMessage.message) {
-            // Handle chat messages coming from the website via WebSocket
-            const clientId = parsedMessage.clientId;
-            const userMessage = parsedMessage.message;
-            // Retrieve userData from the sessions map using the sessionId stored on the WebSocket object
-            const session = ws.sessionId; // Get sessionId from the WebSocket object
-            if (!session || !sessions.has(session)) {
-                console.error(`Received chat message from client ${clientId} but no valid session found for session ID: ${session}.`);
-                ws.send(JSON.stringify({ type: 'error', message: 'Не удалось определить пользователя. Пожалуйста, попробуйте авторизоваться снова.' }));
-                return;
-            }
-            const userData = sessions.get(session);
+                console.log(`Received chat message from client ${clientId}: ${userMessage}. User data from sessions map: ${JSON.stringify(userData)}`);
+                console.log('Full parsed message from client:', parsedMessage); 
 
-            if (!userData) { // This check should ideally not be hit if sessions.has(session) is true, but good for safety
-                console.error(`Received chat message from client ${clientId} but no user data found on WebSocket connection.`);
-                ws.send(JSON.stringify({ type: 'error', message: 'Не удалось определить пользователя. Пожалуйста, попробуйте авторизоваться снова.' }));
-                return;
-            }
+                // Check if a Discord channel already exists for this client
+                let discordChannelId = clientToDiscordChannel.get(clientId);
 
-            console.log(`Received chat message from client ${clientId}: ${userMessage}. User data from sessions map: ${JSON.stringify(userData)}`);
-            console.log('Full parsed message from client:', parsedMessage); 
-
-            // Check if a Discord channel already exists for this client
-            let discordChannelId = clientToDiscordChannel.get(clientId);
-
-            async function processChatMessage() {
-                try {
-                    let supportChannel;
-                    if (discordChannelId) {
-                        try {
-                            console.log(`Attempting to fetch mapped Discord channel: ${discordChannelId}`);
-                            supportChannel = await client.channels.fetch(discordChannelId);
-                            console.log(`Successfully fetched mapped Discord channel: ${supportChannel.name}`);
-                        } catch (fetchError) {
-                            if (fetchError.code === 10003) { // DiscordAPIError[10003]: Unknown Channel
-                                console.warn(`Mapped Discord channel ${discordChannelId} is unknown/deleted. Clearing mapping and attempting new channel creation.`);
+                async function processChatMessage() {
+                    try {
+                        let supportChannel;
+                        if (discordChannelId) {
+                            try {
+                                console.log(`Attempting to fetch mapped Discord channel: ${discordChannelId}`);
+                                supportChannel = await client.channels.fetch(discordChannelId);
+                                console.log(`Successfully fetched mapped Discord channel: ${supportChannel.name}`);
+                            } catch (fetchError) {
+                                if (fetchError.code === 10003) { // DiscordAPIError[10003]: Unknown Channel
+                                    console.warn(`Mapped Discord channel ${discordChannelId} is unknown/deleted. Clearing mapping and attempting new channel creation.`);
+                                    clientToDiscordChannel.delete(clientId);
+                                    discordChannelToClient.delete(discordChannelId);
+                                    discordChannelId = null; // Force new channel creation
+                                } else {
+                                    console.error(`Unexpected error fetching mapped Discord channel ${discordChannelId}:`, fetchError);
+                                    throw fetchError; // Re-throw other errors
+                                }
+                            }
+                            if (!supportChannel && discordChannelId !== null) {
+                                console.error(`Mapped Discord channel ${discordChannelId} not found after fetch attempt (should be null now if deleted).`);
+                                // Fallback: clear mapping and create new channel (already handled by catch block now, but good fallback)
                                 clientToDiscordChannel.delete(clientId);
                                 discordChannelToClient.delete(discordChannelId);
-                                discordChannelId = null; // Force new channel creation
-                            } else {
-                                console.error(`Unexpected error fetching mapped Discord channel ${discordChannelId}:`, fetchError);
-                                throw fetchError; // Re-throw other errors
+                                discordChannelId = null;
                             }
                         }
-                        if (!supportChannel && discordChannelId !== null) {
-                            console.error(`Mapped Discord channel ${discordChannelId} not found after fetch attempt (should be null now if deleted).`);
-                            // Fallback: clear mapping and create new channel (already handled by catch block now, but good fallback)
-                            clientToDiscordChannel.delete(clientId);
-                            discordChannelToClient.delete(discordChannelId);
-                            discordChannelId = null;
+
+                        if (!discordChannelId) {
+                            console.log(`No existing Discord channel for client ${clientId}. Attempting to create a new one.`);
+                            // Create a new Discord channel for this user
+                            const guild = client.guilds.cache.get(config.guildId);
+                            if (!guild) {
+                                console.error('Bot is not in the specified guild or guildId is incorrect.');
+                                ws.send(JSON.stringify({ type: 'error', message: 'Ошибка сервера: не удалось найти сервер Discord.' }));
+                                return;
+                            }
+                            console.log(`Guild found: ${guild.name}`);
+
+                            // Create a new channel in a specific category (e.g., 'Support Tickets')
+                            const category = await guild.channels.fetch(config.supportCategoryId);
+                            if (!category || category.type !== ChannelType.GuildCategory) {
+                                console.error('Support category not found or is not a category. ID:', config.supportCategoryId);
+                                ws.send(JSON.stringify({ type: 'error', message: 'Ошибка сервера: не удалось найти категорию поддержки Discord.' }));
+                                return;
+                            }
+                            console.log(`Support category found: ${category.name}`);
+
+                            // Create a unique channel name (e.g., 'support-user-clientId_short')
+                            const channelName = `support-${userData.username}-${userData.discriminator || userData.id.substring(0,4)}`; // Используем никнейм и дискриминатор/ID
+                            console.log(`Attempting to create Discord channel with name: ${channelName} in category ${category.name} (${category.id})`);
+                            supportChannel = await guild.channels.create({
+                                name: channelName,
+                                type: ChannelType.GuildText,
+                                parent: category.id,
+                                permissionOverwrites: [
+                                    {
+                                        id: guild.roles.everyone, // @everyone role
+                                        deny: ['ViewChannel']
+                                    },
+                                    {
+                                        id: client.user.id, // Bot itself
+                                        allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory', 'ManageChannels']
+                                    }
+                                    // You might want to add specific roles for support staff here
+                                ]
+                            });
+                            console.log(`Created new Discord channel: ${supportChannel.name} (${supportChannel.id})`);
+                            
+                            discordChannelId = supportChannel.id;
+                            clientToDiscordChannel.set(clientId, discordChannelId);
+                            discordChannelToClient.set(discordChannelId, clientId);
+
+                            // Send initial message to the newly created Discord channel
+                            await supportChannel.send({
+                                embeds: [{
+                                    title: `Новый чат от ${userData.username}#${userData.discriminator || '0000'} (ID: ${userData.id})`,
+                                    description: `**Первое сообщение:** ${userMessage}`,
+                                    color: 0x00ff00,
+                                    timestamp: new Date()
+                                }]
+                            });
+
+                            ws.send(JSON.stringify({ type: 'message', sender: 'bot', message: 'Ваше сообщение отправлено. Администратор скоро свяжется с вами.' }));
+                            return; // Exit after handling first message
                         }
-                    }
 
-                    if (!discordChannelId) {
-                        console.log(`No existing Discord channel for client ${clientId}. Attempting to create a new one.`);
-                        // Create a new Discord channel for this user
-                        const guild = client.guilds.cache.get(config.guildId);
-                        if (!guild) {
-                            console.error('Bot is not in the specified guild or guildId is incorrect.');
-                            ws.send(JSON.stringify({ type: 'error', message: 'Ошибка сервера: не удалось найти сервер Discord.' }));
-                            return;
-                        }
-                        console.log(`Guild found: ${guild.name}`);
-
-                        // Create a new channel in a specific category (e.g., 'Support Tickets')
-                        const category = await guild.channels.fetch(config.supportCategoryId);
-                        if (!category || category.type !== ChannelType.GuildCategory) {
-                            console.error('Support category not found or is not a category. ID:', config.supportCategoryId);
-                            ws.send(JSON.stringify({ type: 'error', message: 'Ошибка сервера: не удалось найти категорию поддержки Discord.' }));
-                            return;
-                        }
-                        console.log(`Support category found: ${category.name}`);
-
-                        // Create a unique channel name (e.g., 'support-user-clientId_short')
-                        const channelName = `support-${userData.username}-${userData.discriminator || userData.id.substring(0,4)}`; // Используем никнейм и дискриминатор/ID
-                        console.log(`Attempting to create Discord channel with name: ${channelName} in category ${category.name} (${category.id})`);
-                        supportChannel = await guild.channels.create({
-                            name: channelName,
-                            type: ChannelType.GuildText,
-                            parent: category.id,
-                            permissionOverwrites: [
-                                {
-                                    id: guild.roles.everyone, // @everyone role
-                                    deny: ['ViewChannel']
-                                },
-                                {
-                                    id: client.user.id, // Bot itself
-                                    allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory', 'ManageChannels']
-                                }
-                                // You might want to add specific roles for support staff here
-                            ]
-                        });
-                        console.log(`Created new Discord channel: ${supportChannel.name} (${supportChannel.id})`);
-                        
-                        discordChannelId = supportChannel.id;
-                        clientToDiscordChannel.set(clientId, discordChannelId);
-                        discordChannelToClient.set(discordChannelId, clientId);
-
-                        // Send initial message to the newly created Discord channel
+                        // If channel already exists, send message to it
                         await supportChannel.send({
                             embeds: [{
-                                title: `Новый чат от ${userData.username}#${userData.discriminator || '0000'} (ID: ${userData.id})`,
-                                description: `**Первое сообщение:** ${userMessage}`,
-                                color: 0x00ff00,
+                                title: `Сообщение от ${userData.username}#${userData.discriminator || '0000'}`,
+                                description: userMessage,
+                                color: 0xb891f9,
+                                fields: [
+                                    { name: 'Пользователь ID', value: userData.id, inline: true }
+                                ],
                                 timestamp: new Date()
                             }]
                         });
+                        // ws.send(JSON.stringify({ type: 'message', sender: 'bot', message: 'Ваше сообщение отправлено. Ожидайте ответа.' })); // Отключено для последующих сообщений
 
-                        ws.send(JSON.stringify({ type: 'message', sender: 'bot', message: 'Ваше сообщение отправлено. Администратор скоро свяжется с вами.' }));
-                        return; // Exit after handling first message
+                    } catch (error) {
+                        console.error('Error processing chat message from website:', error);
+                        ws.send(JSON.stringify({ type: 'error', message: 'Произошла ошибка при отправке сообщения. Пожалуйста, попробуйте позже.' }));
                     }
-
-                    // If channel already exists, send message to it
-                    await supportChannel.send({
-                        embeds: [{
-                            title: `Сообщение от ${userData.username}#${userData.discriminator || '0000'}`,
-                            description: userMessage,
-                            color: 0xb891f9,
-                            fields: [
-                                { name: 'Пользователь ID', value: userData.id, inline: true }
-                            ],
-                            timestamp: new Date()
-                        }]
-                    });
-                    // ws.send(JSON.stringify({ type: 'message', sender: 'bot', message: 'Ваше сообщение отправлено. Ожидайте ответа.' })); // Отключено для последующих сообщений
-
-                } catch (error) {
-                    console.error('Error processing chat message from website:', error);
-                    ws.send(JSON.stringify({ type: 'error', message: 'Произошла ошибка при отправке сообщения. Пожалуйста, попробуйте позже.' }));
                 }
-            }
-            processChatMessage();
+                processChatMessage();
 
-        } else {
-            console.warn('Unknown WebSocket message type or missing data:', parsedMessage);
+            } else {
+                console.warn('Unknown WebSocket message type or missing data:', parsedMessage);
+            }
+        } catch (error) {
+            console.error('[server.js] Error processing WebSocket message:', error);
+            ws.send(JSON.stringify({
+                type: 'error',
+                message: 'Произошла ошибка при обработке сообщения'
+            }));
         }
     });
 
     ws.on('close', () => {
-        console.log('Client disconnected from WebSocket');
-        // Remove client from map if it was stored
-        for (let [clientId, connection] of clients.entries()) {
-            if (connection === ws) {
+        console.log('[server.js] WebSocket connection closed');
+        // Удаляем клиента из списка при отключении
+        for (const [clientId, clientWs] of clients.entries()) {
+            if (clientWs === ws) {
                 clients.delete(clientId);
-                console.log(`Client ${clientId} removed from active connections.`);
                 break;
             }
         }
     });
 
-    ws.on('error', error => {
-        console.error('WebSocket error:', error);
+    ws.on('error', (error) => {
+        console.error('[server.js] WebSocket error:', error);
     });
 });
 
