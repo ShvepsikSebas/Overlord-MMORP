@@ -125,9 +125,9 @@ wss.on('connection', ws => {
 
             // If there's an existing Discord channel for this client, send a confirmation
             if (clientToDiscordChannel.has(clientId)) {
-                ws.send(JSON.stringify({ type: 'status', message: 'Connected to existing chat session.' }));
+                ws.send(JSON.stringify({ type: 'status', message: 'Подключено к существующему чату.' }));
             } else {
-                ws.send(JSON.stringify({ type: 'status', message: 'Waiting for your first message...' }));
+                ws.send(JSON.stringify({ type: 'status', message: 'Ожидаем ваше первое сообщение...' }));
             }
 
         } else if (parsedMessage.type === 'chatMessage' && parsedMessage.clientId && parsedMessage.message) {
