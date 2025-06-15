@@ -106,152 +106,123 @@ app.get('/api/announcements', (req, res) => {
     res.json(announcements);
 });
 
-// WebSocket connection handling
-wss.on('connection', (ws, req) => {
+// WebSocket обработчик
+wss.on('connection', async (ws, req) => {
     console.log('[server.js] Client connected via WebSocket');
     
-    // Добавляем соединение в список активных
-    activeConnections.add(ws);
+    // Парсим куки из заголовков
+    const cookies = parseCookies(req.headers.cookie || '');
+    const sessionId = cookies.sessionId;
     
-    // Обработка сообщений
+    // Функция для отправки сообщения клиенту
+    const sendMessage = (type, data) => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type, ...data }));
+        }
+    };
+
+    // Обработка сообщений от клиента
     ws.on('message', async (message) => {
         try {
             const data = JSON.parse(message);
             console.log('[server.js] Received message:', data);
-            
-            // Обработка инициализационного сообщения
-            if (data.type === 'init') {
-                const sessionId = data.sessionId;
-                console.log('[server.js] Received init message with sessionId:', sessionId);
 
-                if (!sessionId) {
+            if (data.type === 'init') {
+                console.log('[server.js] Received init message with sessionId:', data.sessionId);
+                
+                if (!data.sessionId) {
                     console.log('[server.js] No sessionId in init message');
-                    ws.send(JSON.stringify({
-                        type: 'error',
-                        message: 'Требуется авторизация'
-                    }));
+                    sendMessage('error', { message: 'Требуется авторизация' });
                     ws.close();
                     return;
                 }
 
                 // Проверяем сессию в Firebase
-                const sessionSnapshot = await sessionsRef.child(sessionId).once('value');
-                const session = sessionSnapshot.val();
+                const sessionSnapshot = await sessionsRef.child(data.sessionId).once('value');
+                const sessionData = sessionSnapshot.val();
 
-                if (!session) {
-                    console.log('[server.js] Invalid or missing session');
-                    ws.send(JSON.stringify({
-                        type: 'error',
-                        message: 'Требуется авторизация'
-                    }));
+                if (!sessionData) {
+                    console.log('[server.js] Invalid session');
+                    sendMessage('error', { message: 'Недействительная сессия' });
                     ws.close();
                     return;
                 }
 
-                // Проверяем срок действия сессии
-                if (session.expiresAt && Date.now() > session.expiresAt) {
-                    console.log('[server.js] Session expired');
-                    await sessionsRef.child(sessionId).remove();
-                    ws.send(JSON.stringify({
-                        type: 'error',
-                        message: 'Сессия истекла'
-                    }));
+                // Проверяем, не заблокирован ли пользователь
+                const isBlocked = await checkUserBlocked(sessionData.user.id);
+                if (isBlocked) {
+                    console.log('[server.js] User is blocked');
+                    sendMessage('error', { message: 'Ваш аккаунт заблокирован' });
                     ws.close();
                     return;
                 }
 
-                // Проверяем существующее подключение для этого пользователя
-                const existingConnection = userConnections.get(session.userId);
-                if (existingConnection && existingConnection !== ws) {
-                    console.log('[server.js] User already has an active connection, closing old one');
-                    existingConnection.close();
-                }
+                // Сохраняем информацию о пользователе
+                ws.userId = sessionData.user.id;
+                ws.username = sessionData.user.username;
+                ws.isSupport = sessionData.user.isSupport || false;
 
-                // Сохраняем данные пользователя и обновляем маппинг
-                ws.userData = {
-                    id: session.userId,
-                    username: session.username,
-                    discriminator: session.discriminator,
-                    avatar: session.avatar
-                };
-                userConnections.set(session.userId, ws);
-
-                // Отправляем подтверждение подключения
-                ws.send(JSON.stringify({
-                    type: 'status',
-                    message: 'Подключение установлено',
+                // Отправляем подтверждение авторизации
+                sendMessage('status', {
                     authenticated: true,
-                    user: ws.userData
-                }));
+                    user: sessionData.user,
+                    message: 'Вы успешно авторизованы'
+                });
 
                 // Отправляем историю сообщений
-                if (ws.userData) {
-                    const messages = await getRecentMessages();
-                    messages.forEach(msg => {
-                        ws.send(JSON.stringify({
-                            type: 'message',
-                            message: msg.content,
-                            sender: msg.sender,
-                            author: msg.author
-                        }));
-                    });
-                }
+                const messagesSnapshot = await messagesRef.limitToLast(50).once('value');
+                const messages = [];
+                messagesSnapshot.forEach((childSnapshot) => {
+                    messages.push(childSnapshot.val());
+                });
+                sendMessage('history', { messages });
+
             } else if (data.type === 'message') {
-                // Проверяем авторизацию для сообщений
-                if (!ws.userData) {
-                    console.log('[server.js] Unauthorized message attempt');
-                    ws.send(JSON.stringify({
-                        type: 'error',
-                        message: 'Требуется авторизация'
-                    }));
+                if (!ws.userId) {
+                    sendMessage('error', { message: 'Требуется авторизация' });
                     return;
                 }
 
-                const message = {
-                    content: data.message,
-                    sender: ws.userData.id,
-                    author: ws.userData.username,
-                    timestamp: Date.now()
+                const messageData = {
+                    id: Date.now().toString(),
+                    userId: ws.userId,
+                    username: ws.username,
+                    message: data.message,
+                    timestamp: Date.now(),
+                    isSupport: ws.isSupport
                 };
 
-                // Сохраняем сообщение
-                await saveMessage(message);
+                // Сохраняем сообщение в Firebase
+                await messagesRef.push(messageData);
 
-                // Отправляем сообщение всем подключенным клиентам
-                activeConnections.forEach(client => {
-                    if (client !== ws && client.userData) {
+                // Отправляем сообщение всем клиентам
+                wss.clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({
                             type: 'message',
-                            message: message.content,
-                            sender: message.sender,
-                            author: message.author
+                            ...messageData
                         }));
                     }
                 });
+
+            } else if (data.type === 'heartbeat') {
+                // Просто отвечаем на heartbeat
+                sendMessage('heartbeat', { timestamp: Date.now() });
             }
         } catch (error) {
             console.error('[server.js] Error processing message:', error);
-            ws.send(JSON.stringify({
-                type: 'error',
-                message: 'Ошибка обработки сообщения'
-            }));
+            sendMessage('error', { message: 'Ошибка обработки сообщения' });
         }
     });
 
+    // Обработка отключения клиента
     ws.on('close', () => {
         console.log('[server.js] Client disconnected');
-        activeConnections.delete(ws);
-        if (ws.userData) {
-            userConnections.delete(ws.userData.id);
-        }
     });
 
+    // Обработка ошибок
     ws.on('error', (error) => {
         console.error('[server.js] WebSocket error:', error);
-        activeConnections.delete(ws);
-        if (ws.userData) {
-            userConnections.delete(ws.userData.id);
-        }
     });
 });
 
