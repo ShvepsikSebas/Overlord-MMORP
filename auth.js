@@ -118,7 +118,7 @@ router.get('/discord/callback', async (req, res) => {
                 <script>
                     function closeAndNotify() {
                         if (window.opener) {
-                            // Сначала отправляем сообщение об успешной авторизации
+                            // Отправляем данные сессии в родительское окно
                             window.opener.postMessage({ 
                                 type: 'authSuccess', 
                                 sessionId: '${sessionId}',
@@ -130,19 +130,14 @@ router.get('/discord/callback', async (req, res) => {
                                 })}
                             }, '*');
                             
-                            // Даем время на обработку сообщения
-                            setTimeout(() => {
-                                // Перезагружаем родительское окно
-                                window.opener.location.reload();
-                                // Закрываем окно авторизации
-                                window.close();
-                            }, 1000);
+                            // Закрываем окно авторизации
+                            window.close();
                         } else {
                             window.location.href = '/';
                         }
                     }
                     // Даем время на установку cookie
-                    setTimeout(closeAndNotify, 2000);
+                    setTimeout(closeAndNotify, 1000);
                 </script>
             </head>
             <body>
