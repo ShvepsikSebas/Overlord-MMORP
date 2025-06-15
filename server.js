@@ -18,6 +18,16 @@ function parseCookies(cookieHeader) {
     return cookies;
 }
 
+// Инициализация Express приложения
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Создание HTTP сервера
+const server = http.createServer(app);
+
+// Инициализация WebSocket сервера
+const wss = new WebSocketServer({ server });
+
 // Maps to store active connections and channel mappings
 const clients = new Map();
 const discordChannelToClient = new Map();
