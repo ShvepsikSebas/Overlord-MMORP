@@ -2171,10 +2171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('[index.html] Кнопка чата кликнута');
     const isChatVisible = chatContainer.style.display !== "none";
     if (!isChatVisible) {
-      // Проверяем сессию при открытии чата
-      const sessionData = await checkSession();
-      
-      // Show chat interface
+      // Сначала показываем интерфейс чата
       chatContainer.style.display = "block";
       textBox.style.display = "none";
       nextBtn.style.display = "none";
@@ -2183,6 +2180,36 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Добавляем приветственное сообщение
       addMessage('Добро пожаловать в чат поддержки! Здесь вы можете связаться с администрацией проекта.', 'bot');
+      
+      // Затем проверяем сессию
+      try {
+        const sessionData = await checkSession();
+        console.log('[index.html] checkSession returned:', sessionData);
+        
+        if (sessionData.authenticated) {
+          // Если пользователь авторизован, скрываем сообщение об авторизации
+          if (authMessage) authMessage.style.display = 'none';
+          if (chatInput) chatInput.disabled = false;
+          if (sendBtn) sendBtn.disabled = false;
+          if (chatContainer) chatContainer.classList.remove('disabled');
+        } else {
+          // Если пользователь не авторизован, показываем сообщение об авторизации
+          if (authMessage) {
+            authMessage.style.display = 'block';
+            console.log('[index.html] Показываем сообщение об авторизации');
+          }
+          if (chatInput) chatInput.disabled = true;
+          if (sendBtn) sendBtn.disabled = true;
+          if (chatContainer) chatContainer.classList.add('disabled');
+        }
+      } catch (error) {
+        console.error('[index.html] Ошибка при проверке сессии:', error);
+        // В случае ошибки показываем сообщение об авторизации
+        if (authMessage) {
+          authMessage.style.display = 'block';
+          console.log('[index.html] Показываем сообщение об авторизации после ошибки');
+        }
+      }
     }
   });
 
@@ -2192,24 +2219,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch('/auth/session');
       const data = await response.json();
       console.log('[index.html] checkSession returned:', data);
-      
-      if (data.authenticated) {
-        // Если пользователь авторизован, скрываем сообщение об авторизации
-        if (authMessage) authMessage.style.display = 'none';
-        if (chatInput) chatInput.disabled = false;
-        if (sendBtn) sendBtn.disabled = false;
-        if (chatContainer) chatContainer.classList.remove('disabled');
-      } else {
-        // Если пользователь не авторизован, показываем сообщение об авторизации
-        if (authMessage) authMessage.style.display = 'block';
-        if (chatInput) chatInput.disabled = true;
-        if (sendBtn) sendBtn.disabled = true;
-        if (chatContainer) chatContainer.classList.add('disabled');
-      }
-      
       return data;
     } catch (error) {
-      console.error('Ошибка при проверке сессии:', error);
+      console.error('[index.html] Ошибка при проверке сессии:', error);
       return { authenticated: false };
     }
   }
