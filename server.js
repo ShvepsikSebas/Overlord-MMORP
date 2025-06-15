@@ -216,8 +216,17 @@ wss.on('connection', (ws, req) => {
                         }));
                     });
                 }
-            } else if (data.type === 'message' && ws.userData) {
-                // Обработка сообщений чата
+            } else if (data.type === 'message') {
+                // Проверяем авторизацию для сообщений
+                if (!ws.userData) {
+                    console.log('[server.js] Unauthorized message attempt');
+                    ws.send(JSON.stringify({
+                        type: 'error',
+                        message: 'Требуется авторизация'
+                    }));
+                    return;
+                }
+
                 const message = {
                     content: data.message,
                     sender: ws.userData.id,
