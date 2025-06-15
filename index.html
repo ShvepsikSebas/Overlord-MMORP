@@ -1386,79 +1386,43 @@
 
     .announcement-content {
       flex: 1;
-      min-width: 0;
+      min-width: 0; /* Важно для корректного переноса текста */
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .announcement-content h3 {
       color: #b891f9;
       font-size: 1.5em;
-      margin-bottom: 10px;
+      margin: 0;
       word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
     }
 
     .announcement-content p {
       color: #fff;
       font-size: 1.1em;
       line-height: 1.4;
+      margin: 0;
       word-wrap: break-word;
-    }
-
-    @media (max-width: 1200px) {
-      .main-semicircle-left, .main-semicircle-right {
-        width: min(280px, 15vw);
-        height: min(560px, 30vw);
-      }
-      
-      .main-semicircle-left {
-        border-top-right-radius: min(280px, 15vw) min(560px, 30vw);
-        border-bottom-right-radius: min(280px, 15vw) min(560px, 30vw);
-      }
-      
-      .main-semicircle-right {
-        border-top-left-radius: min(280px, 15vw) min(560px, 30vw);
-        border-bottom-left-radius: min(280px, 15vw) min(560px, 30vw);
-      }
-      
-      .side-img {
-        height: min(250px, 20vw);
-      }
-      
-      .side-img.left {
-        left: min(-200px, -8vw);
-      }
-      
-      .side-img.right {
-        right: min(-200px, -8vw);
-      }
+      overflow-wrap: break-word;
+      hyphens: auto;
     }
 
     @media (max-width: 768px) {
-      .main-semicircle-left, .main-semicircle-right {
-        display: none;
-      }
-      
-      .side-img {
-        display: none;
-      }
-      
-      .overlay-title {
-        font-size: min(4em, 10vw);
-      }
-      
-      .overlay-emblem {
-        height: min(120px, 15vw);
-        width: min(120px, 15vw);
-      }
-      
       .announcement-panel {
         width: 85%;
         left: 50%;
         padding: 15px;
+        gap: 15px;
       }
 
       .announcement-panel img {
         width: 80px;
         height: 80px;
+        flex-shrink: 0;
       }
 
       .announcement-content {
@@ -1468,42 +1432,24 @@
 
       .announcement-content h3 {
         font-size: 1.2em;
-        margin-bottom: 8px;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
+        margin-bottom: 5px;
       }
 
       .announcement-content p {
         font-size: 0.9em;
         line-height: 1.3;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
-        margin: 0;
       }
 
       .announcement-board.expanded .announcement-container {
-        height: 160px;
-      }
-
-      .announcement-panel.prev {
-        transform: translateX(calc(-50% + 20%));
-      }
-
-      .announcement-panel.prev2 {
-        transform: translateX(calc(-50% + 40%));
-      }
-
-      .announcement-panel.prev3 {
-        transform: translateX(calc(-50% + 60%));
+        height: 180px; /* Увеличиваем высоту для лучшего отображения текста */
       }
     }
 
     @media (max-width: 480px) {
       .announcement-panel {
         width: 90%;
-        padding: 10px;
+        padding: 12px;
+        gap: 12px;
       }
 
       .announcement-panel img {
@@ -1513,35 +1459,24 @@
 
       .announcement-content h3 {
         font-size: 1.1em;
-        margin-bottom: 5px;
+        margin-bottom: 4px;
       }
 
       .announcement-content p {
-        font-size: 0.8em;
+        font-size: 0.85em;
         line-height: 1.2;
       }
 
       .announcement-board.expanded .announcement-container {
-        height: 140px;
-      }
-
-      .announcement-panel.prev {
-        transform: translateX(calc(-50% + 15%));
-      }
-
-      .announcement-panel.prev2 {
-        transform: translateX(calc(-50% + 30%));
-      }
-
-      .announcement-panel.prev3 {
-        transform: translateX(calc(-50% + 45%));
+        height: 160px;
       }
     }
 
     @media (max-width: 360px) {
       .announcement-panel {
         width: 95%;
-        padding: 8px;
+        padding: 10px;
+        gap: 10px;
       }
 
       .announcement-panel img {
@@ -1551,28 +1486,16 @@
 
       .announcement-content h3 {
         font-size: 1em;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
       }
 
       .announcement-content p {
-        font-size: 0.75em;
+        font-size: 0.8em;
         line-height: 1.1;
       }
 
       .announcement-board.expanded .announcement-container {
-        height: 120px;
-      }
-
-      .announcement-panel.prev {
-        transform: translateX(calc(-50% + 10%));
-      }
-
-      .announcement-panel.prev2 {
-        transform: translateX(calc(-50% + 20%));
-      }
-
-      .announcement-panel.prev3 {
-        transform: translateX(calc(-50% + 30%));
+        height: 140px;
       }
     }
 
