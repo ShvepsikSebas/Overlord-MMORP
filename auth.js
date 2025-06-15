@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch');
 const config = require('./config.json');
-const admin = require('firebase-admin');
+const { db } = require('./firebase');
 
 // Конфигурация Discord OAuth2
 const DISCORD_CLIENT_ID = config.discord.clientId;
@@ -11,7 +11,6 @@ const REDIRECT_URI = config.discord.redirectUri;
 const DISCORD_API_ENDPOINT = 'https://discord.com/api/v10';
 
 // Инициализация Firebase
-const db = admin.database();
 const sessionsRef = db.ref('sessions');
 const blockedUsersRef = db.ref('blockedUsers');
 const authAttemptsRef = db.ref('authAttempts');
