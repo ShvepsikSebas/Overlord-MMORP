@@ -6,6 +6,8 @@ const http = require('http');
 const { router: authRouter, sessionsRef, blockedUsersRef } = require('./auth');
 const cookieParser = require('cookie-parser');
 const { db } = require('./firebase');
+const crypto = require('crypto');
+const fetch = require('node-fetch');
 
 // Функция для парсинга cookies
 function parseCookies(cookieHeader) {
@@ -115,6 +117,150 @@ app.get('/api/announcements', (req, res) => {
     res.json(announcements);
 });
 
+// Хранилище сессий
+const sessions = new Map();
+
+// Middleware для проверки авторизации
+function requireAuth(req, res, next) {
+    if (!req.session || !req.session.discordId) {
+        return res.redirect('/');
+    }
+    next();
+}
+
+// Обработка WebSocket подключений
+wss.on('connection', (ws) => {
+    console.log('[server.js] Client connected via WebSocket');
+    let sessionId = null;
+
+    ws.on('message', (message) => {
+        try {
+            const data = JSON.parse(message);
+            console.log('[server.js] Received message:', data);
+
+            if (data.type === 'init') {
+                sessionId = data.sessionId;
+                console.log('[server.js] Received init message with sessionId:', sessionId);
+
+                if (!sessionId) {
+                    console.log('[server.js] No sessionId in init message');
+                    ws.close();
+                    return;
+                }
+
+                const session = sessions.get(sessionId);
+                if (!session) {
+                    console.log('[server.js] Invalid session');
+                    ws.close();
+                    return;
+                }
+
+                ws.sessionId = sessionId;
+                ws.discordId = session.discordId;
+                ws.username = session.username;
+                ws.avatar = session.avatar;
+
+                // Отправляем историю сообщений
+                const history = Array.from(messages.values()).slice(-50);
+                ws.send(JSON.stringify({
+                    type: 'history',
+                    messages: history
+                }));
+
+                // Добавляем пользователя в список активных
+                activeUsers.set(ws.discordId, {
+                    username: ws.username,
+                    avatar: ws.avatar
+                });
+
+                // Отправляем обновленный список пользователей
+                broadcastUserList();
+            }
+            // ... rest of the WebSocket message handling ...
+        } catch (error) {
+            console.error('[server.js] Error processing message:', error);
+        }
+    });
+
+    ws.on('close', () => {
+        console.log('[server.js] Client disconnected');
+        if (ws.discordId) {
+            activeUsers.delete(ws.discordId);
+            broadcastUserList();
+        }
+    });
+});
+
+// Обработка авторизации через Discord
+app.get('/auth/discord', (req, res) => {
+    const state = crypto.randomBytes(16).toString('hex');
+    req.session.state = state;
+    
+    const params = new URLSearchParams({
+        client_id: process.env.DISCORD_CLIENT_ID,
+        redirect_uri: `${process.env.BASE_URL}/auth/discord/callback`,
+        response_type: 'code',
+        scope: 'identify',
+        state: state
+    });
+
+    res.redirect(`https://discord.com/api/oauth2/authorize?${params}`);
+});
+
+app.get('/auth/discord/callback', async (req, res) => {
+    const { code, state } = req.query;
+
+    if (state !== req.session.state) {
+        return res.status(403).send('Invalid state parameter');
+    }
+
+    try {
+        const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
+            method: 'POST',
+            body: new URLSearchParams({
+                client_id: process.env.DISCORD_CLIENT_ID,
+                client_secret: process.env.DISCORD_CLIENT_SECRET,
+                code,
+                grant_type: 'authorization_code',
+                redirect_uri: `${process.env.BASE_URL}/auth/discord/callback`
+            }),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+
+        const tokens = await tokenResponse.json();
+
+        const userResponse = await fetch('https://discord.com/api/users/@me', {
+            headers: {
+                Authorization: `Bearer ${tokens.access_token}`
+            }
+        });
+
+        const user = await userResponse.json();
+
+        // Создаем сессию
+        const sessionId = crypto.randomBytes(32).toString('hex');
+        sessions.set(sessionId, {
+            discordId: user.id,
+            username: user.username,
+            avatar: user.avatar
+        });
+
+        // Сохраняем информацию в сессии
+        req.session.discordId = user.id;
+        req.session.username = user.username;
+        req.session.avatar = user.avatar;
+        req.session.sessionId = sessionId;
+
+        // Перенаправляем на главную страницу с sessionId
+        res.redirect(`/?sessionId=${sessionId}`);
+    } catch (error) {
+        console.error('Error during Discord authentication:', error);
+        res.status(500).send('Authentication failed');
+    }
+});
+
 // Функция для проверки блокировки пользователя
 async function checkUserBlocked(userId) {
     try {
@@ -156,178 +302,6 @@ function checkRateLimit(userId) {
     messageCounts.set(userId, recentMessages);
     return true;
 }
-
-// WebSocket обработчик
-wss.on('connection', async (ws, req) => {
-    console.log('[server.js] Client connected via WebSocket');
-    
-    // Проверяем количество активных соединений
-    if (activeConnections.size >= MAX_CONNECTIONS) {
-        console.log('[server.js] Too many connections, rejecting');
-        ws.close(1008, 'Too many connections');
-        return;
-    }
-    
-    // Парсим куки из заголовков
-    const cookies = parseCookies(req.headers.cookie || '');
-    const sessionId = cookies.sessionId;
-    
-    // Функция для отправки сообщения клиенту
-    const sendMessage = (type, data) => {
-        if (ws.readyState === WebSocket.OPEN) {
-            try {
-                ws.send(JSON.stringify({ type, ...data }));
-            } catch (error) {
-                console.error('[server.js] Error sending message:', error);
-            }
-        }
-    };
-
-    // Устанавливаем таймаут для неактивных соединений
-    let timeout = setTimeout(() => {
-        if (!ws.userId) {
-            console.log('[server.js] Connection timeout, closing');
-            ws.close(1000, 'Connection timeout');
-        }
-    }, CONNECTION_TIMEOUT);
-
-    // Обработка сообщений от клиента
-    ws.on('message', async (message) => {
-        try {
-            // Проверяем размер сообщения
-            if (message.length > MAX_MESSAGE_SIZE) {
-                sendMessage('error', { message: 'Сообщение слишком большое' });
-                return;
-            }
-
-            const data = JSON.parse(message);
-            console.log('[server.js] Received message:', data);
-
-            if (data.type === 'init') {
-                console.log('[server.js] Received init message with sessionId:', data.sessionId);
-                
-                if (!data.sessionId) {
-                    console.log('[server.js] No sessionId in init message');
-                    sendMessage('error', { message: 'Требуется авторизация' });
-                    ws.close();
-                    return;
-                }
-
-                // Проверяем сессию в Firebase
-                const sessionSnapshot = await sessionsRef.child(data.sessionId).once('value');
-                const sessionData = sessionSnapshot.val();
-
-                if (!sessionData) {
-                    console.log('[server.js] Invalid session');
-                    sendMessage('error', { message: 'Недействительная сессия' });
-                    ws.close();
-                    return;
-                }
-
-                // Проверяем, не заблокирован ли пользователь
-                const isBlocked = await checkUserBlocked(sessionData.user.id);
-                if (isBlocked) {
-                    console.log('[server.js] User is blocked');
-                    sendMessage('error', { message: 'Ваш аккаунт заблокирован' });
-                    ws.close();
-                    return;
-                }
-
-                // Сохраняем информацию о пользователе
-                ws.userId = sessionData.user.id;
-                ws.username = sessionData.user.username;
-                ws.isSupport = sessionData.user.isSupport || false;
-
-                // Добавляем соединение в активные
-                activeConnections.add(ws);
-                userConnections.set(ws.userId, ws);
-
-                // Отправляем подтверждение авторизации
-                sendMessage('status', {
-                    authenticated: true,
-                    user: sessionData.user,
-                    message: 'Вы успешно авторизованы'
-                });
-
-                // Отправляем историю сообщений (только последние 20)
-                const messagesSnapshot = await messagesRef.limitToLast(20).once('value');
-                const messages = [];
-                messagesSnapshot.forEach((childSnapshot) => {
-                    messages.push(childSnapshot.val());
-                });
-                sendMessage('history', { messages });
-
-                // Очищаем таймаут после успешной авторизации
-                clearTimeout(timeout);
-
-            } else if (data.type === 'message') {
-                if (!ws.userId) {
-                    sendMessage('error', { message: 'Требуется авторизация' });
-                    return;
-                }
-
-                // Проверяем rate limit
-                if (!checkRateLimit(ws.userId)) {
-                    sendMessage('error', { message: 'Слишком много сообщений. Пожалуйста, подождите.' });
-                    return;
-                }
-
-                const messageData = {
-                    id: Date.now().toString(),
-                    userId: ws.userId,
-                    username: ws.username,
-                    message: data.message,
-                    timestamp: Date.now(),
-                    isSupport: ws.isSupport
-                };
-
-                // Сохраняем сообщение в Firebase
-                await messagesRef.push(messageData);
-
-                // Отправляем сообщение всем клиентам
-                wss.clients.forEach((client) => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        try {
-                            client.send(JSON.stringify({
-                                type: 'message',
-                                ...messageData
-                            }));
-                        } catch (error) {
-                            console.error('[server.js] Error sending message to client:', error);
-                        }
-                    }
-                });
-
-            } else if (data.type === 'heartbeat') {
-                // Просто отвечаем на heartbeat
-                sendMessage('heartbeat', { timestamp: Date.now() });
-            }
-        } catch (error) {
-            console.error('[server.js] Error processing message:', error);
-            sendMessage('error', { message: 'Ошибка обработки сообщения' });
-        }
-    });
-
-    // Обработка отключения клиента
-    ws.on('close', () => {
-        console.log('[server.js] Client disconnected');
-        activeConnections.delete(ws);
-        if (ws.userId) {
-            userConnections.delete(ws.userId);
-        }
-        clearTimeout(timeout);
-    });
-
-    // Обработка ошибок
-    ws.on('error', (error) => {
-        console.error('[server.js] WebSocket error:', error);
-        activeConnections.delete(ws);
-        if (ws.userId) {
-            userConnections.delete(ws.userId);
-        }
-        clearTimeout(timeout);
-    });
-});
 
 // Функция для получения последних сообщений
 async function getRecentMessages() {
