@@ -115,6 +115,31 @@ app.get('/api/announcements', (req, res) => {
     res.json(announcements);
 });
 
+// Функция для проверки блокировки пользователя
+async function checkUserBlocked(userId) {
+    try {
+        const blockedUsersRef = db.ref('blockedUsers');
+        const snapshot = await blockedUsersRef.child(userId).once('value');
+        const blockedData = snapshot.val();
+        
+        if (!blockedData) {
+            return false;
+        }
+
+        // Проверяем, не истек ли срок блокировки
+        if (blockedData.expiresAt && blockedData.expiresAt < Date.now()) {
+            // Если срок блокировки истек, удаляем запись
+            await blockedUsersRef.child(userId).remove();
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('[server.js] Error checking user block status:', error);
+        return false; // В случае ошибки считаем, что пользователь не заблокирован
+    }
+}
+
 // Функция для проверки rate limit
 function checkRateLimit(userId) {
     const now = Date.now();
