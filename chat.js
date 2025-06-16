@@ -306,6 +306,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const textBox = dialog.querySelector(".dialog-text");
     const chatContainer = dialog.querySelector(".chat-container");
 
+    let phraseIndex = 0;
+    const phrases = window.shvepsikPhrases || [
+        "Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!",
+        "Нажми на слайды — это переходы по разделам.",
+        "Господин Эклер меня убьёт, я должен идти убираться.",
+        "Не забудь зайти на наш Discord сервер, там вы сможете найти новых друзей!",
+        "Поддержать проект можно нажав на панель с донатом.",
+        "Если есть вопросы или заметил неисправность, напиши мне в чате!"
+    ];
+
     // Показываем Швепсика через 2 сек
     if (!localStorage.getItem("hideShvepsik")) {
         setTimeout(() => {
@@ -350,6 +360,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Если чат не открыт - закрываем весь диалог
                 dialog.style.display = "none";
             }
+        });
+    }
+
+    // Кнопка следующей фразы
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+            textBox.textContent = phrases[phraseIndex];
         });
     }
 
