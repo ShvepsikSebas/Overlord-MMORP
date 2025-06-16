@@ -296,6 +296,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Инициализация элементов диалогового окна
+    const container = document.getElementById("helper-container");
+    const img = document.getElementById("helper-img");
+    const dialog = document.getElementById("helper-dialog");
+    const closeBtn = document.getElementById("close-dialog");
+    const nextBtn = document.getElementById("next-phrase");
+    const toggleChatBtn = document.getElementById("toggle-chat");
+    const textBox = dialog.querySelector(".dialog-text");
+    const chatContainer = dialog.querySelector(".chat-container");
+
     // Показываем Швепсика через 2 сек
     if (!localStorage.getItem("hideShvepsik")) {
         setTimeout(() => {
@@ -305,47 +315,66 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 2000);
     }
 
-    // Клик по Швепсику только открывает диалог, если скрыт
-    img.addEventListener("click", () => {
-        if (dialog.style.display === "none") {
-            dialog.style.display = "block";
-        }
-    });
-
-    // Крестик закрывает чат или весь диалог в зависимости от состояния
-    closeBtn.addEventListener("click", () => {
-        const isChatVisible = chatContainer.style.display !== "none";
-        
-        if (isChatVisible) {
-            // Если чат открыт - закрываем только чат
-            chatContainer.style.display = "none";
-            textBox.style.display = "block";
-            nextBtn.style.display = "block";
-            toggleChatBtn.style.display = "block";
-            toggleChatBtn.textContent = "💬";
-            if (dialog.classList.contains('expanded-chat')) {
-                dialog.classList.remove('expanded-chat');
+    // Клик по Швепсику открывает диалог
+    if (img) {
+        img.addEventListener("click", () => {
+            if (dialog.style.display === "none" || !dialog.style.display) {
+                dialog.style.display = "block";
+                // Анимация появления
+                dialog.style.opacity = "0";
+                dialog.style.transform = "scale(0.9)";
+                setTimeout(() => {
+                    dialog.style.opacity = "1";
+                    dialog.style.transform = "scale(1)";
+                }, 10);
             }
-        } else {
-            // Если чат не открыт - закрываем весь диалог
-            dialog.style.display = "none";
-        }
-    });
+        });
+    }
+
+    // Крестик закрывает чат или весь диалог
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            const isChatVisible = chatContainer && chatContainer.style.display !== "none";
+            
+            if (isChatVisible) {
+                // Если чат открыт - закрываем только чат
+                chatContainer.style.display = "none";
+                textBox.style.display = "block";
+                nextBtn.style.display = "block";
+                toggleChatBtn.style.display = "block";
+                toggleChatBtn.textContent = "💬";
+                if (dialog.classList.contains('expanded-chat')) {
+                    dialog.classList.remove('expanded-chat');
+                }
+            } else {
+                // Если чат не открыт - закрываем весь диалог
+                dialog.style.display = "none";
+            }
+        });
+    }
 
     // Кнопка чата
-    toggleChatBtn.addEventListener("click", async () => {
-        const isChatVisible = chatContainer.style.display !== "none";
-        
-        if (!isChatVisible) {
-            // Показываем чат
-            chatContainer.style.display = "block";
-            textBox.style.display = "none";
-            nextBtn.style.display = "none";
-            toggleChatBtn.style.display = "none";
-            dialog.classList.add('expanded-chat');
+    if (toggleChatBtn) {
+        toggleChatBtn.addEventListener("click", async () => {
+            const isChatVisible = chatContainer && chatContainer.style.display !== "none";
             
-            // WebSocket уже подключен через updateUIForAuthenticated после авторизации
-            // Нет необходимости вызывать connectWebSocket() здесь повторно.
-        }
-    });
+            if (!isChatVisible) {
+                // Показываем чат
+                chatContainer.style.display = "block";
+                textBox.style.display = "none";
+                nextBtn.style.display = "none";
+                toggleChatBtn.style.display = "none";
+                dialog.classList.add('expanded-chat');
+                
+                // Проверяем авторизацию
+                const sessionData = await checkSession();
+                if (!sessionData.authenticated) {
+                    const authMessage = chatContainer.querySelector('.auth-message');
+                    if (authMessage) {
+                        authMessage.style.display = 'block';
+                    }
+                }
+            }
+        });
+    }
 }); 
