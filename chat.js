@@ -259,43 +259,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateUIForUnauthenticated();
     }
 
-    // Инициализируем кнопку входа
-    const loginBtn = document.querySelector('.discord-login-btn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            window.location.href = '/auth/discord';
-        });
-    }
-
-    // Добавляем обработчик отправки сообщений
-    const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-message');
-
-    if (chatInput && sendButton) {
-        const sendMessage = () => {
-            if (!isWebSocketReady || !ws || !currentUser) {
-                console.log('[chat.js] Cannot send message: WebSocket not ready or user not authenticated');
-                return;
-            }
-
-            const message = chatInput.value.trim();
-            if (message) {
-                ws.send(JSON.stringify({
-                    type: 'message',
-                    message: message
-                }));
-                chatInput.value = '';
-            }
-        };
-
-        sendButton.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-    }
-
     // Инициализация элементов диалогового окна
     const container = document.getElementById("helper-container");
     const img = document.getElementById("helper-img");
@@ -305,16 +268,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toggleChatBtn = document.getElementById("toggle-chat");
     const textBox = dialog.querySelector(".dialog-text");
     const chatContainer = dialog.querySelector(".chat-container");
+    const authMessage = chatContainer.querySelector(".auth-message");
+    const loginBtn = chatContainer.querySelector(".discord-login-btn");
 
-    let phraseIndex = 0;
-    const phrases = window.shvepsikPhrases || [
-        "Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!",
-        "Нажми на слайды — это переходы по разделам.",
-        "Господин Эклер меня убьёт, я должен идти убираться.",
-        "Не забудь зайти на наш Discord сервер, там вы сможете найти новых друзей!",
-        "Поддержать проект можно нажав на панель с донатом.",
-        "Если есть вопросы или заметил неисправность, напиши мне в чате!"
-    ];
+    // Инициализация кнопки входа через Discord
+    if (loginBtn) {
+        loginBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            console.log('[chat.js] Opening Discord auth popup...');
+            
+            const width = 600;
+            const height = 700;
+            const left = (window.innerWidth - width) / 2;
+            const top = (window.innerHeight - height) / 2;
+            
+            const authWindow = window.open(
+                '/auth/discord',
+                'Discord Auth',
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
+
+            if (!authWindow) {
+                addMessage('Пожалуйста, разрешите всплывающие окна для этого сайта', 'bot');
+                return;
+            }
+
+            // Обработчик сообщений от окна авторизации
+            const messageHandler = function(event) {
+                if (event.data.type === 'authSuccess') {
+                    console.log('[chat.js] Auth success, session ID:', event.data.sessionId);
+                    localStorage.setItem('sessionId', event.data.sessionId);
+                    localStorage.setItem('userData', JSON.stringify(event.data.user));
+                    updateUIForAuthenticated(event.data.user);
+                    window.removeEventListener('message', messageHandler);
+                } else if (event.data.type === 'authError') {
+                    console.error('[chat.js] Auth error:', event.data.error);
+                    addMessage('Ошибка авторизации: ' + event.data.error, 'bot');
+                    window.removeEventListener('message', messageHandler);
+                }
+            };
+
+            window.addEventListener('message', messageHandler);
+        });
+    }
 
     // Показываем Швепсика через 2 сек
     if (!localStorage.getItem("hideShvepsik")) {
@@ -363,14 +359,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Кнопка следующей фразы
-    if (nextBtn) {
-        nextBtn.addEventListener("click", () => {
-            phraseIndex = (phraseIndex + 1) % phrases.length;
-            textBox.textContent = phrases[phraseIndex];
-        });
-    }
-
     // Кнопка чата
     if (toggleChatBtn) {
         toggleChatBtn.addEventListener("click", async () => {
@@ -387,11 +375,49 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Проверяем авторизацию
                 const sessionData = await checkSession();
                 if (!sessionData.authenticated) {
-                    const authMessage = chatContainer.querySelector('.auth-message');
                     if (authMessage) {
                         authMessage.style.display = 'block';
                     }
+                    if (loginBtn) {
+                        loginBtn.style.display = 'flex';
+                    }
+                } else {
+                    if (authMessage) {
+                        authMessage.style.display = 'none';
+                    }
+                    if (loginBtn) {
+                        loginBtn.style.display = 'none';
+                    }
                 }
+            }
+        });
+    }
+
+    // Добавляем обработчик отправки сообщений
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-message');
+
+    if (chatInput && sendButton) {
+        const sendMessage = () => {
+            if (!isWebSocketReady || !ws || !currentUser) {
+                console.log('[chat.js] Cannot send message: WebSocket not ready or user not authenticated');
+                return;
+            }
+
+            const message = chatInput.value.trim();
+            if (message) {
+                ws.send(JSON.stringify({
+                    type: 'message',
+                    message: message
+                }));
+                chatInput.value = '';
+            }
+        };
+
+        sendButton.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
             }
         });
     }
