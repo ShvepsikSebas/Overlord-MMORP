@@ -52,49 +52,57 @@ function closeWebSocket() {
 }
 
 // Функция для обновления UI после авторизации
-function updateUIForAuthenticated(user) {
-    console.log('[chat.js] Updating UI for authenticated user:', user);
-    currentUser = user;
-    
+function updateUIForAuthenticated() {
+    console.log('Updating UI for authenticated user');
     const authMessage = document.querySelector('.auth-message');
-    const loginBtn = document.querySelector('.discord-login-btn');
-    const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-message');
-    const chatContainer = document.querySelector('.chat-input-container');
+    const chatContainer = document.querySelector('.chat-container');
+    const messageInput = document.querySelector('#message-input');
+    const sendButton = document.querySelector('#send-button');
     
-    if (authMessage) authMessage.style.display = 'none';
-    if (loginBtn) loginBtn.style.display = 'none';
-    if (chatInput) chatInput.disabled = false;
-    if (sendButton) sendButton.disabled = false;
-    if (chatContainer) chatContainer.classList.remove('disabled');
-
-    // Подключаем WebSocket только если у нас есть sessionId и нет активного соединения
-    const sessionId = localStorage.getItem('sessionId');
-    if (sessionId && !ws && !isConnecting) {
-        connectWebSocket(sessionId);
+    if (authMessage) {
+        authMessage.style.display = 'none';
+    }
+    
+    if (chatContainer) {
+        chatContainer.classList.add('active');
+        chatContainer.style.display = 'block';
+    }
+    
+    if (messageInput) {
+        messageInput.disabled = false;
+        messageInput.placeholder = 'Введите сообщение...';
+    }
+    
+    if (sendButton) {
+        sendButton.disabled = false;
     }
 }
 
 // Функция для обновления UI при отсутствии авторизации
 function updateUIForUnauthenticated() {
-    console.log('[chat.js] Updating UI for unauthenticated user.');
-    currentUser = null;
-    closeWebSocket();
-    
+    console.log('Updating UI for unauthenticated user');
     const authMessage = document.querySelector('.auth-message');
-    const loginBtn = document.querySelector('.discord-login-btn');
-    const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-message');
-    const chatContainer = document.querySelector('.chat-input-container');
+    const chatContainer = document.querySelector('.chat-container');
+    const messageInput = document.querySelector('#message-input');
+    const sendButton = document.querySelector('#send-button');
     
-    if (authMessage) authMessage.style.display = 'block';
-    if (loginBtn) loginBtn.style.display = 'flex';
-    if (chatInput) {
-        chatInput.disabled = true;
-        chatInput.value = '';
+    if (authMessage) {
+        authMessage.style.display = 'block';
     }
-    if (sendButton) sendButton.disabled = true;
-    if (chatContainer) chatContainer.classList.add('disabled');
+    
+    if (chatContainer) {
+        chatContainer.classList.remove('active');
+        chatContainer.style.display = 'none';
+    }
+    
+    if (messageInput) {
+        messageInput.disabled = true;
+        messageInput.placeholder = 'Войдите через Discord для отправки сообщений';
+    }
+    
+    if (sendButton) {
+        sendButton.disabled = true;
+    }
 }
 
 // Функция для добавления сообщения в чат
@@ -184,7 +192,7 @@ function connectWebSocket(sessionId) {
                 isWebSocketReady = true;
                 isConnecting = false;
                 reconnectAttempts = 0;
-                updateUIForAuthenticated(data.user);
+                updateUIForAuthenticated();
             }
         } else if (data.type === 'error') {
             addMessage(data.message, 'bot');
@@ -251,7 +259,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (sessionData.authenticated) {
         const sessionId = localStorage.getItem('sessionId');
         if (sessionId) {
-            updateUIForAuthenticated(sessionData.user);
+            updateUIForAuthenticated();
         } else {
             updateUIForUnauthenticated();
         }
@@ -295,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.log('[chat.js] Auth success, session ID:', event.data.sessionId);
                 localStorage.setItem('sessionId', event.data.sessionId);
                 localStorage.setItem('userData', JSON.stringify(event.data.user));
-                updateUIForAuthenticated(event.data.user);
+                updateUIForAuthenticated();
                 window.removeEventListener('message', messageHandler);
             } else if (event.data.type === 'authError') {
                 console.error('[chat.js] Auth error:', event.data.error);
@@ -423,6 +431,47 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (e.key === 'Enter') {
                 sendMessage();
             }
+        });
+    }
+});
+
+// Обновляем функцию toggleChat
+function toggleChat() {
+    const dialog = document.getElementById('helper-dialog');
+    const chatContainer = document.querySelector('.chat-container');
+    const textBox = document.querySelector('.text-box');
+    
+    if (dialog.classList.contains('expanded-chat')) {
+        // Если чат уже открыт, закрываем его
+        dialog.classList.remove('expanded-chat');
+        chatContainer.style.display = 'none';
+        textBox.style.display = 'block';
+    } else {
+        // Если чат закрыт, открываем его
+        dialog.classList.add('expanded-chat');
+        textBox.style.display = 'none';
+        chatContainer.style.display = 'block';
+        
+        // Проверяем авторизацию при открытии чата
+        checkSession().then(isAuthenticated => {
+            if (isAuthenticated) {
+                updateUIForAuthenticated();
+            } else {
+                updateUIForUnauthenticated();
+            }
+        });
+    }
+}
+
+// Обновляем обработчик кнопки авторизации
+document.addEventListener('DOMContentLoaded', function() {
+    const discordLoginBtn = document.querySelector('.discord-login-btn');
+    if (discordLoginBtn) {
+        discordLoginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Discord login button clicked');
+            openDiscordAuth();
         });
     }
 }); 
