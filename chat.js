@@ -271,44 +271,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     const authMessage = chatContainer.querySelector(".auth-message");
     const loginBtn = chatContainer.querySelector(".discord-login-btn");
 
+    // Функция для открытия окна авторизации
+    function openDiscordAuth() {
+        const width = 600;
+        const height = 700;
+        const left = (window.innerWidth - width) / 2;
+        const top = (window.innerHeight - height) / 2;
+        
+        const authWindow = window.open(
+            '/auth/discord',
+            'Discord Auth',
+            `width=${width},height=${height},left=${left},top=${top}`
+        );
+
+        if (!authWindow) {
+            addMessage('Пожалуйста, разрешите всплывающие окна для этого сайта', 'bot');
+            return;
+        }
+
+        // Обработчик сообщений от окна авторизации
+        const messageHandler = function(event) {
+            if (event.data.type === 'authSuccess') {
+                console.log('[chat.js] Auth success, session ID:', event.data.sessionId);
+                localStorage.setItem('sessionId', event.data.sessionId);
+                localStorage.setItem('userData', JSON.stringify(event.data.user));
+                updateUIForAuthenticated(event.data.user);
+                window.removeEventListener('message', messageHandler);
+            } else if (event.data.type === 'authError') {
+                console.error('[chat.js] Auth error:', event.data.error);
+                addMessage('Ошибка авторизации: ' + event.data.error, 'bot');
+                window.removeEventListener('message', messageHandler);
+            }
+        };
+
+        window.addEventListener('message', messageHandler);
+    }
+
     // Инициализация кнопки входа через Discord
     if (loginBtn) {
         loginBtn.addEventListener('click', (event) => {
             event.preventDefault();
             console.log('[chat.js] Opening Discord auth popup...');
-            
-            const width = 600;
-            const height = 700;
-            const left = (window.innerWidth - width) / 2;
-            const top = (window.innerHeight - height) / 2;
-            
-            const authWindow = window.open(
-                '/auth/discord',
-                'Discord Auth',
-                `width=${width},height=${height},left=${left},top=${top}`
-            );
-
-            if (!authWindow) {
-                addMessage('Пожалуйста, разрешите всплывающие окна для этого сайта', 'bot');
-                return;
-            }
-
-            // Обработчик сообщений от окна авторизации
-            const messageHandler = function(event) {
-                if (event.data.type === 'authSuccess') {
-                    console.log('[chat.js] Auth success, session ID:', event.data.sessionId);
-                    localStorage.setItem('sessionId', event.data.sessionId);
-                    localStorage.setItem('userData', JSON.stringify(event.data.user));
-                    updateUIForAuthenticated(event.data.user);
-                    window.removeEventListener('message', messageHandler);
-                } else if (event.data.type === 'authError') {
-                    console.error('[chat.js] Auth error:', event.data.error);
-                    addMessage('Ошибка авторизации: ' + event.data.error, 'bot');
-                    window.removeEventListener('message', messageHandler);
-                }
-            };
-
-            window.addEventListener('message', messageHandler);
+            openDiscordAuth();
         });
     }
 
