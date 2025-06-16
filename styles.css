@@ -901,6 +901,8 @@ footer {
     display: block !important;
     position: relative;
     z-index: 1000;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .auth-message p {
@@ -925,6 +927,8 @@ footer {
     max-width: 250px;
     position: relative;
     z-index: 1000;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .discord-login-btn:hover {
@@ -950,6 +954,8 @@ footer {
 
 .chat-container.active {
     display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .chat-input-container {
@@ -958,6 +964,8 @@ footer {
     margin-top: 10px;
     position: relative;
     z-index: 999;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 #message-input {
@@ -968,6 +976,8 @@ footer {
     background: rgba(28,28,46,0.7);
     color: #fff;
     font-size: 14px;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 #message-input:disabled {
@@ -984,6 +994,8 @@ footer {
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s ease;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 #send-button:disabled {
