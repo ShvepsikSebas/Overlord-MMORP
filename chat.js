@@ -59,15 +59,18 @@ function updateUIForAuthenticated() {
     const messageInput = document.querySelector('#message-input');
     const sendButton = document.querySelector('#send-button');
     
+    // Скрываем сообщение об авторизации
     if (authMessage) {
         authMessage.style.display = 'none';
     }
     
+    // Показываем чат
     if (chatContainer) {
         chatContainer.classList.add('active');
         chatContainer.style.display = 'block';
     }
     
+    // Активируем поле ввода и кнопку отправки
     if (messageInput) {
         messageInput.disabled = false;
         messageInput.placeholder = 'Введите сообщение...';
@@ -75,6 +78,12 @@ function updateUIForAuthenticated() {
     
     if (sendButton) {
         sendButton.disabled = false;
+    }
+
+    // Подключаем WebSocket
+    const sessionId = localStorage.getItem('sessionId');
+    if (sessionId && !ws && !isConnecting) {
+        connectWebSocket(sessionId);
     }
 }
 
@@ -86,15 +95,18 @@ function updateUIForUnauthenticated() {
     const messageInput = document.querySelector('#message-input');
     const sendButton = document.querySelector('#send-button');
     
+    // Показываем сообщение об авторизации
     if (authMessage) {
         authMessage.style.display = 'block';
     }
     
+    // Скрываем чат
     if (chatContainer) {
         chatContainer.classList.remove('active');
         chatContainer.style.display = 'none';
     }
     
+    // Деактивируем поле ввода и кнопку отправки
     if (messageInput) {
         messageInput.disabled = true;
         messageInput.placeholder = 'Войдите через Discord для отправки сообщений';
@@ -103,6 +115,9 @@ function updateUIForUnauthenticated() {
     if (sendButton) {
         sendButton.disabled = true;
     }
+
+    // Закрываем WebSocket соединение
+    closeWebSocket();
 }
 
 // Функция для добавления сообщения в чат
@@ -474,4 +489,13 @@ document.addEventListener('DOMContentLoaded', function() {
             openDiscordAuth();
         });
     }
+
+    // Проверяем авторизацию при загрузке страницы
+    checkSession().then(isAuthenticated => {
+        if (isAuthenticated) {
+            updateUIForAuthenticated();
+        } else {
+            updateUIForUnauthenticated();
+        }
+    });
 }); 
