@@ -2068,7 +2068,7 @@ z-index: 5;
     <div class="dialog-text">
       Привет! Я Швепсик, заместитель Эклера. Нажми на стрелочку, чтобы узнать больше!
     </div>
-    <div class="chat-container" style="display: none;">
+    <div class="chat-container">
       <div class="auth-message">
         <p>Для использования чата необходимо авторизоваться через Discord</p>
         <button class="discord-login-btn">
@@ -2077,9 +2077,9 @@ z-index: 5;
         </button>
       </div>
       <div class="chat-messages"></div>
-      <div class="chat-input-container disabled">
-        <input type="text" id="chat-input" placeholder="Введите сообщение..." disabled>
-        <button id="send-message" disabled>Отправить</button>
+      <div class="chat-input-container">
+        <input type="text" id="message-input" placeholder="Введите сообщение..." disabled>
+        <button id="send-button" disabled>Отправить</button>
       </div>
     </div>
     <span id="close-dialog" title="Закрыть">✖</span>
