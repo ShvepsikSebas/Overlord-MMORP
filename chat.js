@@ -7,6 +7,10 @@ const RECONNECT_DELAY = 3000;
 let reconnectTimeout = null;
 let currentUser = null;
 
+// Инициализация WebSocket
+let socket = null;
+let isAuthenticated = false;
+
 // Функция для добавления сообщения в чат
 function addMessage(message, type = 'user', author = '') {
     const chatMessages = document.querySelector('.chat-messages');
@@ -164,43 +168,34 @@ function initDiscordLogin() {
     }
 }
 
-// Инициализация WebSocket connection
-function connectWebSocket(sessionId) {
-    if (!sessionId) {
-        console.error('[chat.js] No sessionId provided for WebSocket connection');
+// Функция для инициализации WebSocket
+function initializeWebSocket() {
+    if (!isAuthenticated) {
+        console.log('Waiting for Discord authentication...');
         return;
     }
 
-    if (isConnecting) {
-        console.log('[chat.js] WebSocket connection already in progress');
-        return;
+    if (socket) {
+        socket.close();
     }
 
-    if (ws) {
-        console.log('[chat.js] Closing existing WebSocket connection');
-        ws.close();
-        ws = null;
-    }
+    // Создаем WebSocket соединение
+    socket = new WebSocket(`ws://${window.location.host}`);
 
-    isConnecting = true;
-    console.log(`[chat.js] Connecting WebSocket with session ID: ${sessionId}`);
-    
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
-    
-    ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-        console.log('[chat.js] WebSocket connected');
-        const initMessage = { 
-            type: 'init', 
-            sessionId: sessionId 
-        };
-        console.log('[chat.js] Sending init message:', initMessage);
-        ws.send(JSON.stringify(initMessage));
+    // Обработчик открытия соединения
+    socket.onopen = () => {
+        console.log('WebSocket connection established');
+        // Отправляем init сообщение с sessionId
+        const sessionId = localStorage.getItem('discord_session_id');
+        if (sessionId) {
+            socket.send(JSON.stringify({
+                type: 'init',
+                sessionId: sessionId
+            }));
+        }
     };
 
-    ws.onmessage = event => {
+    socket.onmessage = event => {
         const data = JSON.parse(event.data);
         console.log('[chat.js] Received WebSocket message:', data);
         
@@ -232,25 +227,25 @@ function connectWebSocket(sessionId) {
         }
     };
 
-    ws.onclose = () => {
+    socket.onclose = () => {
         console.log('[chat.js] WebSocket disconnected');
         isWebSocketReady = false;
         isConnecting = false;
         
         // Пытаемся переподключиться только если у нас есть sessionId и это не было принудительное закрытие
         const sessionId = localStorage.getItem('sessionId');
-        if (sessionId && !ws.forceClosed) {
+        if (sessionId && !socket.forceClosed) {
             reconnectWebSocket();
         }
     };
 
-    ws.onerror = error => {
+    socket.onerror = error => {
         console.error('[chat.js] WebSocket error:', error);
         isConnecting = false;
-        if (ws) {
-            ws.forceClosed = true;
-            ws.close();
-            ws = null;
+        if (socket) {
+            socket.forceClosed = true;
+            socket.close();
+            socket = null;
         }
     };
 }
@@ -271,7 +266,7 @@ function reconnectWebSocket() {
         const sessionId = localStorage.getItem('sessionId');
         if (sessionId) {
             console.log(`[chat.js] Attempting to reconnect (attempt ${reconnectAttempts + 1}/${MAX_RECONNECT_ATTEMPTS})`);
-            connectWebSocket(sessionId);
+            initializeWebSocket();
             reconnectAttempts++;
         }
     }, RECONNECT_DELAY);
@@ -298,22 +293,53 @@ function updateUIForAuthenticated(user) {
     const sessionId = localStorage.getItem('sessionId');
     if (sessionId && !isConnecting) {
         reconnectAttempts = 0;
-        connectWebSocket(sessionId);
+        initializeWebSocket();
     }
 }
+
+// Функция для обработки успешной авторизации через Discord
+function handleDiscordAuth(sessionId) {
+    isAuthenticated = true;
+    localStorage.setItem('discord_session_id', sessionId);
+    document.getElementById('loginButton').style.display = 'none';
+    document.getElementById('userInfo').style.display = 'block';
+    document.getElementById('messageInput').disabled = false;
+    document.getElementById('sendButton').disabled = false;
+    
+    // Инициализируем WebSocket после успешной авторизации
+    initializeWebSocket();
+}
+
+// Обработчик клика по кнопке Discord
+document.getElementById('loginButton').addEventListener('click', () => {
+    window.location.href = '/auth/discord';
+});
+
+// Проверяем авторизацию при загрузке страницы
+window.addEventListener('load', () => {
+    const sessionId = localStorage.getItem('discord_session_id');
+    if (sessionId) {
+        handleDiscordAuth(sessionId);
+    } else {
+        document.getElementById('loginButton').style.display = 'block';
+        document.getElementById('userInfo').style.display = 'none';
+        document.getElementById('messageInput').disabled = true;
+        document.getElementById('sendButton').disabled = true;
+    }
+});
 
 // Запретить отправку сообщений без авторизации
 const chatInput = document.getElementById('chat-input');
 const sendButton = document.getElementById('send-message');
 if (chatInput && sendButton) {
     const sendMessage = () => {
-        if (!isWebSocketReady || !ws || !currentUser) {
+        if (!isWebSocketReady || !socket || !currentUser) {
             console.log('[chat.js] Cannot send message: WebSocket not ready or user not authenticated');
             return;
         }
         const message = chatInput.value.trim();
         if (message) {
-            ws.send(JSON.stringify({
+            socket.send(JSON.stringify({
                 type: 'message',
                 message: message
             }));
