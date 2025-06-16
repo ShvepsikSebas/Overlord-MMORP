@@ -898,7 +898,7 @@ footer {
     border-radius: 5px;
     margin-bottom: 10px;
     color: #fff;
-    display: block;
+    display: block !important;
 }
 
 .auth-message p {
@@ -907,7 +907,7 @@ footer {
 }
 
 .discord-login-btn {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     background: #5865F2;
@@ -918,7 +918,7 @@ footer {
     margin: 10px auto;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
     width: 100%;
     max-width: 250px;
 }
@@ -926,10 +926,22 @@ footer {
 .discord-login-btn:hover {
     background: #4752C4;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
 }
 
 .discord-login-btn img {
     width: 20px;
     height: 20px;
     margin-right: 8px;
+}
+
+.chat-container {
+    margin-top: 10px;
+    border-top: 1px solid rgba(184,145,249,0.3);
+    padding-top: 10px;
+    display: none;
+}
+
+.chat-container.active {
+    display: block;
 } 
